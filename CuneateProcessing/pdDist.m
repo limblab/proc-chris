@@ -11,9 +11,9 @@ for i = 1:height(ex.bin.pdData)
         if strcmp(arrName{i},'Cuneate')
             polar(theta, rho, 'b')
             hold on
-        else
-            polar(theta, rho, 'r')
-            hold on
+%         else
+%             polar(theta, rho, 'r')
+%             hold on
         end
     end
 end
@@ -31,9 +31,9 @@ for i = 1:height(ex.bin.pdData)
         if strcmp(arrName{i},'Cuneate')
             polar(theta, rho, 'b')
             hold on
-        else
-            polar(theta, rho, 'r')
-            hold on
+%         else
+%             polar(theta, rho, 'r')
+%             hold on
         end
     end
 end

@@ -153,6 +153,9 @@ else
        
     if t==1 %First frame
         %For now, all of the clusters have to be present in the first frame analyzed
+        if curr_num_clust>num_clust
+            meds(curr_num_clust,:) = [];
+        end
         medians(:,:,t)=meds;
         medians2(:,:,t)=meds;
         meds2=meds;

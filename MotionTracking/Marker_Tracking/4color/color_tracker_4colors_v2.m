@@ -47,14 +47,14 @@ exp='RW_PM';
 num='002';
 
 % Load ColorTracking File and Settings
-fname_load=ls([main_dir monkey '/Color_Tracking/' date '/Tracking/color_tracking ' exp '_' num '*']);
-load(deblank(fname_load))
+% fname_load=ls([main_dir monkey '/Color_Tracking/' date '/Tracking/color_tracking ' exp '_' num '*']);
+% load(deblank(fname_load))
 
 % Rename data from loaded file (if it's in the new format)
 if exist('color_coords_allframes','var')
-    color1=color_coords_allframes(:,1)';
+    color1=color_coords_allframes(:,3)';
     color2=color_coords_allframes(:,2)';
-    color3=color_coords_allframes(:,3)';
+    color3=color_coords_allframes(:,1)';
     color4=color_coords_allframes(:,4)';
 end
 
@@ -79,11 +79,11 @@ end
 
 
 %TIME INITIALIZATIONS
-start=1; %Time point we're starting at. Importantly, this script is
+start=450; %Time point we're starting at. Importantly, this script is
 %currently set up to require that all markers are visible during the "start" frame.
 %Thus, the user can use  the script "original_colors_plots_4colors" to find
 %the first frame where all markers are visible.
-
+% 
 n=length(color1);
 finish=n; %Time point we're finishing at
 n_times=finish-start+1; %Number of time points (frames)
@@ -673,8 +673,8 @@ marker_ids=green_elbow_marker_ids;
 color=color2;
 prev_meds=marker_inits(marker_ids,:);
 num_clust=length(marker_ids);
-within_clust_dist1=.07;
-dist_min=0.07;
+within_clust_dist1=.2;
+dist_min=0.3;
 
 medians=NaN(num_clust,3,n_times);
 medians2=NaN(num_clust,3,n_times);
@@ -707,8 +707,8 @@ for i=start:finish
     
     %Also use distance from red elbow marker
     D2=pdist2(loc,all_medians(10,:,t));
-    keep2=D2<.03; %Keep points that are close to red elbow marker
-    rmv0=D2>.03; %Remove points that are too far from red elbow marker
+    keep2=D2<.2; %Keep points that are close to red elbow marker
+    rmv0=D2>.2; %Remove points that are too far from red elbow marker
     
     rmv=~(keep1|keep2) | rmv0; %Keep points that are either close enough to
     %the previous marker or the red elbow marker. Additionally, remove
@@ -2397,11 +2397,11 @@ all_medians2(:,:,start:finish)=temp2;
 %% Save
 if savefile
     date2=['20' num2str(date(7:8)) num2str(date(1:2)) num2str(date(4:5))];
-    fname_save=[main_dir monkey '/Color_Tracking/' date '/Markers/markers_' monkey '_' date2 '_' exp '_' num];
+    fname_save=['C:\Users\csv057\Documents\MATLAB\MonkeyData\Stability\Lando\markers_Lando_04182017_RW_002'];
     save(fname_save,'all_medians','all_medians2','led_vals','times');
     
     if first_time
-        fname_save_settings=[main_dir monkey '/Color_Tracking/' date '/Markers/settings_' monkey '_' date2];
+        fname_save_settings=['C:\Users\csv057\Documents\MATLAB\MonkeyData\Stability\Lando\settings_Lando_04182017_RW_002'];
         save(fname_save_settings,'red_elbow_dist_from_blue','red_blue_arm_dist_max',...
             'green_hand_dists_elbow','red_hand_dists_elbow','blue_hand_dists_elbow','yellow_hand_dists_elbow','green_separator',...
             'green_hand_dists_bluearm','red_hand_dists_bluearm','blue_hand_dists_bluearm','yellow_hand_dists_bluearm',...

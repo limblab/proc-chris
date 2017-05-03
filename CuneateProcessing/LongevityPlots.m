@@ -1,9 +1,11 @@
-daysLando1 =daysLando(2:end);
-unitsLando1= unitsLando(2:end);
-daysHan1= daysHan(2:end);
-unitsHan1=unitsHan(2:end);
-daysKramer1=daysKramer(2:end);
-unitsKramer1=unitsKramer(2:end);
+daysLando1 =daysLando;
+unitsLando1= unitsLando;
+daysHan1= daysHan;
+unitsHan1=unitsHan;
+daysKramer1=daysKramer;
+unitsKramer1=unitsKramer;
+daysTequila1 = daysTequila;
+unitsTequila1 = unitsTequila;
 unitsOlive = 58;
 daysOlive =  9;
 

@@ -9,7 +9,7 @@ function [ kinect_times ] = match_squarewave_main( bdf, led_vals, times, kinect_
 analog_ts = bdf.analog.ts';
 
 % find KinectSyncPulse signal
-pulse_idx = strcmp(bdf.analog.channel,'KinectSyncPulse');
+pulse_idx = strcmp(bdf.analog.channel,'SyncPulse');
 KinectSyncPulse = bdf.analog.data(:,pulse_idx);
 
 %Clean up the squarewave
@@ -21,7 +21,6 @@ cerebus_start=analog_ts(start_ind);
 
 
 %% Find the time shift
-
 [output,fval]=fminsearch(@(x) match_squarewave_func(x, led_vals, KinectSquare, times, analog_ts),[cerebus_start-kinect_start_guess 1/(2*mean(led_vals))]);
 
 %% Update the kinect times

@@ -1,12 +1,13 @@
 clear all
 close all
-load('Lando3142017COactpasCDS.mat')
+load('Lando20170314COactpasCDS.mat')
 
 params.event_list = {'bumpTime'; 'ctrHoldTime'; 'bumpDir'};
 td = parseFileByTrial(cds, params);
 before = .2;
 after = .25;
-unitsToPlot = [1:39];
+cuneateUnits= cds.units(strcmp({cds.units.array}, 'Cuneate') & [cds.units.ID] >0 & [cds.units.ID]<255);
+unitsToPlot = [1:length(cuneateUnits)];
 %% Data Preparation and sorting out trials
 bumpTrials = td(~isnan([td.bumpDir])); 
 upBump = bumpTrials([bumpTrials.bumpDir] == 90);

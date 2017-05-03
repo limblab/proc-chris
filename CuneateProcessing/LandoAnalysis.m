@@ -6,24 +6,19 @@
     ranBy='ranByChris';
     monkey='monkeyLando';
     task='taskCObump';
-    array='arrayS1';
     %note the .nev extension is not necessary when providing the file name:
-    fname='C:\Users\csv057\Documents\MATLAB\MonkeyData\Lando_20170314_COactpas_LeftS1_001-sorted';
+    fname='C:\Users\csv057\Documents\MATLAB\MonkeyData\Lando_20170320_COactpas_RightCuneate_001-sorted';
 
 %% load data into cds:
     %make blank cds class:
     cds=commonDataStructure();
     %load the data:
-    cds.file2cds(fname,lab,array,monkey,task,ranBy,'ignoreJumps')
-    
     array='arrayCuneate';
     %note the .nev extension is not necessary when providing the file name:
-    fname='C:\Users\csv057\Documents\MATLAB\MonkeyData\Lando_20170314_COactpas_RightCuneate_001-sorted';
     cds.file2cds(fname,lab,array,monkey,task,ranBy,'ignoreJumps')
     % cds may be saved or passeclear alld as an output argument
     %saving classes REQUIRES the 'v7.3' flag, or the command will fail silently
     %and just save a tiny useless file
-
 %% import data from cds to experiment:
     %make a blank experiment:
     ex=experiment();
