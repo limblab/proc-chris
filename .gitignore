@@ -60,6 +60,7 @@ Thumbs.db
 *.pptx
 *.doc
 *.docx
+*.trc
 
 # Video formats
 *.avi
