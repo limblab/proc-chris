@@ -1,42 +1,7 @@
-%template script to load nev and nsx data into matlab using the
-%ClassyDataAnalysis package:
-
-%% establish input configuration for loading:
-    lab=6;
-    ranBy='ranByChris';
-    monkey='monkeyLando';
-    task='taskUnknown';
-    %note the .nev extension is not necessary when providing the file name:
-    fname='C:\Users\csv057\Documents\MATLAB\MonkeyData\RawData\Lando\20170511\Lando_20170511_SpindleStim_LeftS1_Unit65Vi';
-
-%% load data into cds:
-    %make blank cds class:
-    cds=commonDataStructure();
-    %load the data:
-    array='arrayS1';
-    %note the .nev extension is not necessary when providing the file name:
-    cds.file2cds(fname,lab,array,monkey,task,ranBy,'ignoreJumps')
-    % cds may be saved or passeclear alld as an output argument
-    %saving classes REQUIRES the 'v7.3' flag, or the command will fail silently
-    %and just save a tiny useless file
-        lab=6;
-    ranBy='ranByChris';
-    monkey='monkeyLando';
-    task='taskUnknown';
-    %note the .nev extension is not necessary when providing the file name:
-    fname='C:\Users\csv057\Documents\MATLAB\MonkeyData\RawData\Lando\20170511\Lando_20170511_SpindleStim_LeftS1_Unit91Brachialis_006';
-
-%% load data into cds:
-    %make blank cds class:
-    %load the data:
-    array='arrayRightCuneate';
-    fname='C:\Users\csv057\Documents\MATLAB\MonkeyData\RawData\Lando\20170511\Lando_20170511_SpindleStim_RightCuneate_Unit91Brachialis_006';
-
-    cds.file2cds(fname,lab,array,monkey,task,ranBy,'ignoreJumps')
-
-%% import data from cds to experiment:
-    %make a blank experiment:
-    ex=experiment();
+function [ ex ] = runExperiment( cds)
+%UNTITLED2 Summary of this function goes here
+%   Detailed explanation goes here
+ex=experiment();
     %configure the parameters we want to load into the experiment:
     ex.meta.hasLfp=false;
     ex.meta.hasKinematics=true;
@@ -96,4 +61,6 @@
     %still need to add a label to tell us what the analysis was later on:
     ex.analysis(end).notes='force PDs computed during bumps';
 
+
+end
 

@@ -1,5 +1,5 @@
 close all
-v=  VideoWriter('RandomWalk20170420RightCuneate.avi');
+v=  VideoWriter('RandomWalk20170511RightCuneate.avi');
 open(v)
 fig1 = figure;
 xmin = -15;
@@ -8,7 +8,7 @@ ymin = -50;
 ymax = -18;
 sortedIndex = [cds.units.ID]>0;
 invalidIndex = [cds.units.ID]<255;
-cuneateIndex = strcmp({cds.units.array}, 'Cuneate');
+cuneateIndex = strcmp({cds.units.array}, 'RightCuneate');
 unitList = cds.units(sortedIndex & invalidIndex & cuneateIndex);
 spikeIndex = 0;
 tStartVid = 500;

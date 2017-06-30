@@ -1,6 +1,6 @@
 % clear all
 close all
-% load('Lando3202017COactpasCDS.mat')
+%load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
 savePlots = 0;
 params.event_list = {'bumpTime'; 'ctrHoldTime'; 'bumpDir'};
@@ -18,7 +18,8 @@ for i = 1:length(td)
 end
 %  unitsToPlot = [28]; %Bump Tuned
 % unitsToPlot = [3,4,5,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,28,29,31,36,38]; % MoveTuned
- unitsToPlot = [1:length(td(1).Cuneate_spikes(1,:))];
+numCount = 1:length(td(1).Cuneate_spikes(1,:));
+unitsToPlot = numCount;
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 

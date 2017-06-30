@@ -1,6 +1,6 @@
 %% load file
-folder = 'C:\Users\rhc307\Documents\Data\experiment_20151120_RW_003\';
-prefix = 'Chips_20151120_RW_003';
+folder = 'C:\Users\csv057\Documents\MATLAB\MonkeyData\RawData\Lando\20170505\';
+prefix = 'Lando_20170505_SpindleStim_RightCuneate_004';
 bdf = get_nev_mat_data([folder prefix],6,'ignore_jumps');
 
 %% load color tracking
