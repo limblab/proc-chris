@@ -1,8 +1,8 @@
-date = '20170511';
-task = 'SpindleStim';
+date = '20170303';
+task = 'RWIso';
 monkey = 'Lando';
 array = {'LeftS1', 'RightCuneate'};
-number = 2;
+number = 1;
 cds = easyCDS(monkey, task, date, array, number, {true,true});
 outpath = getCdsSavePath(monkey, date);
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS.mat'];
