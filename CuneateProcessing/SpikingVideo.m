@@ -1,5 +1,5 @@
 close all
-v=  VideoWriter('RandomWalk20170511RightCuneate.avi');
+v=  VideoWriter('RandomWalk20170511RightCuneateSortedUnit.avi');
 open(v)
 fig1 = figure;
 xmin = -15;
@@ -11,7 +11,7 @@ invalidIndex = [cds.units.ID]<255;
 cuneateIndex = strcmp({cds.units.array}, 'RightCuneate');
 unitList = cds.units(sortedIndex & invalidIndex & cuneateIndex);
 spikeIndex = 0;
-tStartVid = 500;
+tStartVid = 1;
 for i = tStartVid:height(cds.force)-1000
     time = i*.01;
     sp1 = subplot(2,1,1);
@@ -35,6 +35,7 @@ for i = tStartVid:height(cds.force)-1000
             end
         end
         xlim([0,5])
+        ylim([-1, length(unitList)])
         hold off
         drawnow;
     end
