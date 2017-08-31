@@ -1,5 +1,5 @@
-load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170511\TD\Lando_RW_20170511_TD.mat')
-load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170511\Lando_RW_20170511_2_CDS.mat')
+load('D:\Data\Lando_RW_20170511_TD.mat')
+load('D:\Data\Lando_RW_20170511_2_CDS.mat')
 td = binTD(td, 5);
 
 cuneateSpikes = cat(1, td.RightCuneate_spikes);
@@ -41,11 +41,11 @@ end
 hasanMuscles = goodMuscles;
 
 %%
-for i = 1
+for i = 1:39
     [ t,mu,dmudt,spindleOut(:,i)] = runHasan(goodMuscles(:,i),goodMuscles(:,i+39), 1);
     disp(num2str(i))
 end
-path1='C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170511\';
+path1='D:\Data\HasanModel\';
 fileN = [path1, 'Lando_20170511_CompiledMeters'];
 save(fileN, 'spindleOut', 'goodVel', 'goodMuscles', 'goodDoFs', 'goodPos', 'goodAcc', 'goodCuneate', 'goodS1');
 %%
