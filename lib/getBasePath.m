@@ -3,7 +3,7 @@ function [ path ] = getBasePath( monkey )
     if strcmp(compName, 'FSM8M1SMD2')
         whichComp = 'GOB2';
         path = ['C:\Users\csv057\Documents\MATLAB\MonkeyData\RawData\', monkey, '\'];
-    elseif strcmp(compName, 'Chris-desktop')
+    elseif strcmp(compName, 'DESKTOP')
         whichComp = 'home';
         path = ['C:\Users\wrest_000\Documents\MATLAB\MonkeyData\RawData\',monkey,'\'];
     elseif strcmp(compName, 'RESEARCHPC')
