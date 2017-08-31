@@ -1,12 +1,12 @@
 close all
-v=  VideoWriter('RandomWalk20170511RightCuneateSortedUnit.avi');
+v=  VideoWriter('RandomWalk20170223RightCuneate.avi');
 open(v)
 fig1 = figure;
 xmin = -15;
 xmax =  15;
 ymin = -50;
 ymax = -18;
-sortedIndex = [cds.units.ID]>0;
+sortedIndex = [cds.units.ID]>-1;
 invalidIndex = [cds.units.ID]<255;
 cuneateIndex = strcmp({cds.units.array}, 'RightCuneate');
 unitList = cds.units(sortedIndex & invalidIndex & cuneateIndex);
@@ -14,7 +14,7 @@ spikeIndex = 0;
 tStartVid = 1;
 for i = tStartVid:height(cds.force)-1000
     time = i*.01;
-    sp1 = subplot(2,1,1);
+    sp1 = subplot(3,1,1:2);
     scatter(cds.kin.x(i), cds.kin.y(i));
     xlim([xmin, xmax])
     ylim([ymin, ymax])
@@ -22,10 +22,10 @@ for i = tStartVid:height(cds.force)-1000
     title(i)
     if spikeIndex ==0 | spikeIndex > 500
         if spikeIndex >500
-            subplot(3,1,2, 'replace')
+            subplot(3,1,3, 'replace')
             spikeIndex = 1;
         end
-        sp2 = subplot(2,1,2);
+        sp2 = subplot(3,1,3);
         hold on
         for j = 1:length(unitList)
             spikesInWindow = unitList(j).spikes.ts((i*.01)<[unitList(j).spikes.ts] & (i*.01 + 5)>[unitList(j).spikes.ts]);
@@ -40,7 +40,7 @@ for i = tStartVid:height(cds.force)-1000
         drawnow;
     end
     spikeIndex = spikeIndex+1;
-    subplot(2,1,2)
+    subplot(3,1,3)
     hold on
     h1 = plot(.01*[mod(i, 500), mod(i,500)], [0, length(unitList)], 'r');
     hold off
