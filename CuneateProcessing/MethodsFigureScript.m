@@ -1,4 +1,4 @@
-clear all
+%clear all
 close all
 load('Lando20170314COactpasCDS.mat')
 

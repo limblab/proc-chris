@@ -1,9 +1,9 @@
-date = '20170511';
-task = 'RW';
+date = '20170903';
+task = 'CODelay';
 monkey = 'Lando';
 array = {'LeftS1', 'RightCuneate'};
-number = 2;
-cds = easyCDS(monkey, task, date, array, number, {true,true});
+number = 1;
+cds = easyCDS(monkey, task, date, array, number, {false,true});
 outpath = getCdsSavePath(monkey, date);
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS.mat'];
 mkdir(outpath);

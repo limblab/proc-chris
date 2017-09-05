@@ -40,11 +40,11 @@
 %% Input File to Load
 
 %File to load
-main_dir='/Users/jig289/Box Sync/Tracking_Data/';
-monkey='Han';
-date='03-17-16'; %mo-day-yr
-exp='RW_PM';
-num='002';
+% main_dir='/Users/jig289/Box Sync/Tracking_Data/';
+% monkey='Han';
+% date='03-17-16'; %mo-day-yr
+% exp='RW_PM';
+% num='002';
 
 % Load ColorTracking File and Settings
 % fname_load=ls([main_dir monkey '/Color_Tracking/' date '/Tracking/color_tracking ' exp '_' num '*']);
@@ -64,7 +64,7 @@ end
 savefile=1;
 
 %Use all default values for constraints (mostly for distances between markers)
-use_defaults=1;
+use_defaults=0;
 
 %If this is the first file from a date, set equal to 1 (there are more initializations)
 %Also, if you have use_defaults=1, set this equal to 1
@@ -79,7 +79,7 @@ end
 
 
 %TIME INITIALIZATIONS
-start=450; %Time point we're starting at. Importantly, this script is
+start=1; %Time point we're starting at. Importantly, this script is
 %currently set up to require that all markers are visible during the "start" frame.
 %Thus, the user can use  the script "original_colors_plots_4colors" to find
 %the first frame where all markers are visible.
@@ -229,19 +229,19 @@ if ~marker_init_manual
     %closest x/y coordinate. We then get the x/y/z coordinates of that point.
     marker_inits=NaN(11,3); %Made large enough for an 11th marker (which we used at one point)
     for m=1:num_markers
-        if marker_colors{1}=='r'
+        if marker_colors{m}=='r'
             closest_point=knnsearch([x3' y3'],marker_coords_xy(m,:),'k',1);
             marker_inits(m,:)=[x3(closest_point) y3(closest_point) z3(closest_point)];
         end
-        if marker_colors{1}=='g'
+        if marker_colors{m}=='g'
             closest_point=knnsearch([x2' y2'],marker_coords_xy(m,:),'k',1);
             marker_inits(m,:)=[x2(closest_point) y2(closest_point) z2(closest_point)];
         end
-        if marker_colors{1}=='b'
+        if marker_colors{m}=='b'
             closest_point=knnsearch([x1' y1'],marker_coords_xy(m,:),'k',1);
             marker_inits(m,:)=[x1(closest_point) y1(closest_point) z1(closest_point)];
         end
-        if marker_colors{1}=='y'
+        if marker_colors{m}=='y'
             closest_point=knnsearch([x4' y4'],marker_coords_xy(m,:),'k',1);
             marker_inits(m,:)=[x4(closest_point) y4(closest_point) z4(closest_point)];
         end
