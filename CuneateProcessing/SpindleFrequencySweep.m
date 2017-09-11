@@ -1,8 +1,8 @@
 % figure
-% plot(ex.analog(1,1).data.t,ex.analog(1,1).data.Sync)
+% plot(ex1.analog(1,1).data.t,ex1.analog(1,1).data.Sync)
 % hold on
 % yyaxis right
-% plot(linspace(0, max(ex.analog(1,1).data.t), length(ex.bin.data.RightCuneateCH75ID1)), smooth(ex.bin.data.RightCuneateCH75ID1))
+% plot(linspace(0, max(ex1.analog(1,1).data.t), length(ex1.bin.data.RightCuneateCH75ID1)), smooth(ex1.bin.data.RightCuneateCH75ID1))
 % xlim([25,30])
 
 pulseStart = 0.664;
@@ -15,8 +15,8 @@ firingTime = 0.05:0.05:2;
 vibPulse = zeros(length(windows1(:,1)), length(vibTime));
 firingVib = zeros(length(windows1(:,1)), length(firingTime));
 for i = 1:30
-    vibPulse(i,:) = ex.analog(1,1).data.Sync(ex.analog(1,1).data.t>= windows1(i,1) & ex.analog(1,1).data.t< windows1(i,2));
-    firingVib(i,:) = ex.bin.data.RightCuneateCH75ID1([ex.bin.data.t] >=windows1(i,1) & [ex.bin.data.t]<windows1(i,2));
+    vibPulse(i,:) = ex1.analog(1,1).data.Sync(ex1.analog(1,1).data.t>= windows1(i,1) & ex1.analog(1,1).data.t< windows1(i,2));
+    firingVib(i,:) = ex1.bin.data.RightCuneateCH75ID1([ex1.bin.data.t] >=windows1(i,1) & [ex1.bin.data.t]<windows1(i,2));
 end
 figure
 plot(vibTime, mean(vibPulse))

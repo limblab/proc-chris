@@ -1,27 +1,29 @@
 % clear all
 close all
-clearvars -except cds td
+%clearvars -except cds td ex3
 %load('Lando3202017COactpasCDS.mat')
-plotRasters = 1;
+plotRasters = 0;
 savePlots = 0;
 params.event_list = {'bumpTime'; 'ctrHoldTime'; 'bumpDir'};
-params.extra_time = [.4,.4];
+params.extra_time = [.4,.6];
 td = parseFileByTrial(cds, params);
 td = getMoveOnsetAndPeak(td);
-beforeBump = .5;
-afterBump = .6;
-beforeMove = .5;
-afterMove = .6;
+
+beforeBump = .3;
+afterBump = .3;
+beforeMove = .3;
+afterMove = .3;
 trialCds = cds.trials([cds.trials.result] =='R', :);
 startTimes = trialCds.startTime;
-w = gausswin(10);
+w = gausswin(5);
 for i = 1:length(td)
     td(i).StartTime = startTimes(i);
 end
+td1 = td([td.StartTime] <2174);
 unitsToPlot = [1]; %Bump Tuned
 % unitsToPlot = [3,4,5,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,28,29,31,36,38]; % MoveTuned
- numCount = 1:length(td(1).RightCuneate_spikes(1,:));
-% unitsToPlot = numCount;
+  numCount = 1:length(td(1).RightCuneate_spikes(1,:));
+%unitsToPlot = numCount;
 numCount = unitsToPlot;
 %% Data Preparation and sorting out trials
 
@@ -43,10 +45,12 @@ for num1 = numCount
     for  i = 1:length(upMove)
         upMoveKin(i,:,:) = upMove(i).vel(upMove(i).idx_movement_on-(beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
         upMoveForce(i,:,:) = upMove(i).force(upMove(i).idx_movement_on- (beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
+        upMoveEMG(i,:,:) = upMove(i).emg(upMove(i).idx_movement_on- (beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
     end
     meanUpKin = squeeze(mean(upMoveKin));
     speedUpKin = sqrt(meanUpKin(:,1).^2 + meanUpKin(:,2).^2);
     meanupForce = squeeze(mean(upMoveForce));
+    meanUpEMG = squeeze(mean(upMoveEMG));
     
     upMoveFiring = zeros(length(upMove), length(speedUpKin));
     up = figure();
@@ -65,8 +69,12 @@ for num1 = numCount
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
+        for  i = 1:length(upMove)
+            upMoveTotal(i) = sum(upMove(i).RightCuneate_spikes(upMove(i).idx_movement_on:upMove(i).idx_movement_on+(afterMove*100),num1));
+        end
+        [~,sortMat] = sort(upMoveTotal);
         for trialNum = 1:height(trialTable)
-            trialWindow = [window(trialNum,1), window(trialNum,2)];
+            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
             first = find(spikeList>trialWindow(1),1);
             last = find(spikeList >trialWindow(2),1)-1;
             for spike = first:last
@@ -75,23 +83,27 @@ for num1 = numCount
                 plot(x,y,'k')
                 hold on
             end
+            
         end
     end
-    yyaxis right
-    plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
-    hold on
-    plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,2), 'r')
-
-    
+%     yyaxis right
+%     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
+%     hold on
+%     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,2), 'r')
+%     yyaxis right
+%     plot(linspace(-1*beforeBump, afterBump, length(meanUpEMG(:,19))), meanUpEMG(:,19), 'b');
+%     
     % Up Passive Kinematics
     upBumpKin = zeros(length(upBump), length(upBump(1).idx_bumpTime-(beforeBump*100):upBump(1).idx_bumpTime+(afterBump*100)), 2);
     for  i = 1:length(upBump)
         upBumpKin(i,:,:) = upBump(i).vel(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
         upBumpForce(i,:,:)=upBump(i).force(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
+        upBumpEMG(i,:,:)=upBump(i).emg(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
     end
     meanUpKin = squeeze(mean(upBumpKin));
     speedUpKin = sqrt(meanUpKin(:,1).^2 + meanUpKin(:,2).^2); 
     meanupForce = squeeze(mean(upBumpForce));
+    meanUpEMG = squeeze(mean(upBumpEMG));
     
     subplot(2,2,1);
     plot(linspace(-1*beforeBump, afterBump, length(speedUpKin(:,1))), speedUpKin(:,1), 'k')
@@ -108,8 +120,12 @@ for num1 = numCount
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
+        for  i = 1:length(upBump)
+            upBumpTotal(i) = sum(upBump(i).RightCuneate_spikes(upBump(i).idx_bumpTime:upBump(i).idx_bumpTime+13,num1));
+        end
+        [~,sortMat] = sort(upBumpTotal);
         for trialNum = 1:height(trialTable)
-            trialWindow = [window(trialNum,1), window(trialNum,2)];
+            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
             first = find(spikeList>trialWindow(1),1);
             last = find(spikeList >trialWindow(2),1)-1;
             for spike = first:last
@@ -120,10 +136,11 @@ for num1 = numCount
             end
         end
     end
-    yyaxis right
-    plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,2), 'r')
-    hold on
-    plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
+%     yyaxis right
+%     plot(linspace(-1*beforeBump, afterBump, length(meanUpEMG(:,1))), meanUpEMG(:,20), 'r')
+%     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,2), 'r')
+%     hold on
+%     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
 
     
     
@@ -163,6 +180,7 @@ for num1 = numCount
     for  i = 1:length(downMove)
         downMoveKin(i,:,:) = downMove(i).vel(downMove(i).idx_movement_on-(beforeMove*100):downMove(i).idx_movement_on+(afterMove*100),:);
         downMoveForce(i,:,:)= downMove(i).force(downMove(i).idx_movement_on -(beforeMove*100):downMove(i).idx_movement_on + (afterMove*100),:);
+    
     end
     meandownKin = squeeze(mean(downMoveKin));
     speeddownKin = sqrt(meandownKin(:,1).^2 + meandownKin(:,2).^2);
@@ -196,8 +214,12 @@ for num1 = numCount
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
+        for  i = 1:length(downMove)
+            downMoveTotal(i) = sum(downMove(i).RightCuneate_spikes(downMove(i).idx_movement_on:downMove(i).idx_movement_on+(afterMove*100),num1));
+        end
+        [~,sortMat] = sort(downMoveTotal);
         for trialNum = 1:height(trialTable)
-            trialWindow = [window(trialNum,1), window(trialNum,2)];
+            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
             first = find(spikeList>trialWindow(1),1);
             last = find(spikeList >trialWindow(2),1)-1;
             for spike = first:last
@@ -208,10 +230,10 @@ for num1 = numCount
             end
         end
     end
-    yyaxis right
-    plot(linspace(-1*beforeBump, afterBump, length(meandownForce1(:,1))), meandownForce1(:,2), 'b')
-    hold on
-    plot(linspace(-1*beforeBump, afterBump, length(meandownForce1(:,1))), meandownForce1(:,1), 'r')
+%     yyaxis right
+%     plot(linspace(-1*beforeBump, afterBump, length(meandownForce1(:,1))), meandownForce1(:,2), 'b')
+%     hold on
+%     plot(linspace(-1*beforeBump, afterBump, length(meandownForce1(:,1))), meandownForce1(:,1), 'r')
 
     
     subplot(2,2,1);
@@ -229,8 +251,12 @@ for num1 = numCount
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
+        for  i = 1:length(downBump)
+            downBumpTotal(i) = sum(downBump(i).RightCuneate_spikes(downBump(i).idx_bumpTime:downBump(i).idx_bumpTime+13,num1));
+        end
+        [~,sortMat] = sort(downBumpTotal);
         for trialNum = 1:height(trialTable)
-            trialWindow = [window(trialNum,1), window(trialNum,2)];
+            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
             first = find(spikeList>trialWindow(1),1);
             last = find(spikeList >trialWindow(2),1)-1;
             for spike = first:last
@@ -241,10 +267,10 @@ for num1 = numCount
             end
         end
     end
-    yyaxis right
-    plot(linspace(-1*beforeBump, afterBump, length(meandownForce(:,1))), meandownForce(:,1), 'r')
-    hold on
-    plot(linspace(-1*beforeBump, afterBump, length(meandownForce(:,1))), meandownForce(:,2), 'b')
+%     yyaxis right
+%     plot(linspace(-1*beforeBump, afterBump, length(meandownForce(:,1))), meandownForce(:,1), 'r')
+%     hold on
+%     plot(linspace(-1*beforeBump, afterBump, length(meandownForce(:,1))), meandownForce(:,2), 'b')
 
     
     % down Move Firing
@@ -317,8 +343,12 @@ for num1 = numCount
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
+        for  i = 1:length(leftMove)
+            leftMoveTotal(i) = sum(leftMove(i).RightCuneate_spikes(leftMove(i).idx_movement_on:leftMove(i).idx_movement_on+(afterMove*100),num1));
+        end
+        [~,sortMat] = sort(leftMoveTotal);
         for trialNum = 1:height(trialTable)
-            trialWindow = [window(trialNum,1), window(trialNum,2)];
+            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
             first = find(spikeList>trialWindow(1),1);
             last = find(spikeList >trialWindow(2),1)-1;
             for spike = first:last
@@ -329,10 +359,10 @@ for num1 = numCount
             end
         end
     end
-    yyaxis right
-    plot(linspace(-1*beforeBump, afterBump, length(meanleftForce1(:,1))), meanleftForce1(:,1), 'r')
-    hold on
-    plot(linspace(-1*beforeBump, afterBump, length(meanleftForce1(:,1))), meanleftForce1(:,2), 'b')
+%     yyaxis right
+%     plot(linspace(-1*beforeBump, afterBump, length(meanleftForce1(:,1))), meanleftForce1(:,1), 'r')
+%     hold on
+%     plot(linspace(-1*beforeBump, afterBump, length(meanleftForce1(:,1))), meanleftForce1(:,2), 'b')
 
     
     subplot(2,2,1);
@@ -349,8 +379,12 @@ for num1 = numCount
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
+        for  i = 1:length(leftBump)
+            leftBumpTotal(i) = sum(leftBump(i).RightCuneate_spikes(leftBump(i).idx_bumpTime:leftBump(i).idx_bumpTime+13,num1));
+        end
+        [~,sortMat] = sort(leftBumpTotal);
         for trialNum = 1:height(trialTable)
-            trialWindow = [window(trialNum,1), window(trialNum,2)];
+            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
             first = find(spikeList>trialWindow(1),1);
             last = find(spikeList >trialWindow(2),1)-1;
             for spike = first:last
@@ -361,10 +395,10 @@ for num1 = numCount
             end
         end
     end
-    yyaxis right
-    plot(linspace(-1*beforeBump, afterBump, length(speedleftKin(:,1))), meanleftForce(:,1), 'r')
-    hold on
-    plot(linspace(-1*beforeBump, afterBump, length(speedleftKin(:,1))), meanleftForce(:,2), 'b')
+%     yyaxis right
+%     plot(linspace(-1*beforeBump, afterBump, length(speedleftKin(:,1))), meanleftForce(:,1), 'r')
+%     hold on
+%     plot(linspace(-1*beforeBump, afterBump, length(speedleftKin(:,1))), meanleftForce(:,2), 'b')
     
     % left Move Firing
     subplot(2,2,4)
@@ -437,8 +471,12 @@ for num1 = numCount
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
+        for  i = 1:length(rightMove)
+            rightMoveTotal(i) = sum(rightMove(i).RightCuneate_spikes(rightMove(i).idx_movement_on:rightMove(i).idx_movement_on+(afterMove*100),num1));
+        end
+        [~,sortMat] = sort(rightMoveTotal);
         for trialNum = 1:height(trialTable)
-            trialWindow = [window(trialNum,1), window(trialNum,2)];
+            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
             first = find(spikeList>trialWindow(1),1);
             last = find(spikeList >trialWindow(2),1)-1;
             for spike = first:last
@@ -449,10 +487,10 @@ for num1 = numCount
             end
         end
     end
-    yyaxis right
-    plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce1(:,1), 'r')
-    hold on
-    plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce1(:,2), 'b')
+%     yyaxis right
+%     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce1(:,1), 'r')
+%     hold on
+%     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce1(:,2), 'b')
     
     subplot(2,2,1);
     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), speedrightKin(:,1), 'k')
@@ -468,8 +506,13 @@ for num1 = numCount
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
+        for  i = 1:length(rightBump)
+            rightBumpTotal(i) = sum(rightBump(i).RightCuneate_spikes(rightBump(i).idx_bumpTime:rightBump(i).idx_bumpTime+13,num1));
+        end
+        [~,sortMat] = sort(rightBumpTotal);
+
         for trialNum = 1:height(trialTable)
-            trialWindow = [window(trialNum,1), window(trialNum,2)];
+            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
             first = find(spikeList>trialWindow(1),1);
             last = find(spikeList >trialWindow(2),1)-1;
             for spike = first:last
@@ -480,10 +523,10 @@ for num1 = numCount
             end
         end
     end
-    yyaxis right
-    plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce(:,1), 'r')
-    hold on
-    plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce(:,2), 'b')
+%     yyaxis right
+%     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce(:,1), 'r')
+%     hold on
+%     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce(:,2), 'b')
 
     
     % right Move Firing
@@ -551,16 +594,18 @@ for num1 = numCount
         
         
         
-   shortRightBumpFiring{num1} = rightBumpFiring(:, beforeBump*100:beforeBump*100+15);
-   shortLeftBumpFiring{num1} = leftBumpFiring(:, beforeBump*100:beforeBump*100+15);
-   shortUpBumpFiring{num1} = upBumpFiring(:, beforeBump*100:beforeBump*100+15);
-   shortDownBumpFiring{num1} = downBumpFiring(:, beforeBump*100:beforeBump*100+15);
+   shortRightBumpFiring{num1} = rightBumpFiring(:, beforeBump*100:beforeBump*100+10);
+   shortLeftBumpFiring{num1} = leftBumpFiring(:, beforeBump*100:beforeBump*100+10);
+   shortUpBumpFiring{num1} = upBumpFiring(:, beforeBump*100:beforeBump*100+10);
+   shortDownBumpFiring{num1} = downBumpFiring(:, beforeBump*100:beforeBump*100+10);
    
-   shortRightMoveFiring{num1} = rightMoveFiring(:, beforeMove*100:beforeMove*100+15);
-   shortLeftMoveFiring{num1} = leftMoveFiring(:, beforeMove*100:beforeMove*100+15);
-   shortUpMoveFiring{num1} = upMoveFiring(:, beforeMove*100:beforeMove*100+15);
-   shortDownMoveFiring{num1} = downMoveFiring(:, beforeMove*100:beforeMove*100+15);
+   shortRightMoveFiring{num1} = rightMoveFiring(:, beforeMove*100:beforeMove*100+10);
+   shortLeftMoveFiring{num1} = leftMoveFiring(:, beforeMove*100:beforeMove*100+10);
+   shortUpMoveFiring{num1} = upMoveFiring(:, beforeMove*100:beforeMove*100+10);
+   shortDownMoveFiring{num1} = downMoveFiring(:, beforeMove*100:beforeMove*100+10);
+   
    
    
 end
-   %% Short time
+
+%% Short time
