@@ -50,7 +50,7 @@ function [ t,mu,dmudt,firing ] = runHasan(muscle, muscleVel, modelflag )
 
 %% RUN HASAN MODEL %%
 
-[t,mu,dmudt,firing] = hasan(a,b,c,h,p,g,offset,linspace(0, 50*length(muscle), length(muscle)),1000*muscleVel,1000*muscle);
+[t,mu,dmudt,firing] = hasan(a,b,c,h,p,g,offset,linspace(0, 50*length(muscle), length(muscle)),muscleVel,muscle);
 
 
 

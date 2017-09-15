@@ -1,6 +1,6 @@
-clear all
+%clear all
 close all
-load('Lando3142017COactpasCDS.mat')
+%load('Lando3142017COactpasCDS.mat')
 
 params.event_list = {'bumpTime'; 'ctrHoldTime'; 'bumpDir'};
   td = parseFileByTrial(cds, params);
