@@ -1,13 +1,15 @@
 % clear all
 close all
-%clearvars -except cds td ex3
+clearvars -except cds td
 %load('Lando3202017COactpasCDS.mat')
-plotRasters = 0;
-savePlots = 0;
+plotRasters = 1;
+savePlots = 1;
 params.event_list = {'bumpTime'; 'ctrHoldTime'; 'bumpDir'};
 params.extra_time = [.4,.6];
 td = parseFileByTrial(cds, params);
-td = getMoveOnsetAndPeak(td);
+params.start_idx =  'idx_goCueTime';
+params.end_idx = 'idx_endTime';
+td = getMoveOnsetAndPeak(td, params);
 
 beforeBump = .3;
 afterBump = .3;
@@ -16,15 +18,16 @@ afterMove = .3;
 trialCds = cds.trials([cds.trials.result] =='R', :);
 startTimes = trialCds.startTime;
 w = gausswin(5);
+w = w/sum(w);
 for i = 1:length(td)
     td(i).StartTime = startTimes(i);
 end
 td1 = td([td.StartTime] <2174);
 unitsToPlot = [1]; %Bump Tuned
 % unitsToPlot = [3,4,5,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,28,29,31,36,38]; % MoveTuned
-  numCount = 1:length(td(1).RightCuneate_spikes(1,:));
-%unitsToPlot = numCount;
-numCount = unitsToPlot;
+numCount = 1:length(td(1).RightCuneate_spikes(1,:));
+unitsToPlot = numCount;
+% numCount = unitsToPlot;
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 
@@ -45,12 +48,12 @@ for num1 = numCount
     for  i = 1:length(upMove)
         upMoveKin(i,:,:) = upMove(i).vel(upMove(i).idx_movement_on-(beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
         upMoveForce(i,:,:) = upMove(i).force(upMove(i).idx_movement_on- (beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
-        upMoveEMG(i,:,:) = upMove(i).emg(upMove(i).idx_movement_on- (beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
+%         upMoveEMG(i,:,:) = upMove(i).emg(upMove(i).idx_movement_on- (beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
     end
     meanUpKin = squeeze(mean(upMoveKin));
     speedUpKin = sqrt(meanUpKin(:,1).^2 + meanUpKin(:,2).^2);
     meanupForce = squeeze(mean(upMoveForce));
-    meanUpEMG = squeeze(mean(upMoveEMG));
+%     meanUpEMG = squeeze(mean(upMoveEMG));
     
     upMoveFiring = zeros(length(upMove), length(speedUpKin));
     up = figure();
@@ -98,12 +101,12 @@ for num1 = numCount
     for  i = 1:length(upBump)
         upBumpKin(i,:,:) = upBump(i).vel(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
         upBumpForce(i,:,:)=upBump(i).force(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
-        upBumpEMG(i,:,:)=upBump(i).emg(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
+%         upBumpEMG(i,:,:)=upBump(i).emg(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
     end
     meanUpKin = squeeze(mean(upBumpKin));
     speedUpKin = sqrt(meanUpKin(:,1).^2 + meanUpKin(:,2).^2); 
     meanupForce = squeeze(mean(upBumpForce));
-    meanUpEMG = squeeze(mean(upBumpEMG));
+%     meanUpEMG = squeeze(mean(upBumpEMG));
     
     subplot(2,2,1);
     plot(linspace(-1*beforeBump, afterBump, length(speedUpKin(:,1))), speedUpKin(:,1), 'k')
@@ -561,31 +564,35 @@ for num1 = numCount
         conv(meanleftMoveFiring,w), conv(meanleftFiring,w),...
         conv(meanrightMoveFiring,w), conv(meanrightFiring,w)]);
     set(0,'CurrentFigure', up)
+    set(gca,'TickDir','out', 'box', 'off')
     subplot(2,2,3)
     ylim([0, max(1,1.1*maxFiring)])
     subplot(2,2,4)
     ylim([0, max(1,1.1*maxFiring)])
     set(0,'CurrentFigure', down)
+        set(gca,'TickDir','out', 'box', 'off')
     subplot(2,2,3)
     ylim([0, max(1,1.1*maxFiring)])
     subplot(2,2,4)
     ylim([0, max(1,1.1*maxFiring)])
     set(0,'CurrentFigure', left)
+        set(gca,'TickDir','out', 'box', 'off')
     subplot(2,2,3)
     ylim([0, max(1,1.1*maxFiring)])
     subplot(2,2,4)
     ylim([0, max(1,1.1*maxFiring)])
     set(0,'CurrentFigure', right)
+        set(gca,'TickDir','out', 'box', 'off')
     subplot(2,2,3)
     ylim([0, max(1,1.1*maxFiring)])
     subplot(2,2,4)
     ylim([0, max(1,1.1*maxFiring)])
     
     if savePlots
-        saveas(up, [title1, 'Up.png'])
-        saveas(down, [title1, 'Down.png'])
-        saveas(left, [title1, 'Left.png'])
-        saveas(right, [title1, 'Right.png'])
+        saveas(up, [title1, 'Up09032017.pdf'])
+        saveas(down, [title1, 'Down09032017.pdf'])
+        saveas(left, [title1, 'Left09032017.pdf'])
+        saveas(right, [title1, 'Right09032017.pdf'])
     end
         
         
@@ -604,8 +611,15 @@ for num1 = numCount
    shortUpMoveFiring{num1} = upMoveFiring(:, beforeMove*100:beforeMove*100+10);
    shortDownMoveFiring{num1} = downMoveFiring(:, beforeMove*100:beforeMove*100+10);
    
+   preBumpFiring{num1} = [rightBumpFiring(:, 1:beforeBump*100); leftBumpFiring(:, 1:beforeBump*100);...
+       upBumpFiring(:,1:beforeBump*100); downBumpFiring(:,1:beforeBump*100)];
+   preMoveFiring{num1} = [rightMoveFiring(:, 1:beforeMove*100); leftMoveFiring(:, 1:beforeMove*100);...
+       upMoveFiring(:,1:beforeMove*100); downMoveFiring(:,1:beforeMove*100)];
+   
+   
    
    
 end
 
 %% Short time
+
