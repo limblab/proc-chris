@@ -1,10 +1,10 @@
-date = '20170903';
-task = 'CODelay';
+date = '20170917';
+task = 'SpindleStimBrachioradialis';
 monkey = 'Lando';
-array = {'LeftS1', 'RightCuneate'};
-number = 1;
+array = {'area2', 'cuneate'};
+number = 2;
 cds = easyCDS(monkey, task, date, array, number, {true,true});
 outpath = getCdsSavePath(monkey, date);
-cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_sorted2.mat'];
+cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS.mat'];
 mkdir(outpath);
 save(cdsPath, 'cds', '-v7.3');

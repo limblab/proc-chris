@@ -8,6 +8,8 @@ params.extra_time = [.4,.6];
 td = parseFileByTrial(cds, params);
 params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
+
+td = td(~isnan([td.target_direction]));
 td = getMoveOnsetAndPeak(td, params);
 
 beforeBump = .3;
@@ -20,16 +22,15 @@ w = gausswin(5);
 for i = 1:length(td)
     td(i).StartTime = startTimes(i);
 end
-td1 = td([td.StartTime] <2174);
 unitsToPlot = [19]; %Bump Tuned
-% unitsToPlot = [3,4,5,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,28,29,31,36,38]; % MoveTuned
-  numCount = 1:length(td1(1).RightCuneate_spikes(1,:));
+% unitsToPlot = [3,4,5,7,8,9,10,11,12,13,14,16,17,18,19,42,21,22,23,24,28,29,31,36,38]; % MoveTuned
+  numCount = 1:length(td1(1).cuneate_spikes(1,:));
 % unitsToPlot = numCount;
 numCount = unitsToPlot;
 %% Data Preparation and sorting out trials
-
+td1 = td;
 bumpTrials = td1(~isnan([td1.bumpDir])); 
-upMove = td1([td1.target_direction] == pi/2 & isnan([td1.bumpDir]));
+upMove = td1([td.target_direction] == pi/2 & isnan([td1.bumpDir]));
 leftMove = td1([td1.target_direction] ==pi& isnan([td1.bumpDir]));
 downMove = td1([td1.target_direction] ==3*pi/2& isnan([td1.bumpDir]));
 rightMove = td1([td1.target_direction]==0& isnan([td1.bumpDir]));
@@ -43,47 +44,45 @@ rightBump = bumpTrials([bumpTrials.bumpDir] == 0);
 %% 
 downBumpPec = zeros(11, length(downBump));
 for i = 1:length(downBump)
-    downBumpPec(:,i) = downBump(i).opensim(downBump(i).idx_bumpTime:downBump(i).idx_bumpTime+10,28);
+    downBumpPec(:,i) = downBump(i).opensim(downBump(i).idx_bumpTime:downBump(i).idx_bumpTime+10,42);
 end
 
 upBumpPec = zeros(11, length(upBump));
 for i =1:length(upBump)
-    upBumpPec(:,i) = upBump(i).opensim(upBump(i).idx_bumpTime:upBump(i).idx_bumpTime+10,28);
+    upBumpPec(:,i) = upBump(i).opensim(upBump(i).idx_bumpTime:upBump(i).idx_bumpTime+10,42);
 end
 
 leftBumpPec = zeros(11, length(leftBump));
 for i =1:length(leftBump)
-    leftBumpPec(:,i) = leftBump(i).opensim(leftBump(i).idx_bumpTime:leftBump(i).idx_bumpTime+10,28);
+    leftBumpPec(:,i) = leftBump(i).opensim(leftBump(i).idx_bumpTime:leftBump(i).idx_bumpTime+10,42);
 end
 
 rightBumpPec = zeros(11, length(rightBump));
 for i =1:length(rightBump)
-    rightBumpPec(:,i) = rightBump(i).opensim(rightBump(i).idx_bumpTime:rightBump(i).idx_bumpTime+10,28);
+    rightBumpPec(:,i) = rightBump(i).opensim(rightBump(i).idx_bumpTime:rightBump(i).idx_bumpTime+10,42);
 end
 
 downMovePec = zeros(11, length(downMove));
 for i = 1:length(downMovePec(1,:))
-    downMovePec(:,i) = downMove(i).opensim(downMove(i).idx_movement_on:downMove(i).idx_movement_on+10,28);
+    downMovePec(:,i) = downMove(i).opensim(downMove(i).idx_movement_on:downMove(i).idx_movement_on+10,42);
 end
 
 upMovePec = zeros(11, length(upMove));
 for i =1:length(upMovePec(1,:))
-    upMovePec(:,i) = upMove(i).opensim(upMove(i).idx_movement_on:upMove(i).idx_movement_on+10,28);
+    upMovePec(:,i) = upMove(i).opensim(upMove(i).idx_movement_on:upMove(i).idx_movement_on+10,42);
 end
 
 leftMovePec = zeros(11, length(leftMove));
 for i =1:length(leftMovePec(1,:))
-    leftMovePec(:,i) = leftMove(i).opensim(leftMove(i).idx_movement_on:leftMove(i).idx_movement_on+10,28);
+    leftMovePec(:,i) = leftMove(i).opensim(leftMove(i).idx_movement_on:leftMove(i).idx_movement_on+10,42);
 end
 
 rightMovePec = zeros(11, length(rightMove));
 for i =1:length(rightMovePec(1,:))
-    rightMovePec(:,i) = rightMove(i).opensim(rightMove(i).idx_movement_on:rightMove(i).idx_movement_on+10,28);
+    rightMovePec(:,i) = rightMove(i).opensim(rightMove(i).idx_movement_on:rightMove(i).idx_movement_on+10,42);
 end
 %%
 % pecMax = max(cds.analog{1,3}.pectoralis_sup_len(1:217544));
-pecMax = .065;
-pecMin = min(cds.analog{1,3}.pectoralis_sup_len(1:217544));
 close all
 timeVec = linspace(0, .1, length(upBumpPec(:,1)));
 figure
@@ -91,7 +90,6 @@ subplot(3,3,2)
 plot(timeVec,upBumpPec, 'r')
 hold on
 plot(timeVec, upMovePec, 'b')
-ylim([pecMin, pecMax])
 xlim([0,.1])
 
 xlim([0,.1])
@@ -100,14 +98,12 @@ plot(timeVec,leftBumpPec, 'r')
 hold on
 plot(timeVec, leftMovePec, 'b')
 xlim([0,.1])
-ylim([pecMin, pecMax])
 
 subplot(3,3,6)
 plot(timeVec,rightBumpPec, 'r')
 hold on
 plot(timeVec, rightMovePec, 'b')
 xlim([0,.1])
-ylim([pecMin, pecMax])
 
 subplot(3,3,8)
 plot(timeVec,downBumpPec, 'r')
@@ -115,7 +111,6 @@ hold on
 plot(timeVec, downMovePec, 'b')
 xlim([0,.1])
 suptitle('Pectoralis Kinematics vs. Firing Rate')
-ylim([pecMin, pecMax])
 %%
 figure 
 timeVec = linspace(0, .1, length(upBumpPec(:,1)));
@@ -124,7 +119,6 @@ subplot(3,3,2)
 plot(timeVec,mean(upBumpPec,2), 'r')
 hold on
 plot(timeVec, mean(upMovePec,2), 'b')
-ylim([pecMin, pecMax])
 
 xlim([0,.1])
 subplot(3,3,4) 
@@ -132,22 +126,20 @@ plot(timeVec,mean(leftBumpPec,2), 'r')
 hold on
 plot(timeVec, mean(leftMovePec,2), 'b')
 xlim([0,.1])
-ylim([pecMin, pecMax])
 
 subplot(3,3,6)
 plot(timeVec,mean(rightBumpPec,2), 'r')
 hold on
 plot(timeVec, mean(rightMovePec,2), 'b')
 xlim([0,.1])
-ylim([pecMin, pecMax])
 
 subplot(3,3,8)
 plot(timeVec,mean(downBumpPec,2), 'r')
 hold on
 plot(timeVec, mean(downMovePec,2), 'b')
 xlim([0,.1])
-suptitle('Pectoralis Kinematics vs. Firing Rate')
-ylim([pecMin, pecMax])
+legend('show')
+suptitle('Pectoralis Kinematics in Bump/Reach Direction')
 
 
    %% Short time

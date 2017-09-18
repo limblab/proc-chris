@@ -3,8 +3,8 @@ function [h5, p5, ci5, stats5] = spindleFunction (cds, unitNum, window )
 xBound = window;
 
 timeVec = 0:.02:max(cds.analog{1,1}.t);
-stimOn = zeros(length(cds.analog{1,2}.SpindleStim),1);
-stimSig = cds.analog{1,2}.SpindleStim;
+stimOn = zeros(length(cds.analog{1,1}.Sync),1);
+stimSig = cds.analog{1,1}.Sync;
 unit = unitNum;
 for i = 1:length(stimOn)
     if stimSig(i)>100
@@ -23,7 +23,7 @@ for j = unit
     figure
     subplot(2,1,1)
     yyaxis left
-    plot(cds.analog{1,2}.t, cds.analog{1, 2}.SpindleStim)
+    plot(cds.analog{1,1}.t, cds.analog{1, 1}.Sync)
     ylabel('Vibrator Voltage (mV)')
     hold on
     yyaxis right
@@ -39,6 +39,7 @@ for j = unit
     xlim(xBound)
     ylabel('Firing rate (Hz)')
 end
+stimOn(7379:2000:end) = 0;
 stimDiff = diff(stimOn);
 count = 0;
 count1 = 1;
@@ -46,14 +47,14 @@ stimOffWindow(1,1) = 0;
 for i = 1:length(stimDiff)
     if stimDiff(i) == 1
         count = count +1;
-        stimWindow(count, 1) = cds.analog{1,2}.t(i);
+        stimWindow(count, 1) = cds.analog{1,1}.t(i);
         stimWindowInd(count,1) = i;
-        stimOffWindow(count1,2) = cds.analog{1,2}.t(i);
+        stimOffWindow(count1,2) = cds.analog{1,1}.t(i);
         count1 = count1 +1;
     elseif stimDiff(i) == -1
-        stimWindow(count,2) =  cds.analog{1,2}.t(i);
+        stimWindow(count,2) =  cds.analog{1,1}.t(i);
         stimWindowInd(count,2) = i;
-        stimOffWindow(count1,1) = cds.analog{1,2}.t(i);
+        stimOffWindow(count1,1) = cds.analog{1,1}.t(i);
     end
 end
 onSpikes = [];
@@ -72,7 +73,7 @@ xlabel('Time (seconds)')
 
 figure
 yyaxis left
-plot(cds.analog{1,2}.t, stimOn)
+plot(cds.analog{1,1}.t, stimOn)
 ylabel('Stimulation Voltage (V)')
 hold on
 yyaxis right
@@ -90,7 +91,7 @@ title('Firing Rates During Stimulation vs. Off')
 legend('Firing During Vibration', 'Base Firing')
 ylabel('Number of Trials')
 xlabel('Firing Rate')
-
+    set(gca,'TickDir','out','box', 'off')
 
 nonjumpOn = diff(onSpikes);
 nonjumpOff = diff(offSpikes);
@@ -102,12 +103,12 @@ figure
 histogram(diffOn, 'Normalization', 'Probability')
 hold on
 histogram(diffOff, 'Normalization', 'Probability')
-title('ISI Histograms of Spikes During and Without Vibration')
+suptitle('ISI Histograms of Spikes During and Without Vibration')
 xlabel('ISI (ms)')
 ylabel('# of ISIs')
 legend('Vibration On', 'Vibration Off')
-
-spindleStim = [cds.analog{1,2}.t,cds.analog{1,2}.SpindleStim];
+set(gca,'TickDir','out','box', 'off')
+spindleStim = [cds.analog{1,1}.t,cds.analog{1,1}.Sync];
 psthBefore = 50;
 psthAfter = 0;
 psth = zeros(psthBefore+psthAfter,1);
@@ -122,10 +123,10 @@ p1.LineWidth = 2;
 xlabel('Time Before Spike (ms)')
 ylabel('Average Vibration Voltage (mV)')
 figure
-beforeTrialWindow = .50;
-afterTrialWindow = 1.20;
+beforeTrialWindow = .25;
+afterTrialWindow = 2.2;
 spikesInWindow = cell(length(stimWindow),1);
-spikeRateAvg = zeros(85, 1);
+spikeRateAvg = zeros(123, 1);
 for i= 1:length(stimWindow)
     spikesInWindow{i} = [cds.units(j).spikes.ts([cds.units(j).spikes.ts]> stimWindow(i, 1) - beforeTrialWindow & [cds.units(j).spikes.ts]<stimWindow(i,1)+afterTrialWindow) - stimWindow(i,1)];
     spindleStimInWindow{i} = spindleStim(spindleStim(:,1)> stimWindow(i, 1)& spindleStim(:,1) < stimWindow(i,2),:);
@@ -153,9 +154,9 @@ for i = sorting'
     for k = 1:length(spikesInWindow{i})
         line([spikesInWindow{i}(k), spikesInWindow{i}(k)], [counter,counter+.5], 'LineWidth', 1)
         hold on
-        ylim([.5,16])
+        ylim([.5,60])
     end
-    xlim([-.5, 1.3])
+    xlim([-.25, 2.2])
     p = patch([-1.*firstPeak(i)', sortedWidth(counter), sortedWidth(counter), -1.*firstPeak(i)'], [counter-.25, counter-.25, counter+.75, counter+.75], 'r');
     ylabel('Trial Number')
     set(h,'XTick',[],'XTickLabel',[]);
@@ -164,17 +165,15 @@ for i = sorting'
     temp = spikeRate(timeVec(1:end-1)>stimWindow(i,1)-beforeTrialWindow& timeVec(1:end-1) < stimWindow(i,1)+afterTrialWindow,j)/length(stimWindow);
     spikeRateAvg(1:length(temp)) = spikeRateAvg(1:length(temp)) + temp;
 end
-subplot(2,1,2)
-p1 = plot(linspace(-.5, 1.2,85), spikeRateAvg);
+a1= subplot(2,1,2);
+p1 = plot(linspace(-.25, 2.2,123), spikeRateAvg);
 p1.LineWidth = 2;
-ylim([0, 80])
-xlim([-.5, 1.3])
+ylim([0, 120])
+xlim([-.25, 2.2])
 ylabel('Firing Rate (Hz)')
 xlabel('Time Relative to Vibration Start (seconds)')
 set(gca,'TickDir','out','box', 'off')
-title('Phase-shifted Firing Rates from Muscle Vibration')
-
-
+suptitle('Brachioradialis Reponse to Spindle Vibration')
 
 end
 

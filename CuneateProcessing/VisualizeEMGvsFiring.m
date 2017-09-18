@@ -4,7 +4,7 @@ ax1= subplot(2,1,1);
 hold on
 title('EMG vs Cuneate Firing')
 for i = 1:length(window1(:,1))
-    rectangle('Position', [window1(i,1), 0, window1(i,2)-window1(i,1), max(binned.RightCuneateCH75ID1)], 'FaceColor', [.8,.8,.8], 'LineWidth', .00000001)
+    rectangle('Position', [window1(i,1), 0, window1(i,2)-window1(i,1), max(binned.cCH75ID1)], 'FaceColor', [.8,.8,.8], 'LineWidth', .00000001)
 end
 plot(binned.t, smooth(binned.RightCuneateCH75ID1))
 yyaxis right

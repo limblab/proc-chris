@@ -1,22 +1,27 @@
    close all
    sigDif = zeros(19,1);
-   vec = 1:19;
-   noVec = [7, 10, 12, 14, 15, 16, 18];
+   
    histogramFlag= true;
    circleFlag = true;
     cuneateFlag = true;
-for i = 1:length(shortRightBumpFiring)
-    close all
-    temp =mean(shortRightBumpFiring{i});
+    saveFig = true;
+for i = 1:length(shortLeftBumpFiring)
+    temp =mean(shortRightBumpFiring{i})*100;
     bootstatRightBump= bootstrp(1000, @mean, temp);
-    temp =mean(shortLeftBumpFiring{i});
+    temp =mean(shortLeftBumpFiring{i})*100;
     bootstatLeftBump= bootstrp(1000, @mean, temp);
-    temp =mean(shortDownBumpFiring{i});
+    temp =mean(shortDownBumpFiring{i})*100;
     bootstatDownBump= bootstrp(1000, @mean, temp);
-    temp =mean(shortUpBumpFiring{i});
+    temp =mean(shortUpBumpFiring{i})*100;
     bootstatUpBump= bootstrp(1000, @mean, temp);
-    temp = mean(preBumpFiring{i});
+    temp = mean(preBumpFiring{i})*100;
     bootstatPreBump = bootstrp(1000,@mean, temp);
+    temp = mean([shortRightBumpFiring{i}*100; shortLeftBumpFiring{i}*100; shortUpBumpFiring{i}*100; shortDownBumpFiring{i}*100]);
+    bootstatPostBump = bootstrp(1000,@mean, temp);
+    meanPostBump = mean(bootstatPostBump);
+    dcBump(i) = meanPostBump - mean(bootstatPreBump);
+    
+    
     
     sortedRightBump = sort(bootstatRightBump);
     sortedLeftBump = sort(bootstatLeftBump);
@@ -53,17 +58,28 @@ for i = 1:length(shortRightBumpFiring)
     
     sigDifBump(i) = rightSigBump(i) | leftSigBump(i) | upSigBump(i) | downSigBump(i);
     
-    temp =mean(shortRightMoveFiring{i});
+    temp =mean(shortRightMoveFiring{i})*100;
     bootstatRightMove= bootstrp(1000, @mean, temp);
-    temp =mean(shortLeftMoveFiring{i});
+    temp =mean(shortLeftMoveFiring{i})*100;
     bootstatLeftMove= bootstrp(1000, @mean, temp);
-    temp =mean(shortDownMoveFiring{i});
+    temp =mean(shortDownMoveFiring{i})*100;
     bootstatDownMove= bootstrp(1000, @mean, temp);
-    temp =mean(shortUpMoveFiring{i});
+    temp =mean(shortUpMoveFiring{i})*100;
     bootstatUpMove= bootstrp(1000, @mean, temp);
-    temp = mean(preMoveFiring{i});
+    temp = mean(preMoveFiring{i})*100;
     bootstatPreMove = bootstrp(1000,@mean, temp);   
-
+    temp = mean([shortRightMoveFiring{i}*100; shortLeftMoveFiring{i}*100; shortUpMoveFiring{i}*100; shortDownMoveFiring{i}*100]);
+    bootstatPostMove = bootstrp(1000,@mean, temp);
+    dcMove(i) = mean(bootstatPostMove) - mean(bootstatPreMove);
+    
+%     figure
+%     histogram(bootstatPreMove)
+%     hold on
+%     histogram(bootstatPostMove)
+%     histogram(bootstatPreBump)
+%     histogram(bootstatPostBump)
+%     legend('show')
+    
     sortedRightMove = sort(bootstatRightMove);
     sortedLeftMove = sort(bootstatLeftMove);
     sortedUpMove = sort(bootstatUpMove);
@@ -99,6 +115,7 @@ for i = 1:length(shortRightBumpFiring)
 
     sigDifMove(i) = rightMoveSig(i) | leftMoveSig(i) | upMoveSig(i) | downMoveSig(i);
     %
+
     upVec = [0, 1];
     downVec = [0,-1];
     rightVec = [1,0];
@@ -107,12 +124,41 @@ for i = 1:length(shortRightBumpFiring)
     pdVecMove(i,:) =  meanDownMove*downVec + meanUpMove*upVec + meanRightMove*rightVec + meanLeftMove*leftVec;
     pdVecBump(i,:) = meanDownBump*downVec + meanUpBump*upVec + meanRightBump*rightVec + meanLeftBump*leftVec;
     
+    pdVecMoveBoot{i} = bootstatDownMove*downVec + bootstatUpMove*upVec + bootstatRightMove*rightVec + bootstatLeftMove*leftVec;
+    pdVecBumpBoot{i} = bootstatDownBump*downVec + bootstatUpBump*upVec + bootstatRightBump*rightVec + bootstatLeftBump*leftVec;
+    angBump(i) = atan2(pdVecBump(i, 2), pdVecBump(i,1));
+    magBump(i) = norm(pdVecBump(i,:));
+    bootPDAngMove{i} = atan2(pdVecMoveBoot{i}(:,2), pdVecMoveBoot{i}(:,1));
+    bootPDMagMove{i} = rownorm(pdVecMoveBoot{i});
+    
+    bootPDAngBump{i} = atan2(pdVecBumpBoot{i}(:,2), pdVecBumpBoot{i}(:,1));
+    bootPDMagBump{i} = rownorm(pdVecBumpBoot{i});
+ 
+    sortedAngBump = sort(bootPDAngBump{i});
+    lowAngBump(i) = sortedAngBump(50);
+    highAngBump(i) = sortedAngBump(950);
+    
+    sortedAngMove = sort(bootPDAngMove{i});
+    lowAngMove(i) = sortedAngMove(50);
+    highAngMove(i) = sortedAngMove(950);
+    
+    sigThreshold = pi/3;
+    
+    sinTunedMove(i) = angleDiffCV(highAngMove(i),lowAngMove(i)) < sigThreshold & angleDiffCV(highAngMove(i), lowAngMove(i)) > angleDiffCV(highAngMove(i), mean(sortedAngMove)) & angleDiffCV(highAngMove(i), lowAngMove(i)) > angleDiffCV(lowAngMove(i), mean(sortedAngMove));
+    sinTunedBump(i) = angleDiffCV(highAngBump(i),lowAngBump(i)) < sigThreshold & angleDiffCV(highAngBump(i), lowAngBump(i)) > angleDiffCV(highAngBump(i), mean(sortedAngBump)) & angleDiffCV(highAngBump(i), lowAngBump(i)) > angleDiffCV(lowAngBump(i), mean(sortedAngBump));
+    
+    tuned(i) = sigDifMove(i) & sigDifBump(i) &sinTunedMove(i) & sinTunedBump(i);
+    if cuneateFlag
+        title1 = ['CuneateElectrode_09032017 ' num2str(td(1).cuneate_unit_guide(i,1)), ' Unit ', num2str(td(1).cuneate_unit_guide(i,2))];
+    else
+        title1 = ['S1Electrode ' num2str(td(1).LeftS1_unit_guide(i,1)), ' Unit ', num2str(td(1).LeftS1_unit_guide(i,2))];
+    end
+    
+    if tuned(i)
+        title1 = [title1, ' TUNED'];
+    end
     if histogramFlag
-        if cuneateFlag
-            title1 = ['CuneateElectrode' num2str(td(1).RightCuneate_unit_guide(i,1)), ' Unit ', num2str(td(1).RightCuneate_unit_guide(i,2))];
-        else
-            title1 = ['S1Electrode' num2str(td(1).LeftS1_unit_guide(i,1)), ' Unit ', num2str(td(1).LeftS1_unit_guide(i,2))];
-        end
+
         f1 = figure('Position', [100, 100, 1200, 800]);
         sp1 = subplot(2,1,1);
         histogram(bootstatRightBump)
@@ -137,10 +183,12 @@ for i = 1:length(shortRightBumpFiring)
         legend('show')
 
         linkaxes([sp1, sp2]);
-        figTitle = [title1, 'Histogram.pdf'];
-        saveas(f1,figTitle);
+        figTitle = [title1, 'Histogram.png'];
+        if(saveFig)
+            saveas(f1,figTitle);
+        end
     end
-    if circleFlag   
+    if circleFlag
         theta = [0, pi/2, pi, 3*pi/2, 0];
         bumpMean = [meanRightBump, meanUpBump, meanLeftBump, meanDownBump, meanRightBump];
         bumpHigh = [topRightBump , topUpBump, topLeftBump, topDownBump, topRightBump];
@@ -150,36 +198,50 @@ for i = 1:length(shortRightBumpFiring)
         moveHigh = [topRightMove , topUpMove, topLeftMove, topDownMove, topRightMove];
         moveLow = [botRightMove, botUpMove, botLeftMove, botDownMove, botRightMove]; 
 
-        f2 = figure('Position', [100, 0, 600, 1200]); 
-        sp1 = subplot(4,1,1:2);
-        polar(theta, bumpHigh, 'r')
+        f2 = figure('Position', [100, 0, 600, 600]); 
+        polarplot(theta, bumpHigh, 'Color', [.5,.3,.3], 'LineWidth', 2)
         hold on 
-        polar(theta, bumpMean, 'k')
-        polar(theta, bumpLow, 'b')
-        angBump(i) = atan2(pdVecBump(i, 2), pdVecBump(i,1));
-        magBump(i) = norm(pdVecBump(i,:));
-        polar([angBump(i), angBump(i)], [0, magBump(i)]);
-        title1 = ['Bump'];
-        title(title1)
+        polarplot(theta, bumpMean, 'Color', [1,0,0], 'LineWidth', 2)
+        polarplot(theta, bumpLow, 'Color', [1,.4,.4], 'LineWidth', 2)
+
+        polarplot([angBump(i), angBump(i)], [0, magBump(i)],'Color', [1,0,0], 'LineWidth', 2);
+        polarplot([lowAngBump(i), lowAngBump(i)], [0, magBump(i)],'Color', [1, .4,.4], 'LineWidth', 2);
+        polarplot([highAngBump(i), highAngBump(i)], [0, magBump(i)],'Color', [1, .4,.4], 'LineWidth', 2);
+        title('Bump')
         
-        sp2 = subplot(4,1,3:4);
-        polar(theta, moveHigh, 'r')
-        hold on 
-        polar(theta, moveMean, 'k')
-        polar(theta, moveLow, 'b')
+        polarplot(theta, moveHigh, 'Color', [.3,.3,.5], 'LineWidth', 2)
+        polarplot(theta, moveMean, 'Color', [0,0,1], 'LineWidth', 2)
+        polarplot(theta, moveLow, 'Color', [.4,.4,1], 'LineWidth', 2)
+        
         angMove(i) = atan2(pdVecMove(i,2), pdVecMove(i,1));
         magMove(i) = norm(pdVecMove(i,:));
-        polar([angMove(i), angMove(i)], [0, magMove(i)]);
-        title('Move')
-        linkaxes([sp1, sp2])
-        suptitle(title1)
-        figTitle = [title1, 'TuningCurve.pdf'];
-        saveas(f2, figTitle);
+        polarplot([angMove(i), angMove(i)], [0, magMove(i)],'Color', [0 0 1 ], 'LineWidth', 2);
+        polarplot([lowAngMove(i), lowAngMove(i)], [0, magMove(i)],'Color', [.4 .4 1], 'LineWidth', 2);
+        polarplot([highAngMove(i), highAngMove(i)], [0, magMove(i)],'Color', [.4 .4 1], 'LineWidth', 2);
+        
+        title([title1, ' Tuning Curves'])
+        legend('show')
+        figTitle = [title1, 'TuningCurve.png'];
+        if(saveFig)
+            saveas(f2, figTitle);
+        end
     end
     
-    
 end
-figure
-scatter(angBump, angMove)
+%%
+f3 = figure;
+scatter(angBump(tuned), angMove(tuned))
+ylim([-pi, pi])
+xlim([-pi, pi])
+title('Angle of PD in Active/Passive Conditions')
+xlabel('Passive PD')
+ylabel('ActivePD')
+saveas(f3, 'ActiveVsPassiveS103202017.png')
 pctSigBump = sum(sigDifBump)/12;
 pctSigMove = sum(sigDifMove)/12;
+
+figure 
+histogram(dcBump,6)
+hold on
+histogram(dcMove,6)
+legend('show')
