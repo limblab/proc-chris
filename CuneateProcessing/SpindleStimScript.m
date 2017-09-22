@@ -18,7 +18,7 @@ brachialisStim = load('Lando_20170511_SpindleStim_LeftS1_Unit91Brachialis_006.ma
 
 %% Analysis on Spindle Stimmed
 close all
-[hBiceps, pBiceps, ciBiceps, statsBiceps]= spindleFunction(bicepsStim.cds, 148, [0, 47.5])
+[hBiceps, pBiceps, ciBiceps, statsBiceps]= spindleFunction(cds,185, [10, 60])
 [hECR, pECR, ciECR, statsECR]= spindleFunction(ecrStim.cds, 202, [0, 60])
 [hBrachialis, pBrachialis, ciBrachialis, statsBrachialis] = spindleFunction(brachialisStim.cds, 202, [10, 45])
 %% Analysis on units when stimming other muscles;

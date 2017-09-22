@@ -1,9 +1,9 @@
-date = '20170917';
-task = 'SpindleStimBrachioradialis';
+date = '20170903';
+task = 'SpindleStimPectoralis';
 monkey = 'Lando';
-array = {'area2', 'cuneate'};
+array = {'LeftS1', 'RightCuneate'};
 number = 2;
-cds = easyCDS(monkey, task, date, array, number, {true,true});
+cds = easyCDS(monkey, task, date, array, number, {false, false});
 outpath = getCdsSavePath(monkey, date);
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS.mat'];
 mkdir(outpath);

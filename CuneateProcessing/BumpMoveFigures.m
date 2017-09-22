@@ -2,7 +2,7 @@
 close all
 clearvars -except cds
 %load('Lando3202017COactpasCDS.mat')
-plotRasters = 0;
+plotRasters = 1;
 savePlots = 0;
 params.event_list = {'bumpTime'; 'ctrHoldTime'; 'bumpDir'};
 params.extra_time = [.4,.6];
@@ -12,6 +12,10 @@ params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
 td = getMoveOnsetAndPeak(td, params);
 
+date = 03202017;
+unitNames = 'LeftS1';
+unitGuide = [unitNames, '_unit_guide'];
+unitSpikes = [unitNames, '_spikes'];
 beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
@@ -23,10 +27,10 @@ w = w/sum(w);
 for i = 1:length(td)
     td(i).StartTime = startTimes(i);
 end
-td1 = td([td.StartTime] <2174);
+% td1 = td([td.StartTime] <2174);
 unitsToPlot = [1]; %Bump Tuned
 % unitsToPlot = [3,4,5,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,28,29,31,36,38]; % MoveTuned
-numCount = 1:length(td(1).cuneate_spikes(1,:));
+numCount = 1:length(td(1).(unitSpikes)(1,:));
 unitsToPlot = numCount;
 % numCount = unitsToPlot;
 %% Data Preparation and sorting out trials
@@ -40,7 +44,7 @@ rightMove = td([td.target_direction]==0& isnan([td.bumpDir]));
 %% 
 close all
 for num1 = numCount
-    title1 = ['Electrode' num2str(td(1).cuneate_unit_guide(num1,1)), ' Unit ', num2str(td(1).cuneate_unit_guide(num1,2))];
+    title1 = ['Lando', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
 
     %% Up Active
     upBump = bumpTrials([bumpTrials.bumpDir] == 90);
@@ -65,16 +69,17 @@ for num1 = numCount
     plot([0,0],[0,40], 'b--')
     ylim([0,40])
     xlim([-1*beforeMove, afterMove])
-    set(gca,'TickDir','out','box', 'off')  
+    set(gca,'TickDir','out','box', 'off') 
+    set(gca,'xtick',[],'ytick',[])
 
     trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.tgtDir] == 90 & isnan([cds.trials.bumpTime]) ,:);
     window = [[trialTable.startTime] + .01* [upMove.idx_movement_on]' - .01*[upMove.idx_startTime]'-beforeMove, [trialTable.startTime]+ .01*[upMove.idx_movement_on]'- .01*[upMove.idx_startTime]'+afterMove];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, 'cuneate') & [cds.units.ID] >0 & [cds.units.ID]<255);
+    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
         for  i = 1:length(upMove)
-            upMoveTotal(i) = sum(upMove(i).cuneate_spikes(upMove(i).idx_movement_on:upMove(i).idx_movement_on+(afterMove*100),num1));
+            upMoveTotal(i) = sum(upMove(i).(unitSpikes)(upMove(i).idx_movement_on:upMove(i).idx_movement_on+(afterMove*100),num1));
         end
         [~,sortMat] = sort(upMoveTotal);
         for trialNum = 1:height(trialTable)
@@ -116,16 +121,17 @@ for num1 = numCount
     plot([.125,.125],[0,40], 'r--')
     ylim([0,40])
     set(gca,'TickDir','out', 'box', 'off') 
+    set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeBump, afterBump])
     
     trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.bumpDir] == 90, :);
     window = [[trialTable.bumpTime]-beforeBump, [trialTable.bumpTime]+afterBump];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, 'cuneate') & [cds.units.ID] >0 & [cds.units.ID]<255);
+    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
         for  i = 1:length(upBump)
-            upBumpTotal(i) = sum(upBump(i).cuneate_spikes(upBump(i).idx_bumpTime:upBump(i).idx_bumpTime+13,num1));
+            upBumpTotal(i) = sum(upBump(i).(unitSpikes)(upBump(i).idx_bumpTime:upBump(i).idx_bumpTime+13,num1));
         end
         [~,sortMat] = sort(upBumpTotal);
         for trialNum = 1:height(trialTable)
@@ -152,11 +158,12 @@ for num1 = numCount
     subplot(2,2,4)
     xlim([-1*beforeMove, afterMove])
     for  i = 1:length(upMove)
-        upMoveFiring(i,:) = upMove(i).cuneate_spikes(upMove(i).idx_movement_on-(beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),num1);
+        upMoveFiring(i,:) = upMove(i).(unitSpikes)(upMove(i).idx_movement_on-(beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),num1);
     end
     meanupMoveFiring = 100*mean(upMoveFiring);
     bar(linspace(-1*beforeMove, afterMove, length(meanupMoveFiring)), conv(meanupMoveFiring, w, 'same'), 'edgecolor', 'none', 'BarWidth', 1)
     set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeMove, afterMove])
     %Up Bump Firing
     subplot(2,2,3)
@@ -164,7 +171,7 @@ for num1 = numCount
     set(gca,'TickDir','out')
     upBumpFiring = zeros(length(upBump), length(speedUpKin));
     for  i = 1:length(upBump)
-        upBumpFiring(i,:) = upBump(i).cuneate_spikes(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),num1);
+        upBumpFiring(i,:) = upBump(i).(unitSpikes)(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),num1);
     end
     meanupFiring = 100*mean(upBumpFiring);
     bar(linspace(-1*beforeBump, afterBump, length(meanupFiring)), conv(meanupFiring, w, 'same'), 'edgecolor', 'none', 'BarWidth', 1)
@@ -172,6 +179,7 @@ for num1 = numCount
     xlim([-1*beforeBump, afterBump])
 
     set(gca, 'TickDir', 'out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
     
 
     %saveas(gca, 'UpBumpKinematics.png')
@@ -200,6 +208,7 @@ for num1 = numCount
     ylim([0,40])
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out','box', 'off')
+    set(gca,'xtick',[],'ytick',[])
 
     % down Passive Kinematics
     downBumpKin = zeros(length(downBump), length(downBump(1).idx_bumpTime-(beforeBump*100):downBump(1).idx_bumpTime+(afterBump*100)), 2);
@@ -214,12 +223,12 @@ for num1 = numCount
     
     trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.tgtDir] == 270 & isnan([cds.trials.bumpTime]) ,:);
     window = [[trialTable.startTime] + .01* [downMove.idx_movement_on]' - .01*[downMove.idx_startTime]'-beforeMove, [trialTable.startTime]+ .01*[downMove.idx_movement_on]'- .01*[downMove.idx_startTime]'+afterMove];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, 'cuneate') & [cds.units.ID] >0 & [cds.units.ID]<255);
+    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
         for  i = 1:length(downMove)
-            downMoveTotal(i) = sum(downMove(i).cuneate_spikes(downMove(i).idx_movement_on:downMove(i).idx_movement_on+(afterMove*100),num1));
+            downMoveTotal(i) = sum(downMove(i).(unitSpikes)(downMove(i).idx_movement_on:downMove(i).idx_movement_on+(afterMove*100),num1));
         end
         [~,sortMat] = sort(downMoveTotal);
         for trialNum = 1:height(trialTable)
@@ -247,16 +256,18 @@ for num1 = numCount
     plot([.125,.125],[0,40], 'r--')
     ylim([0,40])
     set(gca,'TickDir','out', 'box', 'off') 
+    set(gca,'xtick',[])
+    ylabel('Trial #')
     xlim([-1*beforeBump, afterBump])
     
     trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.bumpDir] == 270, :);
     window = [[trialTable.bumpTime]-beforeBump, [trialTable.bumpTime]+afterBump];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, 'cuneate') & [cds.units.ID] >0 & [cds.units.ID]<255);
+    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
         for  i = 1:length(downBump)
-            downBumpTotal(i) = sum(downBump(i).cuneate_spikes(downBump(i).idx_bumpTime:downBump(i).idx_bumpTime+13,num1));
+            downBumpTotal(i) = sum(downBump(i).(unitSpikes)(downBump(i).idx_bumpTime:downBump(i).idx_bumpTime+13,num1));
         end
         [~,sortMat] = sort(downBumpTotal);
         for trialNum = 1:height(trialTable)
@@ -281,11 +292,13 @@ for num1 = numCount
     subplot(2,2,4)
     xlim([-1*beforeMove, afterMove])
     for  i = 1:length(downMove)
-        downMoveFiring(i,:) = downMove(i).cuneate_spikes(downMove(i).idx_movement_on-(beforeMove*100):downMove(i).idx_movement_on+(afterMove*100),num1);
+        downMoveFiring(i,:) = downMove(i).(unitSpikes)(downMove(i).idx_movement_on-(beforeMove*100):downMove(i).idx_movement_on+(afterMove*100),num1);
     end
     meandownMoveFiring = 100*mean(downMoveFiring);
     bar(linspace(-1*beforeMove, afterMove, length(meandownMoveFiring)), conv(meandownMoveFiring,w, 'same'), 'edgecolor', 'none', 'BarWidth', 1)
     set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'ytick',[])
+    xlabel('Time (seconds')
     xlim([-1*beforeMove, afterMove])
     
     %down Bump Firing
@@ -294,11 +307,12 @@ for num1 = numCount
     set(gca,'TickDir','out')
     downBumpFiring = zeros(length(downBump), length(speeddownKin));
     for  i = 1:length(downBump)
-        downBumpFiring(i,:) = downBump(i).cuneate_spikes(downBump(i).idx_bumpTime-(beforeBump*100):downBump(i).idx_bumpTime+(afterBump*100),num1);
+        downBumpFiring(i,:) = downBump(i).(unitSpikes)(downBump(i).idx_bumpTime-(beforeBump*100):downBump(i).idx_bumpTime+(afterBump*100),num1);
     end
     meandownFiring = 100*mean(downBumpFiring);
     bar(linspace(-1*beforeBump, afterBump, length(meandownFiring)), conv(meandownFiring,w ,'same'), 'edgecolor', 'none', 'BarWidth', 1)
-
+    xlabel('Time (seconds')
+    ylabel('Firing Rate (Hz)')
     xlim([-1*beforeBump, afterBump])
 
     set(gca, 'TickDir', 'out', 'box', 'off')
@@ -330,6 +344,7 @@ for num1 = numCount
     ylim([0,40])
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out','box', 'off')
+    set(gca,'xtick',[],'ytick',[])
 
     % left Passive Kinematics
     leftBumpKin = zeros(length(leftBump), length(leftBump(1).idx_bumpTime-(beforeBump*100):leftBump(1).idx_bumpTime+(afterBump*100)), 2);
@@ -343,12 +358,12 @@ for num1 = numCount
     
     trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.tgtDir] == 180 & isnan([cds.trials.bumpTime]) ,:);
     window = [[trialTable.startTime] + .01* [leftMove.idx_movement_on]' - .01*[leftMove.idx_startTime]'-beforeMove, [trialTable.startTime]+ .01*[leftMove.idx_movement_on]'- .01*[leftMove.idx_startTime]'+afterMove];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, 'cuneate') & [cds.units.ID] >0 & [cds.units.ID]<255);
+    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
         for  i = 1:length(leftMove)
-            leftMoveTotal(i) = sum(leftMove(i).cuneate_spikes(leftMove(i).idx_movement_on:leftMove(i).idx_movement_on+(afterMove*100),num1));
+            leftMoveTotal(i) = sum(leftMove(i).(unitSpikes)(leftMove(i).idx_movement_on:leftMove(i).idx_movement_on+(afterMove*100),num1));
         end
         [~,sortMat] = sort(leftMoveTotal);
         for trialNum = 1:height(trialTable)
@@ -376,15 +391,16 @@ for num1 = numCount
     plot([.125,.125],[0,40], 'r--')
     ylim([0,40])
     set(gca,'TickDir','out', 'box', 'off') 
+    set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeBump, afterBump])
     trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.bumpDir] == 180, :);
     window = [[trialTable.bumpTime]-beforeBump, [trialTable.bumpTime]+afterBump];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, 'cuneate') & [cds.units.ID] >0 & [cds.units.ID]<255);
+    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
         for  i = 1:length(leftBump)
-            leftBumpTotal(i) = sum(leftBump(i).cuneate_spikes(leftBump(i).idx_bumpTime:leftBump(i).idx_bumpTime+13,num1));
+            leftBumpTotal(i) = sum(leftBump(i).(unitSpikes)(leftBump(i).idx_bumpTime:leftBump(i).idx_bumpTime+13,num1));
         end
         [~,sortMat] = sort(leftBumpTotal);
         for trialNum = 1:height(trialTable)
@@ -408,20 +424,22 @@ for num1 = numCount
     subplot(2,2,4)
     xlim([-1*beforeMove, afterMove])
     for  i = 1:length(leftMove)
-        leftMoveFiring(i,:) = leftMove(i).cuneate_spikes(leftMove(i).idx_movement_on-(beforeMove*100):leftMove(i).idx_movement_on+(afterMove*100),num1);
+        leftMoveFiring(i,:) = leftMove(i).(unitSpikes)(leftMove(i).idx_movement_on-(beforeMove*100):leftMove(i).idx_movement_on+(afterMove*100),num1);
     end
     meanleftMoveFiring = 100*mean(leftMoveFiring);
     bar(linspace(-1*beforeMove, afterMove, length(meanleftMoveFiring)), conv(meanleftMoveFiring, w, 'same'), 'edgecolor', 'none', 'BarWidth', 1)
     set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeMove, afterMove])
     %left Bump Firing
     subplot(2,2,3)
     xlim([-1*beforeBump, afterBump])
     set(gca,'TickDir','out')
+    set(gca,'xtick',[],'ytick',[])
     leftBumpFiring = zeros(length(leftBump), length(speedleftKin));
 
     for  i = 1:length(leftBump)
-        leftBumpFiring(i,:) = leftBump(i).cuneate_spikes(leftBump(i).idx_bumpTime-(beforeBump*100):leftBump(i).idx_bumpTime+(afterBump*100),num1);
+        leftBumpFiring(i,:) = leftBump(i).(unitSpikes)(leftBump(i).idx_bumpTime-(beforeBump*100):leftBump(i).idx_bumpTime+(afterBump*100),num1);
     end
     meanleftFiring = 100*mean(leftBumpFiring);
     bar(linspace(-1*beforeBump, afterBump, length(meanleftFiring)), conv(meanleftFiring, w, 'same'), 'edgecolor', 'none', 'BarWidth', 1)
@@ -429,6 +447,7 @@ for num1 = numCount
     xlim([-1*beforeBump, afterBump])
 
     set(gca, 'TickDir', 'out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
         %saveas(gca, 'leftBumpKinematics.png')
         
         
@@ -458,6 +477,7 @@ for num1 = numCount
     ylim([0,40])
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out','box', 'off')
+    set(gca,'xtick',[],'ytick',[])
 
     % right Passive Kinematics
     rightBumpKin = zeros(length(rightBump), length(rightBump(1).idx_bumpTime-(beforeBump*100):rightBump(1).idx_bumpTime+(afterBump*100)), 2);
@@ -471,12 +491,12 @@ for num1 = numCount
     
         trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.tgtDir] == 0 & isnan([cds.trials.bumpTime]) ,:);
     window = [[trialTable.startTime] + .01* [rightMove.idx_movement_on]' - .01*[rightMove.idx_startTime]'-beforeMove, [trialTable.startTime]+ .01*[rightMove.idx_movement_on]'- .01*[rightMove.idx_startTime]'+afterMove];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, 'cuneate') & [cds.units.ID] >0 & [cds.units.ID]<255);
+    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
         for  i = 1:length(rightMove)
-            rightMoveTotal(i) = sum(rightMove(i).cuneate_spikes(rightMove(i).idx_movement_on:rightMove(i).idx_movement_on+(afterMove*100),num1));
+            rightMoveTotal(i) = sum(rightMove(i).(unitSpikes)(rightMove(i).idx_movement_on:rightMove(i).idx_movement_on+(afterMove*100),num1));
         end
         [~,sortMat] = sort(rightMoveTotal);
         for trialNum = 1:height(trialTable)
@@ -503,15 +523,16 @@ for num1 = numCount
     plot([.125,.125],[0,40], 'r--')
     ylim([0,40])
     set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeBump, afterBump])
         trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.bumpDir] == 0, :);
     window = [[trialTable.bumpTime]-beforeBump, [trialTable.bumpTime]+afterBump];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, 'cuneate') & [cds.units.ID] >0 & [cds.units.ID]<255);
+    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
     unit = cuneateUnits(num1);
     spikeList = [unit.spikes.ts];
     if plotRasters
         for  i = 1:length(rightBump)
-            rightBumpTotal(i) = sum(rightBump(i).cuneate_spikes(rightBump(i).idx_bumpTime:rightBump(i).idx_bumpTime+13,num1));
+            rightBumpTotal(i) = sum(rightBump(i).(unitSpikes)(rightBump(i).idx_bumpTime:rightBump(i).idx_bumpTime+13,num1));
         end
         [~,sortMat] = sort(rightBumpTotal);
 
@@ -537,20 +558,22 @@ for num1 = numCount
     subplot(2,2,4)
     xlim([-1*beforeBump, afterBump])
     for  i = 1:length(rightMove)
-        rightMoveFiring(i,:) = rightMove(i).cuneate_spikes(rightMove(i).idx_movement_on-(beforeMove*100):rightMove(i).idx_movement_on+(afterMove*100),num1);
+        rightMoveFiring(i,:) = rightMove(i).(unitSpikes)(rightMove(i).idx_movement_on-(beforeMove*100):rightMove(i).idx_movement_on+(afterMove*100),num1);
     end
     meanrightMoveFiring = 100*mean(rightMoveFiring);
     bar(linspace(-1*beforeMove, afterMove, length(meanrightMoveFiring)), conv(meanrightMoveFiring, w, 'same'), 'edgecolor', 'none', 'BarWidth', 1)
     set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeMove, afterMove])
     %right Bump Firing
     subplot(2,2,3)
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out')
+    set(gca,'xtick',[],'ytick',[])
     rightBumpFiring = zeros(length(rightBump), length(speedrightKin));
 
     for  i = 1:length(rightBump)
-        rightBumpFiring(i,:) = rightBump(i).cuneate_spikes(rightBump(i).idx_bumpTime-(beforeBump*100):rightBump(i).idx_bumpTime+(afterBump*100),num1);
+        rightBumpFiring(i,:) = rightBump(i).(unitSpikes)(rightBump(i).idx_bumpTime-(beforeBump*100):rightBump(i).idx_bumpTime+(afterBump*100),num1);
     end
     meanrightFiring = 100*mean(rightBumpFiring);
     bar(linspace(-1*beforeBump, afterBump, length(meanrightFiring)), conv(meanrightFiring,w ,'same'), 'edgecolor', 'none', 'BarWidth', 1)
@@ -558,6 +581,7 @@ for num1 = numCount
     xlim([-1*beforeBump, afterBump])
 
     set(gca, 'TickDir', 'out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
         %saveas(gca, 'rightBumpKinematics.png')
         
         
@@ -566,34 +590,41 @@ for num1 = numCount
         conv(meanrightMoveFiring,w), conv(meanrightFiring,w)]);
     set(0,'CurrentFigure', up)
     set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
     subplot(2,2,3)
     ylim([0, max(1,1.1*maxFiring)])
     subplot(2,2,4)
     ylim([0, max(1,1.1*maxFiring)])
     set(0,'CurrentFigure', down)
-        set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'TickDir','out', 'box', 'off')
     subplot(2,2,3)
     ylim([0, max(1,1.1*maxFiring)])
     subplot(2,2,4)
     ylim([0, max(1,1.1*maxFiring)])
     set(0,'CurrentFigure', left)
-        set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
     subplot(2,2,3)
     ylim([0, max(1,1.1*maxFiring)])
     subplot(2,2,4)
     ylim([0, max(1,1.1*maxFiring)])
     set(0,'CurrentFigure', right)
-        set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'TickDir','out', 'box', 'off')
+    set(gca,'xtick',[],'ytick',[])
     subplot(2,2,3)
     ylim([0, max(1,1.1*maxFiring)])
     subplot(2,2,4)
     ylim([0, max(1,1.1*maxFiring)])
     
     if savePlots
-        saveas(up, [title1, 'Up09032017.png'])
-        saveas(down, [title1, 'Down09032017.png'])
-        saveas(left, [title1, 'Left09032017.png'])
-        saveas(right, [title1, 'Right09032017.png'])
+        set(up, 'Renderer', 'Painters');
+        saveas(up, [strrep(title1, ' ', '_'), '_Up_', num2str(date), '.pdf'])
+        set(down, 'Renderer', 'Painters');
+        saveas(down, [strrep(title1, ' ', '_'), 'Down', num2str(date), '.pdf'])
+        set(left, 'Renderer', 'Painters');
+        saveas(left, [strrep(title1, ' ', '_'), 'Left', num2str(date), '.pdf'])
+        set(right, 'Renderer', 'Painters');
+        saveas(right, [strrep(title1, ' ', '_'),'Right', num2str(date), '.pdf'])
     end
         
         

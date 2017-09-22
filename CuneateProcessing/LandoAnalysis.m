@@ -50,7 +50,7 @@
     ex.meta.hasEmg = true;
     ex.meta.hasAnalog = true;
     %load data from cds to experiment
-    ex.addSession(cds2)
+    ex.addSession(cds)
 %% change the units if you want to:
     %ex.units.deleteInvalid
     %ex.units.removeSorting
