@@ -42,49 +42,49 @@ leftBump = bumpTrials([bumpTrials.bumpDir] == 180);
 rightBump = bumpTrials([bumpTrials.bumpDir] == 0);
 
 %% 
-downBumpPec = zeros(11, length(downBump));
+downBumpPec = zeros(3, length(downBump));
 for i = 1:length(downBump)
-    downBumpPec(:,i) = downBump(i).opensim(downBump(i).idx_bumpTime:downBump(i).idx_bumpTime+10,muscleNum);
+    downBumpPec(:,i) = downBump(i).opensim(downBump(i).idx_bumpTime:downBump(i).idx_bumpTime+2,muscleNum);
 end
 
-upBumpPec = zeros(11, length(upBump));
+upBumpPec = zeros(3, length(upBump));
 for i =1:length(upBump)
-    upBumpPec(:,i) = upBump(i).opensim(upBump(i).idx_bumpTime:upBump(i).idx_bumpTime+10,muscleNum);
+    upBumpPec(:,i) = upBump(i).opensim(upBump(i).idx_bumpTime:upBump(i).idx_bumpTime+2,muscleNum);
 end
 
-leftBumpPec = zeros(11, length(leftBump));
+leftBumpPec = zeros(3, length(leftBump));
 for i =1:length(leftBump)
-    leftBumpPec(:,i) = leftBump(i).opensim(leftBump(i).idx_bumpTime:leftBump(i).idx_bumpTime+10,muscleNum);
+    leftBumpPec(:,i) = leftBump(i).opensim(leftBump(i).idx_bumpTime:leftBump(i).idx_bumpTime+2,muscleNum);
 end
 
-rightBumpPec = zeros(11, length(rightBump));
+rightBumpPec = zeros(3, length(rightBump));
 for i =1:length(rightBump)
-    rightBumpPec(:,i) = rightBump(i).opensim(rightBump(i).idx_bumpTime:rightBump(i).idx_bumpTime+10,muscleNum);
+    rightBumpPec(:,i) = rightBump(i).opensim(rightBump(i).idx_bumpTime:rightBump(i).idx_bumpTime+2,muscleNum);
 end
 
-downMovePec = zeros(11, length(downMove));
+downMovePec = zeros(3, length(downMove));
 for i = 1:length(downMovePec(1,:))
-    downMovePec(:,i) = downMove(i).opensim(downMove(i).idx_movement_on:downMove(i).idx_movement_on+10,muscleNum);
+    downMovePec(:,i) = downMove(i).opensim(downMove(i).idx_movement_on:downMove(i).idx_movement_on+2,muscleNum);
 end
 
-upMovePec = zeros(11, length(upMove));
+upMovePec = zeros(3, length(upMove));
 for i =1:length(upMovePec(1,:))
-    upMovePec(:,i) = upMove(i).opensim(upMove(i).idx_movement_on:upMove(i).idx_movement_on+10,muscleNum);
+    upMovePec(:,i) = upMove(i).opensim(upMove(i).idx_movement_on:upMove(i).idx_movement_on+2,muscleNum);
 end
 
-leftMovePec = zeros(11, length(leftMove));
+leftMovePec = zeros(3, length(leftMove));
 for i =1:length(leftMovePec(1,:))
-    leftMovePec(:,i) = leftMove(i).opensim(leftMove(i).idx_movement_on:leftMove(i).idx_movement_on+10,muscleNum);
+    leftMovePec(:,i) = leftMove(i).opensim(leftMove(i).idx_movement_on:leftMove(i).idx_movement_on+2,muscleNum);
 end
 
-rightMovePec = zeros(11, length(rightMove));
+rightMovePec = zeros(3, length(rightMove));
 for i =1:length(rightMovePec(1,:))
-    rightMovePec(:,i) = rightMove(i).opensim(rightMove(i).idx_movement_on:rightMove(i).idx_movement_on+10,muscleNum);
+    rightMovePec(:,i) = rightMove(i).opensim(rightMove(i).idx_movement_on:rightMove(i).idx_movement_on+2,muscleNum);
 end
 %%
 % pecMax = max(cds.analog{1,3}.pectoralis_sup_len(1:217544));
 %close all
-muscleNum =33;
+% muscleNum =33;
 timeVec = linspace(0, .1, length(upBumpPec(:,1)));
 figure
 subplot(3,3,2)
