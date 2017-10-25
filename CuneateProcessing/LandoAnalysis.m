@@ -43,10 +43,10 @@
     ex=experiment();
     %configure the parameters we want to load into the experiment:
 %     ex.meta.hasLfp=true;
-%     ex.meta.hasKinematics=true;
-%     ex.meta.hasForce=true;
+    ex.meta.hasKinematics=true;
+    ex.meta.hasForce=true;
     ex.meta.hasUnits=true;
-%     ex.meta.hasTrials=true;
+    ex.meta.hasTrials=true;
     ex.meta.hasEmg = true;
     ex.meta.hasAnalog = true;
     %load data from cds to experiment
@@ -67,9 +67,9 @@
     ex.binConfig.include(1).field='units';
     ex.binConfig.include(1).which=find([ex.units.data.ID]>0 & [ex.units.data.ID]<255);
     ex.binConfig.include(2).field = 'analog';
-%     ex.binConfig.include(3).field = 'kin';
-%     ex.binConfig.include(4).field = 'force';
-%     ex.binConfig.include(5).field = 'emg';
+    ex.binConfig.include(3).field = 'kin';
+    ex.binConfig.include(4).field = 'force';
+    ex.binConfig.include(5).field = 'emg';
         
 %% bin the data:
     ex.binData()
