@@ -13,7 +13,7 @@ params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
 td = getMoveOnsetAndPeak(td, params);
 
-td = binTD(td, 5);
+td = binTD(td, 10);
 cuneateSpikes = cat(1, td.cuneate_spikes);
 s1Spikes = cat(1, td.area2_spikes);
 bothSpikes = [cuneateSpikes, s1Spikes];
@@ -61,11 +61,12 @@ for j = 1:length(goodCuneate(1,:))
     for i = 1:39
         mdl1{i} = fitglm([goodMuscles(:, i),goodMuscles(:,i+39)], goodCuneate(:,j));
         r2(i,j) = mdl1{i}.Rsquared.Adjusted;
+        disp(['Electrode', num2str(i), ' Muscle ', num2str(j)]) 
     end
-    [~, ind(j)] = max(r2);
+    [~, ind(j)] = max(r2(:,j));
 end
 
-
+% 
 %%
 % for i =1 :length(goodMuscles(1,:))
 %     hasanMuscles = goodMuscles(:,i) - max(goodMuscles(:,i));
@@ -96,15 +97,15 @@ close all
 % end
 
 %%
-[fit1, dev, stats] = glmfit(goodCuneate, goodVel(:,1), 'poisson');
-[fit2, dev, stats] = glmfit(goodCuneate, goodVel(:,2), 'poisson');
-yfit1 = glmval(fit1, goodCuneate, 'log');
-yfit2 = glmval(fit2, goodCuneate, 'log');
-figure
-plot(yfit1)
-hold on
-plot(goodVel(:,1),'r')
-figure
-plot(yfit2)
-hold on
-plot(goodVel(:,2),'r')
+% [fit1, dev, stats] = glmfit(goodCuneate, goodVel(:,1), 'poisson');
+% [fit2, dev, stats] = glmfit(goodCuneate, goodVel(:,2), 'poisson');
+% yfit1 = glmval(fit1, goodCuneate, 'log');
+% yfit2 = glmval(fit2, goodCuneate, 'log');
+% figure
+% plot(yfit1)
+% hold on
+% plot(goodVel(:,1),'r')
+% figure
+% plot(yfit2)
+% hold on
+% plot(goodVel(:,2),'r')
