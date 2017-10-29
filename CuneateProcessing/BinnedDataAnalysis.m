@@ -2,19 +2,18 @@
 
 %%
 close all
-emgCols =  2:22;
-muscleCols = 42:119;
+emgCols =  16:37;
+muscleCols = 56:131;
 
-binned = ex1.bin.data(1:43508,:);
-cuneateNeurons = binned(:,150:168);
+cuneateNeurons = binned(:,142:160);
 speed = sqrt(sum([binned.vx, binned.vy].^2, 2));
-window1 = [[ex1.trials.data.bumpTime], [ex1.trials.data.bumpTime]+.2];
+window1 = [[ex.trials.data.bumpTime], [ex.trials.data.bumpTime]+.2];
 passiveFlag = inWindows(binned.t, window1);
 moveFlag = speed>5;
 activeFlag = ~passiveFlag & moveFlag;
  
 
-for  i=1:width(cuneateNeurons)
+for  i=1:2
     %% All Data
         %% Muscle only fits
     emgAllData{i} = fitlm(table2array(binned(:, emgCols)), table2array(cuneateNeurons(:,i)));

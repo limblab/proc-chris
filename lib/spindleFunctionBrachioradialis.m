@@ -30,8 +30,9 @@ for j = unit
     xlim(xBound);
 
 end
-stimOn(1:8640) = 0;
-stimOn(8640:2000:52650) = 0;
+stimOn(1:7385) = 0;
+stimOn(7385:2000:55405) = 0;
+stimOn(55405:65398) = 0;
 stimDiff = diff(stimOn);
 count = 0;
 count1 = 1;

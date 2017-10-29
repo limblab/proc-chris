@@ -1,5 +1,5 @@
 pds = ex.bin.pdData;
-cuneatePD = pds(strcmp(pds.array, 'RightCuneate'), :);
+cuneatePD = pds(strcmp(pds.array, 'cuneate'), :);
 tunedCuneate = cuneatePD(cuneatePD.posIsTuned | cuneatePD.velIsTuned,:);
 posTunedCuneate = cuneatePD(cuneatePD.posIsTuned,:);
 velTunedCuneate = cuneatePD(cuneatePD.velIsTuned,:);
@@ -11,8 +11,8 @@ posCI = posTunedCuneate.posDirCI;
 velCI = velTunedCuneate.velDirCI;
 posCIsize = posCI(:,2) - posCI(:,1);
 velCIsize = velCI(:,2) - velCI(:,1);
-posDirTuned = posTunedCuneate(posCIsize <pi/4,:);
-velDirTuned = velTunedCuneate(velCIsize<pi/4,:);
+posDirTuned = posTunedCuneate(posCIsize <pi/2,:);
+velDirTuned = velTunedCuneate(velCIsize<pi/2,:);
 disp(['Pos Tuned %', num2str(height(posTunedCuneate)*100/height(cuneatePD) )]);
 disp(['Velocity Tuned %', num2str(height(velTunedCuneate)*100/height(cuneatePD))]);
 disp(['PosDir Tuned %',num2str(height(posDirTuned)*100/height(cuneatePD))]);

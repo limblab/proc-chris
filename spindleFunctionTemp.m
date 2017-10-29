@@ -1,9 +1,9 @@
 function [h5, p5, ci5, stats5] = spindleFunction (cds, unitNum, window )
-close all
+
 xBound = window;
 
 timeVec = 0:.02:max(cds.analog{1,1}.t);
-stimOn = ones(length(cds.analog{1,1}.KinectSyncPulse),1);
+stimOn = zeros(length(cds.analog{1,1}.Sync),1);
 stimSig = cds.analog{1,1}.Sync;
 unit = unitNum;
 % for i = 1:length(stimOn)
@@ -21,17 +21,26 @@ for j = unit
     spikes = [cds.units(j).spikes.ts([cds.units(j).spikes.ts]> xBound(1) & [cds.units(j).spikes.ts]<xBound(2))];
     
     figure
+    subplot(2,1,1)
     yyaxis left
     plot(cds.analog{1,1}.t, cds.analog{1, 1}.Sync)
     ylabel('Vibrator Voltage (mV)')
     hold on
     yyaxis right
-    plot(timeVec(1:end-1), smooth(smooth(spikeRate(:,j))))
+    plot(timeVec(1:end-1), smooth(spikeRate(:,j)))
     xlim(xBound);
-
+    
+    for i = 1:length(spikes)
+        subplot(2,1,2)
+        line([spikes(i), spikes(i)], [0,.5])
+        hold on
+        ylim([-.5,1.5])
+    end
+    xlim(xBound)
+    ylabel('Firing rate (Hz)')
 end
-stimOn(1:8640) = 0;
-stimOn(8640:2000:52650) = 0;
+stimOn(1:642) = 0;
+stimOn(642:2000:end) = 0;
 stimDiff = diff(stimOn);
 count = 0;
 count1 = 1;
@@ -115,9 +124,6 @@ p1.LineWidth = 2;
 xlabel('Time Before Spike (ms)')
 ylabel('Average Vibration Voltage (mV)')
 f1 = figure;
-stimWindow = stimWindow(stimWindow(:,1) < 150 & stimWindow(:,1) >5,:);
-winDif = stimWindow(:,2) -stimWindow(:,1);
-stimWindow =stimWindow(winDif>0,:);
 beforeTrialWindow = .25;
 afterTrialWindow = 2.2;
 spikesInWindow = cell(length(stimWindow),1);
@@ -149,7 +155,7 @@ for i = sorting'
     for k = 1:length(spikesInWindow{i})
         line([spikesInWindow{i}(k), spikesInWindow{i}(k)], [counter,counter+.5], 'LineWidth', 1)
         hold on
-        ylim([.5,35])
+        ylim([.5,60])
     end
     xlim([-.25, 2.2])
     p = patch([-1.*firstPeak(i)', sortedWidth(counter), sortedWidth(counter), -1.*firstPeak(i)'], [counter-.25, counter-.25, counter+.75, counter+.75], 'r');
@@ -168,8 +174,8 @@ xlim([-.25, 2.2])
 ylabel('Firing Rate (Hz)')
 xlabel('Time Relative to Vibration Start (seconds)')
 set(gca,'TickDir','out','box', 'off')
-suptitle('Brachioradialis Reponse to Spindle Vibration')
+suptitle('Pectoralis Reponse to Spindle Vibration')
 set(f1, 'Renderer', 'Painters');
-%saveas(f1, 'LaCNr20170917E75U1BrachioradialisSpindleStimulation.fig')
+saveas(f1, 'LaCNr20170903E75U1BrachioradialisSpindleStimulation.pdf')
 end
 

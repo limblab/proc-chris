@@ -42,12 +42,12 @@
 %     loadOpenSimData(cds, 'C:\Users\csv057\Documents\MATLAB\MonkeyData\Motion Tracking\20170903', 'joint_vel')
     ex=experiment();
     %configure the parameters we want to load into the experiment:
-    ex.meta.hasLfp=true;
+%     ex.meta.hasLfp=true;
     ex.meta.hasKinematics=true;
     ex.meta.hasForce=true;
     ex.meta.hasUnits=true;
     ex.meta.hasTrials=true;
-    ex.meta.hasEmg = false;
+    ex.meta.hasEmg = true;
     ex.meta.hasAnalog = true;
     %load data from cds to experiment
     ex.addSession(cds)
@@ -57,7 +57,7 @@
 %% set configuration parameters for computing firing rate:
     ex.firingRateConfig.cropType='tightCrop';
     ex.firingRateConfig.offset=-0;
-%     ex.emg.processDefault;
+    ex.emg.processDefault;
     %ex.firingRateConfig.lags=[-2 3];
     %firing rate may be computed directely by using ex.calcFR, or will be
     %computed on the fly when ex.binData is called
@@ -69,6 +69,7 @@
     ex.binConfig.include(2).field = 'analog';
     ex.binConfig.include(3).field = 'kin';
     ex.binConfig.include(4).field = 'force';
+    ex.binConfig.include(5).field = 'emg';
         
 %% bin the data:
     ex.binData()
