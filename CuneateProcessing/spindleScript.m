@@ -2,8 +2,8 @@ close all
 xBound = [16, 16.1];
 
 timeVec = 0:.02:max(cds.analog{1,1}.t);
-stimOn = zeros(length(cds.analog{1,2}.SpindleStim),1);
-stimSig = cds.analog{1,2}.SpindleStim;
+stimOn = zeros(length(cds.analog{1,1}.KinectSyncPulse),1);
+stimSig = cds.analog{1,1}.KinectSyncPulse;
 unit = 148;
 for i = 1:length(stimOn)
     if stimSig(i)>100
@@ -97,7 +97,7 @@ histogram(diffOn)
 hold on
 histogram(diffOff)
 
-spindleStim = [cds.analog{1,2}.t,cds.analog{1,2}.SpindleStim];
+spindleStim = [cds.analog{1,2}.t,cds.analog{1,1}.KinectSyncPulse];
 psthBefore = 50;
 psthAfter = 0;
 psth = zeros(psthBefore+psthAfter,1);
