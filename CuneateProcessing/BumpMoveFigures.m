@@ -4,7 +4,7 @@ clearvars -except cds
 %load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
 savePlots = 0;
-params.event_list = {'bumpTime'; 'ctrHoldTime'; 'bumpDir'};
+params.event_list = {'bumpTime'; 'bumpDir'};
 params.extra_time = [.4,.6];
 td = parseFileByTrial(cds, params);
 td = td(~isnan([td.target_direction]));
