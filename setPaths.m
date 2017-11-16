@@ -10,6 +10,7 @@ elseif strcmp(compName, 'DESKTOP')
     addpath(genpath('C:\Users\wrest_000\Documents\Github\proc-chris\'));
     addpath(genpath('C:\Users\wrest_000\Documents\Github\TrialData\'));
     addpath(genpath('C:\Users\wrest_000\Documents\Github\KinectTracking\'));
+    addpath(genpath('C:\Users\wrest_000\Documents\Github\proc-raeed\'));
 else
     error('This is not a supported computer');
 end
