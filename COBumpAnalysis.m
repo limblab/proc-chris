@@ -1,11 +1,10 @@
 % clear all
 % load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170728\Lando_RW_hold_20170728_001_TD.mat');
 
-% array = 'cuneate';
-% params.event_list = {'bumpTime'; 'bumpDir'};
-% params.extra_time = [.4,.6];
-% trial_data = parseFileByTrial(cds, params);
-%%
+array = 'cuneate';
+params.event_list = {'bumpTime'; 'bumpDir'};
+params.extra_time = [.4,.6];
+trial_data = parseFileByTrial(cds, params);
 [tdIdx,td] = getTDidx(trial_data, 'result', 'R');
 params.go_cue_name ='idx_goCueTime';
 params.bumpTime = 'idx_bumpTime';
@@ -34,7 +33,7 @@ scatter(pos_pas(:,1), pos_pas(:,2), 'b')
 %%
 close all
 td1 = td;
-paramHeat.array = 'cuneate';
+paramHeat.array = array;
 paramHeat.unitsToPlot = 1:length(td(1).([paramHeat.array,'_spikes'])(1,:));
 paramHeat.numBounds = 7;
 paramHeat.xLimits = [-15,15];
@@ -72,20 +71,21 @@ paramHeat.yLimits = [-35,-29];
 %     
 % end
 %%
-paramPDs.out_signals = 'cuneate_spikes';
+paramPDs.out_signals = [array, '_spikes'];
 paramPDs.move_corr = 'vel';
 actPDTable = getTDPDs(td_act, paramPDs);
 
 %%
-paramPDs.out_signals = 'cuneate_spikes';
+paramPDs.out_signals =[array, '_spikes'];
 paramPDs.move_corr = 'vel';
 pasPDTable = getTDPDs(td_pas, paramPDs);
+
 %%
 [curvesAct, binsAct] = getTuningCurves(td_act,struct('out_signals',{paramPDs.out_signals},'out_signal_names',{td_act(1).cuneate_unit_guide},'num_bins',4));
 [curvesPas, binsPas] = getTuningCurves(td_pas, struct('out_signals', {paramPDs.out_signals},'out_signal_names',{td_act(1).cuneate_unit_guide}, 'num_bins',4));
 %%
 close all
-isTuned_params = struct('move_corr','vel','CIthresh',pi/6);
+isTuned_params = struct('move_corr','vel','CIthresh',pi/4);
 isTunedAct = checkIsTuned(actPDTable,isTuned_params);
 actPDTableTuned = actPDTable(isTunedAct,:);
 isTunedPas = checkIsTuned(pasPDTable, isTuned_params);
@@ -105,10 +105,10 @@ for i = 1:sum(isTunedAct)
     figure(h1)
     plotTuning(binsAct,actPDTable(i,:),curvesActTuned(i,:),maxDist,colorsAct(i,:),'-')
 end
-for i = 1:sum(isTunedPas)
-    figure(h2)
-    plotTuning(binsAct,pasPDTableTuned(i,:),curvesPasTuned(i,:),maxDist,colorsPas(i,:),'--')
-end
+% for i = 1:sum(isTunedPas)
+%     figure(h2)
+%     plotTuning(binsAct,pasPDTableTuned(i,:),curvesPasTuned(i,:),maxDist,colorsPas(i,:),'--')
+% end
 figure(h1)
 title('Active PDs')
 figure(h2)

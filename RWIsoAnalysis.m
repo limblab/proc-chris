@@ -3,8 +3,8 @@
 % clear all
 
 array = 'RightCuneate';
-date = '20170303';
-task= 'RWIso';
+date = '20170917';
+task= 'COactpas';
 
 trial_data = parseFileByTrial(cds);
 [tdIdx,td] = getTDidx(trial_data, 'result', 'R');

@@ -1,38 +1,35 @@
 % clear all
 close all
-clearvars -except cds
+% clearvars -except cds
 %load('Lando3202017COactpasCDS.mat')
-plotRasters = 1;
-savePlots = 0;
-params.event_list = {'bumpTime'; 'bumpDir'};
-params.extra_time = [.4,.6];
-td = parseFileByTrial(cds, params);
-td = td(~isnan([td.target_direction]));
-params.start_idx =  'idx_goCueTime';
-params.end_idx = 'idx_endTime';
-td = getMoveOnsetAndPeak(td, params);
+% plotRasters = 1;
+% savePlots = 0;
+% params.event_list = {'bumpTime'; 'bumpDir'};
+% params.extra_time = [.4,.6];
+% params.include_ts = true;
+% params.include_start = true;
+% td = parseFileByTrial(cds, params);
+% td = td(~isnan([td.target_direction]));
+% params.start_idx =  'idx_goCueTime';
+% params.end_idx = 'idx_endTime';
+% td = getMoveOnsetAndPeak(td, params);
 
-date = 03202017;
-unitNames = 'LeftS1';
+date = 09172017;
+unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
 beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
-trialCds = cds.trials([cds.trials.result] =='R', :);
-startTimes = trialCds.startTime;
+
 w = gausswin(5);
 w = w/sum(w);
-for i = 1:length(td)
-    td(i).StartTime = startTimes(i);
-end
-% td1 = td([td.StartTime] <2174);
-unitsToPlot = [1]; %Bump Tuned
-% unitsToPlot = [3,4,5,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,28,29,31,36,38]; % MoveTuned
+
+
 numCount = 1:length(td(1).(unitSpikes)(1,:));
-unitsToPlot = numCount;
-% numCount = unitsToPlot;
+% numCount  =1;
+unitsToPlot = 1;
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 
@@ -45,7 +42,15 @@ rightMove = td([td.target_direction]==0& isnan([td.bumpDir]));
 close all
 for num1 = numCount
     title1 = ['Lando', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
-
+    paramsMove.neuron = num1;
+    paramsMove.yMax = 40;
+    paramsMove.align= 'movement_on';
+    paramsMove.xBound = [-.3, .3];
+    
+    paramsBump.neuron = num1;
+    paramsBump.yMax = 40;
+    paramsBump.align= 'bumpTime';
+    paramsBump.xBound = [-.3, .3];
     %% Up Active
     upBump = bumpTrials([bumpTrials.bumpDir] == 90);
     upMoveKin = zeros(length(upMove), length(upMove(1).idx_movement_on-(beforeMove*100):upMove(1).idx_movement_on+(afterMove*100)), 2);
@@ -70,30 +75,11 @@ for num1 = numCount
     ylim([0,40])
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out','box', 'off') 
-    set(gca,'xtick',[],'ytick',[])
+%     set(gca,'xtick',[],'ytick',[])
 
-    trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.tgtDir] == 90 & isnan([cds.trials.bumpTime]) ,:);
-    window = [[trialTable.startTime] + .01* [upMove.idx_movement_on]' - .01*[upMove.idx_startTime]'-beforeMove, [trialTable.startTime]+ .01*[upMove.idx_movement_on]'- .01*[upMove.idx_startTime]'+afterMove];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
-    unit = cuneateUnits(num1);
-    spikeList = [unit.spikes.ts];
+
     if plotRasters
-        for  i = 1:length(upMove)
-            upMoveTotal(i) = sum(upMove(i).(unitSpikes)(upMove(i).idx_movement_on:upMove(i).idx_movement_on+(afterMove*100),num1));
-        end
-        [~,sortMat] = sort(upMoveTotal);
-        for trialNum = 1:height(trialTable)
-            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
-            first = find(spikeList>trialWindow(1),1);
-            last = find(spikeList >trialWindow(2),1)-1;
-            for spike = first:last
-                x = [spikeList(spike)-trialWindow(1)-beforeMove, spikeList(spike)-trialWindow(1)-beforeMove];
-                y = [trialNum*40/height(trialTable), trialNum*40/height(trialTable)+.5*40/height(trialTable)];
-                plot(x,y,'k')
-                hold on
-            end
-            
-        end
+        unitRaster(upMove, paramsMove);
     end
 %     yyaxis right
 %     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
@@ -124,33 +110,15 @@ for num1 = numCount
     set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeBump, afterBump])
     
-    trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.bumpDir] == 90, :);
-    window = [[trialTable.bumpTime]-beforeBump, [trialTable.bumpTime]+afterBump];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
-    unit = cuneateUnits(num1);
-    spikeList = [unit.spikes.ts];
+   
     if plotRasters
-        for  i = 1:length(upBump)
-            upBumpTotal(i) = sum(upBump(i).(unitSpikes)(upBump(i).idx_bumpTime:upBump(i).idx_bumpTime+13,num1));
-        end
-        [~,sortMat] = sort(upBumpTotal);
-        for trialNum = 1:height(trialTable)
-            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
-            first = find(spikeList>trialWindow(1),1);
-            last = find(spikeList >trialWindow(2),1)-1;
-            for spike = first:last
-                x = [spikeList(spike)-trialWindow(1)-beforeBump, spikeList(spike)-trialWindow(1)-beforeBump];
-                y = [trialNum*40/height(trialTable), trialNum*40/height(trialTable)+.5*40/height(trialTable)];
-                plot(x,y,'k')
-                hold on
-            end
-        end
+        unitRaster(upBump, paramsBump);
     end
-%     yyaxis right
-%     plot(linspace(-1*beforeBump, afterBump, length(meanUpEMG(:,1))), meanUpEMG(:,20), 'r')
-%     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,2), 'r')
-%     hold on
-%     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
+    yyaxis right
+    plot(linspace(-1*beforeBump, afterBump, length(meanUpEMG(:,1))), meanUpEMG(:,20), 'r')
+    plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,2), 'r')
+    hold on
+    plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
 
     
     
@@ -221,27 +189,9 @@ for num1 = numCount
     speeddownKin = sqrt(meandownKin(:,1).^2 + meandownKin(:,2).^2);
     meandownForce = squeeze(mean(downBumpForce));
     
-    trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.tgtDir] == 270 & isnan([cds.trials.bumpTime]) ,:);
-    window = [[trialTable.startTime] + .01* [downMove.idx_movement_on]' - .01*[downMove.idx_startTime]'-beforeMove, [trialTable.startTime]+ .01*[downMove.idx_movement_on]'- .01*[downMove.idx_startTime]'+afterMove];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
-    unit = cuneateUnits(num1);
-    spikeList = [unit.spikes.ts];
+   
     if plotRasters
-        for  i = 1:length(downMove)
-            downMoveTotal(i) = sum(downMove(i).(unitSpikes)(downMove(i).idx_movement_on:downMove(i).idx_movement_on+(afterMove*100),num1));
-        end
-        [~,sortMat] = sort(downMoveTotal);
-        for trialNum = 1:height(trialTable)
-            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
-            first = find(spikeList>trialWindow(1),1);
-            last = find(spikeList >trialWindow(2),1)-1;
-            for spike = first:last
-                x = [spikeList(spike)-trialWindow(1)-beforeMove, spikeList(spike)-trialWindow(1)-beforeMove];
-                y = [trialNum*40/height(trialTable), trialNum*40/height(trialTable)+.5*40/height(trialTable)];
-                plot(x,y,'k')
-                hold on
-            end
-        end
+      unitRaster(downMove, paramsMove);
     end
 %     yyaxis right
 %     plot(linspace(-1*beforeBump, afterBump, length(meandownForce1(:,1))), meandownForce1(:,2), 'b')
@@ -259,28 +209,9 @@ for num1 = numCount
     set(gca,'xtick',[])
     ylabel('Trial #')
     xlim([-1*beforeBump, afterBump])
-    
-    trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.bumpDir] == 270, :);
-    window = [[trialTable.bumpTime]-beforeBump, [trialTable.bumpTime]+afterBump];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
-    unit = cuneateUnits(num1);
-    spikeList = [unit.spikes.ts];
+
     if plotRasters
-        for  i = 1:length(downBump)
-            downBumpTotal(i) = sum(downBump(i).(unitSpikes)(downBump(i).idx_bumpTime:downBump(i).idx_bumpTime+13,num1));
-        end
-        [~,sortMat] = sort(downBumpTotal);
-        for trialNum = 1:height(trialTable)
-            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
-            first = find(spikeList>trialWindow(1),1);
-            last = find(spikeList >trialWindow(2),1)-1;
-            for spike = first:last
-                x = [spikeList(spike)-trialWindow(1)-beforeBump, spikeList(spike)-trialWindow(1)-beforeBump];
-                y = [trialNum*40/height(trialTable), trialNum*40/height(trialTable)+.5*40/height(trialTable)];
-                plot(x,y,'k')
-                hold on
-            end
-        end
+        unitRaster(downBump, paramsBump);
     end
 %     yyaxis right
 %     plot(linspace(-1*beforeBump, afterBump, length(meandownForce(:,1))), meandownForce(:,1), 'r')
@@ -356,27 +287,9 @@ for num1 = numCount
     speedleftKin = sqrt(meanleftKin(:,1).^2 + meanleftKin(:,2).^2); 
     meanleftForce = squeeze(mean(leftBumpForce));
     
-    trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.tgtDir] == 180 & isnan([cds.trials.bumpTime]) ,:);
-    window = [[trialTable.startTime] + .01* [leftMove.idx_movement_on]' - .01*[leftMove.idx_startTime]'-beforeMove, [trialTable.startTime]+ .01*[leftMove.idx_movement_on]'- .01*[leftMove.idx_startTime]'+afterMove];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
-    unit = cuneateUnits(num1);
-    spikeList = [unit.spikes.ts];
+  
     if plotRasters
-        for  i = 1:length(leftMove)
-            leftMoveTotal(i) = sum(leftMove(i).(unitSpikes)(leftMove(i).idx_movement_on:leftMove(i).idx_movement_on+(afterMove*100),num1));
-        end
-        [~,sortMat] = sort(leftMoveTotal);
-        for trialNum = 1:height(trialTable)
-            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
-            first = find(spikeList>trialWindow(1),1);
-            last = find(spikeList >trialWindow(2),1)-1;
-            for spike = first:last
-                x = [spikeList(spike)-trialWindow(1)-beforeMove, spikeList(spike)-trialWindow(1)-beforeMove];
-                y = [trialNum*40/height(trialTable), trialNum*40/height(trialTable)+.5*40/height(trialTable)];
-                plot(x,y,'k')
-                hold on
-            end
-        end
+        unitRaster(leftMove, paramsMove);
     end
 %     yyaxis right
 %     plot(linspace(-1*beforeBump, afterBump, length(meanleftForce1(:,1))), meanleftForce1(:,1), 'r')
@@ -393,27 +306,9 @@ for num1 = numCount
     set(gca,'TickDir','out', 'box', 'off') 
     set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeBump, afterBump])
-    trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.bumpDir] == 180, :);
-    window = [[trialTable.bumpTime]-beforeBump, [trialTable.bumpTime]+afterBump];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
-    unit = cuneateUnits(num1);
-    spikeList = [unit.spikes.ts];
+
     if plotRasters
-        for  i = 1:length(leftBump)
-            leftBumpTotal(i) = sum(leftBump(i).(unitSpikes)(leftBump(i).idx_bumpTime:leftBump(i).idx_bumpTime+13,num1));
-        end
-        [~,sortMat] = sort(leftBumpTotal);
-        for trialNum = 1:height(trialTable)
-            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
-            first = find(spikeList>trialWindow(1),1);
-            last = find(spikeList >trialWindow(2),1)-1;
-            for spike = first:last
-                x = [spikeList(spike)-trialWindow(1)-beforeBump, spikeList(spike)-trialWindow(1)-beforeBump];
-                y = [trialNum*40/height(trialTable), trialNum*40/height(trialTable)+.5*40/height(trialTable)];
-                plot(x,y,'k')
-                hold on
-            end
-        end
+       unitRaster(leftBump, paramsBump);
     end
 %     yyaxis right
 %     plot(linspace(-1*beforeBump, afterBump, length(speedleftKin(:,1))), meanleftForce(:,1), 'r')
@@ -488,28 +383,9 @@ for num1 = numCount
     meanrightKin = squeeze(mean(rightBumpKin));
     meanrightForce = squeeze(mean(rightBumpForce));
     speedrightKin = sqrt(meanrightKin(:,1).^2 + meanrightKin(:,2).^2); 
-    
-        trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.tgtDir] == 0 & isnan([cds.trials.bumpTime]) ,:);
-    window = [[trialTable.startTime] + .01* [rightMove.idx_movement_on]' - .01*[rightMove.idx_startTime]'-beforeMove, [trialTable.startTime]+ .01*[rightMove.idx_movement_on]'- .01*[rightMove.idx_startTime]'+afterMove];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
-    unit = cuneateUnits(num1);
-    spikeList = [unit.spikes.ts];
+
     if plotRasters
-        for  i = 1:length(rightMove)
-            rightMoveTotal(i) = sum(rightMove(i).(unitSpikes)(rightMove(i).idx_movement_on:rightMove(i).idx_movement_on+(afterMove*100),num1));
-        end
-        [~,sortMat] = sort(rightMoveTotal);
-        for trialNum = 1:height(trialTable)
-            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
-            first = find(spikeList>trialWindow(1),1);
-            last = find(spikeList >trialWindow(2),1)-1;
-            for spike = first:last
-                x = [spikeList(spike)-trialWindow(1)-beforeMove, spikeList(spike)-trialWindow(1)-beforeMove];
-                y = [trialNum*40/height(trialTable), trialNum*40/height(trialTable)+.5*40/height(trialTable)];
-                plot(x,y,'k')
-                hold on
-            end
-        end
+       unitRaster(rightMove, paramsMove);
     end
 %     yyaxis right
 %     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce1(:,1), 'r')
@@ -525,28 +401,9 @@ for num1 = numCount
     set(gca,'TickDir','out', 'box', 'off')
     set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeBump, afterBump])
-        trialTable = cds.trials([cds.trials.result] =='R' & [cds.trials.bumpDir] == 0, :);
-    window = [[trialTable.bumpTime]-beforeBump, [trialTable.bumpTime]+afterBump];
-    cuneateUnits= cds.units(strcmp({cds.units.array}, unitNames) & [cds.units.ID] >0 & [cds.units.ID]<255);
-    unit = cuneateUnits(num1);
-    spikeList = [unit.spikes.ts];
-    if plotRasters
-        for  i = 1:length(rightBump)
-            rightBumpTotal(i) = sum(rightBump(i).(unitSpikes)(rightBump(i).idx_bumpTime:rightBump(i).idx_bumpTime+13,num1));
-        end
-        [~,sortMat] = sort(rightBumpTotal);
 
-        for trialNum = 1:height(trialTable)
-            trialWindow = [window(sortMat(trialNum),1), window(sortMat(trialNum),2)];
-            first = find(spikeList>trialWindow(1),1);
-            last = find(spikeList >trialWindow(2),1)-1;
-            for spike = first:last
-                x = [spikeList(spike)-trialWindow(1)-beforeBump, spikeList(spike)-trialWindow(1)-beforeBump];
-                y = [trialNum*40/height(trialTable), trialNum*40/height(trialTable)+.5*40/height(trialTable)];
-                plot(x,y,'k')
-                hold on
-            end
-        end
+    if plotRasters
+       unitRaster(rightBump, paramsBump);
     end
 %     yyaxis right
 %     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce(:,1), 'r')
