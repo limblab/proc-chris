@@ -8,16 +8,17 @@ task= 'RW';
 paramTD.include_ts = true;
 paramTD.include_start = true;
 trial_data = parseFileByTrial(cds, paramTD);
+%%
 [tdIdx,td] = getTDidx(trial_data, 'result', 'R');
 params.go_cue_name ='idx_goCueTime';
 params.end_name = 'idx_endTime';
 td1 = binTD(td, 5);
 td1 = removeBadTrials(td1);
 td1 = removeBadNeurons(td1);
-% td1 = getRWMovements(td1, params);
-% td1 = removeBadTrials(td1);
-% td_act = trimTD(td1, 'idx_movement_on', 'idx_endTime');
-% td_pas = trimTD(td1, 'idx_trial_start', 'idx_movement_on');
+td1 = getRWMovements(td1, params);
+td1 = removeBadTrials(td1);
+td_act = trimTD(td1, 'idx_movement_on', 'idx_endTime');
+td_pas = trimTD(td1, 'idx_trial_start', 'idx_movement_on');
 
 
 %% 

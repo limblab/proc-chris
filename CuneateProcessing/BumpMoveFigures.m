@@ -2,12 +2,12 @@
 close all
 % clearvars -except cds
 %load('Lando3202017COactpasCDS.mat')
-% plotRasters = 1;
-% savePlots = 0;
+plotRasters = 1;
+savePlots = 0;
 % params.event_list = {'bumpTime'; 'bumpDir'};
-% params.extra_time = [.4,.6];
-% params.include_ts = true;
-% params.include_start = true;
+params.extra_time = [.4,.6];
+params.include_ts = true;
+params.include_start = true;
 % td = parseFileByTrial(cds, params);
 % td = td(~isnan([td.target_direction]));
 % params.start_idx =  'idx_goCueTime';
@@ -115,7 +115,7 @@ for num1 = numCount
         unitRaster(upBump, paramsBump);
     end
     yyaxis right
-    plot(linspace(-1*beforeBump, afterBump, length(meanUpEMG(:,1))), meanUpEMG(:,20), 'r')
+%     plot(linspace(-1*beforeBump, afterBump, length(meanUpEMG(:,1))), meanUpEMG(:,20), 'r')
     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,2), 'r')
     hold on
     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
