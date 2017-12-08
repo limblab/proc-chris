@@ -2,6 +2,7 @@ td1 = binTD(td, 5);
 % td_act = trimTD(td1, 'idx_movement_on', 'idx_endTime');
 bumpTrials = td1(~isnan([td.bumpDir]));
 td_act = td1(isnan([td.bumpDir]));
+td_move = trimTD(td1, 'idx_movement_on', 'idx_endTime');
 td_pas = trimTD(bumpTrials, {'idx_bumpTime', -2} ,{'idx_bumpTime', 2});
 firing_act = cat(1, td_act.cuneate_spikes);
 firing_pas = cat(1, td_pas.cuneate_spikes);
