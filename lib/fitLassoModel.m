@@ -1,6 +1,64 @@
 function fitStruct = fitLassoModel(covar,response, params)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%%% Function fitLassoModel
+%%% The purpose of this function is to fit a cross-validated Lasso GLM
+%%% model to the data fed in. Its inputs are the x-values of the fit, the
+%%% response variable, and a params structure, which gives information
+%%% about the run. The reason for all of this meta information is that the
+%%% fits take a long time, so this reduces the need to re-run in case you
+%%% have to stop working, etc.
+%%% Inputs:
+%%% covar: the x values 
+%%%     Rows: time points
+%%%     Cols: features
+%%% response: the y values
+%%%     rows must equal rows of x
+%%% params
+%%%     .plotLambda: whether to plot the deviance as a function of the
+%%%     regularization
+%%%     .
+%%%     .plotPredicted: Whether to plot the predicted reponse to get a
+%%%     sense of where the model does well/ where it does poorly
+%%%     
+%%%     .numCV: number of cross-validation splits to do (default 10)
+%%% 
+%%%     .covar_names: names of columns of x inputs
+%%%
+%%%     .window_start: metadata about trial. What portion of trial are oyu
+%%%     including at start
+%%%
+%%%     .window_end: more metadata
+%%%
+%%%     .comments: Anything you want to save for posterity
+%%%
+%%%     .monkey/.date/.task: metadata
+%%%
+
+%%% Output structure fields:
+%%%    fitStruct.monkey
+% % % fitStruct.date 
+% % % fitStruct.task 
+% % % fitStruct.covar
+% % % fitStruct.response
+% % % fitStruct.model_type
+% % % fitStruct.regularizer
+% % % fitStruct.fit_metric
+% % % fitStruct.fit_score
+% % % fitStruct.num_units
+% % % fitStruct.models
+% % % fitStruct.best_model
+% % % fitStruct.comments 
+% % % fitStruct.covar_names 
+% % % fitStruct.weights 
+% % % fitStruct.window_start
+% % % fitStruct.window_end
+% % % fitStruct = findSigParamsLasso(fitStruct); Function to pull together
+% all relevant info needed to easily see what params are retained
+% % % fitStruct = getMinModelLasso(fitStruct); Pulls together all info
+% about minimal model (1SE from best)
+% % % fitStruct = getBestModelLasso(fitStruct); Pulls together all info
+% about lowest deviance model ('best')
+
+
     plotLambda = false;
     plotPredicted= false;
     numCV = 10;
@@ -62,5 +120,8 @@ function fitStruct = fitLassoModel(covar,response, params)
     fitStruct.weights = b;
     fitStruct.window_start = window_start;
     fitStruct.window_end = window_end;
+    fitStruct = findSigParamsLasso(fitStruct);
+    fitStruct = getMinModelLasso(fitStruct);
+    fitStruct = getBestModelLasso(fitStruct);
 end
 

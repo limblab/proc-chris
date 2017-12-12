@@ -4,18 +4,18 @@ close all
 %load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
 savePlots = 0;
-% params.event_list = {'bumpTime'; 'bumpDir'};
+params.event_list = {'bumpTime'; 'bumpDir'};
 params.extra_time = [.4,.6];
 params.include_ts = true;
 params.include_start = true;
-% td = parseFileByTrial(cds, params);
-% td = td(~isnan([td.target_direction]));
-% params.start_idx =  'idx_goCueTime';
-% params.end_idx = 'idx_endTime';
-% td = getMoveOnsetAndPeak(td, params);
+td = parseFileByTrial(cds, params);
+td = td(~isnan([td.target_direction]));
+params.start_idx =  'idx_goCueTime';
+params.end_idx = 'idx_endTime';
+td = getMoveOnsetAndPeak(td, params);
 
-date = 09172017;
-unitNames = 'cuneate';
+date = 09032017;
+unitNames = 'RightCuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
 beforeBump = .3;
@@ -46,11 +46,13 @@ for num1 = numCount
     paramsMove.yMax = 40;
     paramsMove.align= 'movement_on';
     paramsMove.xBound = [-.3, .3];
+    paramsMove.array =unitNames;
     
     paramsBump.neuron = num1;
     paramsBump.yMax = 40;
     paramsBump.align= 'bumpTime';
     paramsBump.xBound = [-.3, .3];
+    paramsBump.array = unitNames;
     %% Up Active
     upBump = bumpTrials([bumpTrials.bumpDir] == 90);
     upMoveKin = zeros(length(upMove), length(upMove(1).idx_movement_on-(beforeMove*100):upMove(1).idx_movement_on+(afterMove*100)), 2);
