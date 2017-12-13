@@ -50,7 +50,9 @@ modelFit.regularizer = 'L1';
 modelFit.fit_metric = 'PseudoR2';
 
 tempFit(1) = modelFit;
-
+tempFit1 = findSigParamsLasso(tempFit);
+tempFit2 = getMinModelLasso(tempFit1);
+tempFit3 = getBestModelLasso(tempFit2);
 %%
 params.monkey = 'Lando';
 params.date = '09172017';
