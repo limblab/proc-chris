@@ -1,0 +1,4 @@
+dataFileName = '/home/chris/Documents/Cuneate Data/Sorted/LandoData/Lando_20161120_RightCuneate_002-01';
+if ~exists(datafile)
+    datafile = get_nev_mat_data(dataFileName);
+end

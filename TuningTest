@@ -1,0 +1,3 @@
+for i = 1:length(ex.bin.pdData)
+    tuningNum(i) = sum([ex.bin.pdData.posIsTuned(i), ex.bin.pdData.velIsTuned(i), ex.bin.pdData.forceIsTuned(i)]);
+end

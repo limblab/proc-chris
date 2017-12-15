@@ -77,7 +77,7 @@ function fitStruct = fitLassoModel(covar,response, params)
     end
     for i = 1:length(response(1,:))
         disp(['Working on unit ' num2str(i), ' of ', num2str(length(response(1,:)))])
-        [b{i}, glm{i}] = lassoglm(covar, response, 'poisson', 'CV', numCV);
+        [b{i}, glm{i}] = lassoglm(covar, response(:,i), 'poisson', 'CV', numCV);
         
         bestDeviance(i) =glm{i}.Deviance(glm{i}.IndexMinDeviance);
         nullDeviance(i) =glm{i}.Deviance(end);

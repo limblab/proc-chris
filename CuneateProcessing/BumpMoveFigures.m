@@ -3,19 +3,19 @@ close all
 % clearvars -except cds
 %load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
-savePlots = 0;
-params.event_list = {'bumpTime'; 'bumpDir'};
-params.extra_time = [.4,.6];
-params.include_ts = true;
-params.include_start = true;
-td = parseFileByTrial(cds, params);
+savePlots = 1;
+% params.event_list = {'bumpTime'; 'bumpDir'};
+% params.extra_time = [.4,.6];
+% params.include_ts = true;
+% params.include_start = true;
+% td = parseFileByTrial(cds, params);
 td = td(~isnan([td.target_direction]));
 params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
 td = getMoveOnsetAndPeak(td, params);
 
-date = 09032017;
-unitNames = 'RightCuneate';
+date = 09172017;
+unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
 beforeBump = .3;
