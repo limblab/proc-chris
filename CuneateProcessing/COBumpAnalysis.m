@@ -1,7 +1,7 @@
 % clear all
 % load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170728\Lando_RW_hold_20170728_001_TD.mat');
 
-array = 'cuneate';
+array = 'RightCuneate';
 params.event_list = {'bumpTime'; 'bumpDir'};
 params.extra_time = [.4,.6];
 trial_data = parseFileByTrial(cds, params);
@@ -10,6 +10,7 @@ params.go_cue_name ='idx_goCueTime';
 params.bumpTime = 'idx_bumpTime';
 params.end_name = 'idx_endTime';
 % paramPCA.signals = {'opensim', 1:7};
+%%
 td1 = binTD(td, 5);
 % td1 = getPCA(td1, paramPCA);
 

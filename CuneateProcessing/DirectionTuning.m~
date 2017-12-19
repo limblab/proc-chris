@@ -1,18 +1,19 @@
    close all
   %% Compute firing in respective windows
   clearvars -except cds
-  
     beforeBump = .3;
     afterBump = .3;
     beforeMove = .3;
     afterMove = .3;
     
-    date1= '03202017';
+    date1= '0320 2017';
     histogramFlag= false;
     circleFlag = false;
     cuneateFlag = true;
     spikeFlag = false;
-
+    
+    spikeTable = cds.units;
+    sortedTable = spikeTable(strcmp({spikeTable.array},'RightCuneate') & [spikeTable.ID]>0);
     saveFig =false;
     if ~cuneateFlag
         unitLabel = 'LeftS1';
@@ -333,6 +334,14 @@ for i = 1:length(shortLeftBumpFiring)
         if(saveFig)
             saveas(f2, strrep(figTitle, ' ', '_'));
         end
+    end
+    if spikeFlag
+        spikeWaveshape = sortedTable(i).spikes.wave;
+        f6 = figure;
+        plot(linspace(0,1.6, 48), spikeWaveshape, 'k')
+        title([strrep(title1, '_', ' '), ' Wave Shape'])
+        saveas(f6, [title1, 'WaveShape.pdf'])
+        
     end
 end
 %%

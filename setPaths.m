@@ -19,6 +19,8 @@ elseif strcmp(arch, 'glnxa64')
     addpath(genpath('/home/chris/Documents/Git/lfads-run-manager/'));
     addpath(genpath('/home/chris/Documents/Git/models/research/lfads/'));
     addpath(genpath('/home/chris/Documents/Git/trialdata/'))
+    addpath(genpath('/home/chris/Documents/Git/proc-raeed/'))
+
 else
     error('This is not a supported computer');
 end

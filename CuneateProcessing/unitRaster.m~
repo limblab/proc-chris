@@ -15,10 +15,13 @@ function fh1 = unitRaster(trialData, params)
         trial = trialData(trialNum);
         alignStart = trial.bin_size * (trial.(['idx_',align]));
         spikes = trial.([array,'_ts']){neuron};
-        spikes = spikes(spikes>alignStart & spikes < alignStart+ sum(abs(xBound)))- alignStart + xBound(1);
-      for spike = 1:length(spikes)
-        fh1 = plot([spikes(spike), spikes(spike)], [count*yMax/numTrials, (count+.8)*yMax/numTrials], 'k');
-      end
+        
+      for spike = 1:numSpikes
+        if trial.([array, '_ts']){neuron}(spike)-alignStart >xBound(1) & trial.([array, '_ts']){neuron}(spike)-alignStart <xBound(2)
+            fh1 = plot([trial.([array, '_ts']){neuron}(spike)-alignStart, trial.([array, '_ts']){neuron}(spike)-alignStart], [count*yMax/numTrials, (count+.8)*yMax/numTrials], 'k');
+            hold on
+        end
+       end
     end
     xlim(xBound);
     ylim([0, yMax]); 

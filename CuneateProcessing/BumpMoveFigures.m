@@ -3,7 +3,7 @@ close all
 % clearvars -except cds
 %load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
-savePlots = 1;
+savePlots = 0;
 % params.event_list = {'bumpTime'; 'bumpDir'};
 % params.extra_time = [.4,.6];
 % params.include_ts = true;
@@ -27,9 +27,7 @@ w = gausswin(5);
 w = w/sum(w);
 
 
-numCount = 1:length(td(1).(unitSpikes)(1,:));
-% numCount  =1;
-unitsToPlot = 1;
+numCount = 10;
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 
@@ -41,6 +39,7 @@ rightMove = td([td.target_direction]==0& isnan([td.bumpDir]));
 %% 
 close all
 for num1 = numCount
+    close all
     title1 = ['Lando', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
     paramsMove.neuron = num1;
     paramsMove.yMax = 40;
