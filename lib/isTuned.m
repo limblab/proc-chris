@@ -1,10 +1,12 @@
 function tuningBool = isTuned(dir ,CIBound,cutoff)
 %UNTITLED2 Summary of this function goes here
-%   Detailed explanatio
-    if angleDiff(CIBound(1), CIBound(2)) < cutoff & angleDiff(dir, CIBound(1))< pi/2 & angleDiff(dir, CIBound(2))<pi/2
-        tuningBool=true;
-    else
-        tuningBool = false;
+%   Detailed explanati
+    for i = 1:length(dir)
+        if angleDiff(CIBound(i, 1), CIBound(i,2)) < cutoff & angleDiff(dir(i), CIBound(i,1))< pi/2 & angleDiff(dir(i), CIBound(i,2))<pi/2
+            tuningBool(i)=true;
+        else
+            tuningBool(i) = false;
+        end
     end
 end
 

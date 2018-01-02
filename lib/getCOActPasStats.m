@@ -1,20 +1,17 @@
-function [fh] = getCOActPasStats(td,params)
+function [fh, outStruct] = getCOActPasStats(td,params)
   
     beforeBump = .3;
     afterBump = .3;
     beforeMove = .3;
     afterMove = .3;
     
-    date1= '03202017';
+    date= '03202017';
     array= 'RightCuneate';
     histogramFlag= false;
     circleFlag = false;
-    cuneateFlag = true;
+    plotFlag = false;
     saveFig =false;
     
-    if nargin > 1, assignParams(who,params); end % overwrite parameters
-
-
     unitLabel = array;
     unitGuide = [unitLabel, '_unit_guide'];
     unitSpikes = [unitLabel, '_spikes'];
@@ -24,6 +21,20 @@ function [fh] = getCOActPasStats(td,params)
     td = td(~isnan([td.target_direction]));
     params.start_idx =  'idx_goCueTime';
     params.end_idx = 'idx_endTime';
+    sinTuned = ones(length(td(1).(spikeLabel)(1,:)),1);
+
+    if(~isfield(params,'sinTuned'))
+        warning('No sinusoidal tuning provided, assuming all are tuned')
+    end
+    
+    if (td(1).bin_size ~= .01), error('Bad bin size, has to be 10 ms wide');end
+        
+
+    numBoots = 1000;
+    conf = .95;
+    
+    if nargin > 1, assignParams(who,params); end % overwrite parameters
+
     td = getMoveOnsetAndPeak(td, params);
 
     bumpTrials = td(~isnan([td.bumpDir])); 
@@ -101,48 +112,15 @@ function [fh] = getCOActPasStats(td,params)
 
    sigDif = zeros(length(shortLeftBumpFiring),1);
 for i = 1:length(shortLeftBumpFiring)
-    temp =mean(shortRightBumpFiring{i}')*100;
-    bootstatRightBump= bootstrp(1000, @mean, temp);
-    temp =mean(shortLeftBumpFiring{i}')*100;
-    bootstatLeftBump= bootstrp(1000, @mean, temp);
-    temp =mean(shortDownBumpFiring{i}')*100;
-    bootstatDownBump= bootstrp(1000, @mean, temp);
-    temp =mean(shortUpBumpFiring{i}')*100;
-    bootstatUpBump= bootstrp(1000, @mean, temp);
-    temp = mean(preBumpFiring{i}')*100;
-    bootstatPreBump = bootstrp(1000,@mean, temp);
-    temp = mean([shortRightBumpFiring{i}*100; shortLeftBumpFiring{i}*100; shortUpBumpFiring{i}*100; shortDownBumpFiring{i}*100]);
-    bootstatPostBump = bootstrp(1000,@mean, temp);
-    meanPostBump = mean(bootstatPostBump);
-    dcBump(i) = meanPostBump - mean(bootstatPreBump);
-    
-    
-    
-    sortedRightBump = sort(bootstatRightBump);
-    sortedLeftBump = sort(bootstatLeftBump);
-    sortedUpBump = sort(bootstatUpBump);
-    sortedDownBump = sort(bootstatDownBump);
-    sortedPreBump = sort(bootstatPreBump);
-    
-    meanRightBump = mean(sortedRightBump);
-    topRightBump = sortedRightBump(975);
-    botRightBump = sortedRightBump(25);
-    
-    meanLeftBump = mean(sortedLeftBump);
-    topLeftBump = sortedLeftBump(975);
-    botLeftBump = sortedLeftBump(25);
-    
-    meanUpBump = mean(sortedUpBump);
-    topUpBump = sortedUpBump(975);
-    botUpBump = sortedUpBump(25);
-    
-    meanDownBump = mean(sortedDownBump);
-    topDownBump = sortedDownBump(975);
-    botDownBump = sortedDownBump(25);
-    
-    meanPreBump = mean(sortedPreBump);
-    topPreBump = sortedPreBump(25);
-    botPreBump = sortedPreBump(975);
+
+    postBumpFiring{i} = [shortRightBumpFiring{i}; shortLeftBumpFiring{i}; shortUpBumpFiring{i}; shortDownBumpFiring{i}];
+    [meanRightBump, botRightBump, topRightBump,bootstatRightBump] = bootstrpFiringRates(shortRightBumpFiring{i},numBoots, conf);
+    [meanLeftBump, botLeftBump, topLeftBump, bootstatLeftBump] = bootstrpFiringRates(shortLeftBumpFiring{i},numBoots, conf);
+    [meanUpBump, botUpBump, topUpBump, bootstatUpBump] = bootstrpFiringRates(shortUpBumpFiring{i},numBoots, conf);
+    [meanDownBump, botDownBump, topDownBump, bootstatDownBump] = bootstrpFiringRates(shortDownBumpFiring{i},numBoots, conf);
+    [meanPreBump, botPreBump, topPreBump, bootstatPreBump] = bootstrpFiringRates(preBumpFiring{i},numBoots,conf);
+    [meanPostBump, botPostBump, topPostBump, bootstatPostBump] = bootstrpFiringRates(postBumpFiring{i}, numBoots, conf);
+    dcBump(i) = meanPostBump - meanPreBump;
     
     bumpTuned(i) = meanDownBump > topPreBump | meanUpBump > topPreBump | meanRightBump > topPreBump| meanLeftBump > topPreBump |...
         meanDownBump < botPreBump | meanUpBump< botPreBump | meanRightBump< botPreBump | meanLeftBump < botPreBump;
@@ -153,20 +131,7 @@ for i = 1:length(shortLeftBumpFiring)
     
     sigDifBump(i) = rightSigBump(i) | leftSigBump(i) | upSigBump(i) | downSigBump(i);
     
-    temp =mean(shortRightMoveFiring{i})*100;
-    bootstatRightMove= bootstrp(1000, @mean, temp);
-    temp =mean(shortLeftMoveFiring{i})*100;
-    bootstatLeftMove= bootstrp(1000, @mean, temp);
-    temp =mean(shortDownMoveFiring{i})*100;
-    bootstatDownMove= bootstrp(1000, @mean, temp);
-    temp =mean(shortUpMoveFiring{i})*100;
-    bootstatUpMove= bootstrp(1000, @mean, temp);
-    temp = mean(preMoveFiring{i})*100;
-    bootstatPreMove = bootstrp(1000,@mean, temp);   
-    temp = mean([shortRightMoveFiring{i}*100; shortLeftMoveFiring{i}*100; shortUpMoveFiring{i}*100; shortDownMoveFiring{i}*100]);
-    bootstatPostMove = bootstrp(1000,@mean, temp);
-    dcMove(i) = mean(bootstatPostMove) - mean(bootstatPreMove);
-    
+
 %     figure
 %     histogram(bootstatPreMove)
 %     hold on
@@ -174,33 +139,15 @@ for i = 1:length(shortLeftBumpFiring)
 %     histogram(bootstatPreBump)
 %     histogram(bootstatPostBump)
 %     legend('show')
-    
-    sortedRightMove = sort(bootstatRightMove);
-    sortedLeftMove = sort(bootstatLeftMove);
-    sortedUpMove = sort(bootstatUpMove);
-    sortedDownMove = sort(bootstatDownMove);
-    sortedPreMove = sort(bootstatPreMove);
 
-    meanRightMove = mean(sortedRightMove);
-    topRightMove = sortedRightMove(975);
-    botRightMove = sortedRightMove(25);
-
-    meanLeftMove = mean(sortedLeftMove);
-    topLeftMove = sortedLeftMove(975);
-    botLeftMove = sortedLeftMove(25);
-
-    meanUpMove = mean(sortedUpMove);
-    topUpMove = sortedUpMove(975);
-    botUpMove = sortedUpMove(25);
-
-    meanDownMove = mean(sortedDownMove);
-    topDownMove = sortedDownMove(975);
-    botDownMove = sortedDownMove(25);
-    
-    meanPreMove = mean(sortedPreMove);
-    topPreMove = sortedPreMove(975);
-    botPreMove = sortedPreMove(25);
-    
+    postMoveFiring{i} = [shortRightMoveFiring{i}; shortLeftMoveFiring{i}; shortUpMoveFiring{i}; shortDownMoveFiring{i}];
+    [meanRightMove, botRightMove, topRightMove,bootstatRightMove] = bootstrpFiringRates(shortRightMoveFiring{i},numBoots, conf);
+    [meanLeftMove, botLeftMove, topLeftMove, bootstatLeftMove] = bootstrpFiringRates(shortLeftMoveFiring{i},numBoots, conf);
+    [meanUpMove, botUpMove, topUpMove, bootstatUpMove] = bootstrpFiringRates(shortUpMoveFiring{i},numBoots, conf);
+    [meanDownMove, botDownMove, topDownMove, bootstatDownMove] = bootstrpFiringRates(shortDownMoveFiring{i},numBoots, conf);
+    [meanPreMove, botPreMove, topPreMove, bootstatPreMove] = bootstrpFiringRates(preMoveFiring{i},numBoots,conf);
+    [meanPostMove, botPostMove, topPostMove, bootstatPostMove] = bootstrpFiringRates(postMoveFiring{i}, numBoots, .99);
+    dcMove(i) = meanPostMove - meanPreMove;
     modDepthMove(i) = max([meanUpMove, meanDownMove, meanLeftMove, meanRightMove]) - min([meanUpMove, meanDownMove, meanLeftMove, meanRightMove]);
     modDepthBump(i) = max([meanUpBump, meanDownBump, meanLeftBump, meanRightBump]) - min([meanUpBump, meanDownBump, meanLeftBump, meanRightBump]);
 
@@ -243,20 +190,14 @@ for i = 1:length(shortLeftBumpFiring)
     sortedAngMove = sort(bootPDAngMove{i});
     lowAngMove(i) = sortedAngMove(50) +angMove(i);
     highAngMove(i) = sortedAngMove(950)+ angMove(i);
-    
-    sigThreshold = pi/2;
-    
-    sinTunedMove(i) = highAngMove(i)-lowAngMove(i)< sigThreshold;
-    sinTunedBump(i) = highAngBump(i)-lowAngBump(i) < sigThreshold;
+
     
     goodFiring(i) = meanDownMove>0 & meanUpMove >0 & meanRightMove >0 & meanLeftMove >0 & meanDownBump >0 & meanUpBump >0 & meanRightBump>0 & meanLeftBump >0;
     
-    tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i);% &sinTunedMove(i) & sinTunedBump(i);
-    if cuneateFlag
-        title1 = ['Cuneate_Lando_Electrode_', date1,'_', num2str(td(1).(unitGuide)(i,1)), '_Unit ', num2str(td(1).(unitGuide)(i,2))];
-    else
-        title1 = ['S1_Lando_Electrode_',date1, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
-    end
+    tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i);%&sinTunedMove(i) & sinTunedBump(i);
+
+    title1 = [array,'_Lando_Electrode_',date, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
+
     
     if tuned(i)
         title1 = [title1, '_TUNED'];
@@ -330,46 +271,28 @@ for i = 1:length(shortLeftBumpFiring)
             saveas(f2, strrep(figTitle, ' ', '_'));
         end
     end
+    close all
 end
 %%
-f3 = figure;
 
-angBumpTuned= angBump(tuned);
-angMoveTuned = angMove(tuned);
-scatter(rad2deg(angBumpTuned), rad2deg(angMoveTuned))
-hold on
-plot([-180, 180], [-180, 180])
-ylim([-180, 180])
-xlim([-180, 180])
-title('Angle of PD in Active/Passive Conditions')
-xlabel('Passive PD')
-ylabel('ActivePD')
-set(gca,'TickDir','out', 'box', 'off', 'xtick', [-180,-135, -90,-45,0,45, 90, 135, 180],'ytick', [-180,-135, -90,-45,0,45, 90, 135, 180])
-saveas(f3, ['ActiveVsPassive', unitLabel, date1,'.pdf'])
 
 pasActDif = angleDiff(angBump, angMove);
-f4 =figure;
-histogram(rad2deg(pasActDif),15)
-title('Angle Between Active and Passive')
-pctSigBump = sum(sigDifBump)/12;
-pctSigMove = sum(sigDifMove)/12;
-saveas(f4, ['AngleBetweenActPas',unitLabel, date1,'.pdf'])
 
-f5 = figure; 
-histogram(dcBump,6)
-hold on
-histogram(dcMove,6)
-legend('show')
-title('Move Avg. Firing vs. Bump Avg. Firing')
-saveas(f5, ['AvgFiringMoveVsBump',unitLabel, date1,'.pdf'])
-
-f6 = figure;
-scatter(modDepthMove(tuned), modDepthBump(tuned))
-title('Modulation Depth in Active vs. Passive')
-xlabel('Max Modulation Depth in Active')
-ylabel('Max Modulation Depth in Passive')
-set(gca,'TickDir','out', 'box', 'off')
-
-
+outStruct.date = date;
+outStruct.array = array;
+outStruct.angBump = angBump;
+outStruct.angMove = angMove;
+outStruct.tuned= tuned;
+outStruct.pasActDif = pasActDif;
+outStruct.numPasDif = sum(sigDifBump);
+outStruct.numActDif = sum(sigDifMove);
+outStruct.dcBump = dcBump;
+outStruct.dcMove= dcMove;
+outStruct.modDepthMove=modDepthMove;
+outStruct.modDepthBump = modDepthBump;
+if plotFlag
+    coActPasPlotting(outStruct);
+end
+fh=[];
 end
 

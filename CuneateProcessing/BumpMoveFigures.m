@@ -1,21 +1,21 @@
 % clear all
 close all
 % clearvars -except cds
-%load('Lando3202017COactpasCDS.mat')
+% load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
-savePlots = 0;
+savePlots = 1;
 % params.event_list = {'bumpTime'; 'bumpDir'};
 % params.extra_time = [.4,.6];
 % params.include_ts = true;
 % params.include_start = true;
 % td = parseFileByTrial(cds, params);
-td = td(~isnan([td.target_direction]));
-params.start_idx =  'idx_goCueTime';
-params.end_idx = 'idx_endTime';
-td = getMoveOnsetAndPeak(td, params);
+% td = td(~isnan([td.target_direction]));
+% params.start_idx =  'idx_goCueTime';
+% params.end_idx = 'idx_endTime';
+% td = getMoveOnsetAndPeak(td, params);
 
-date = 09172017;
-unitNames = 'cuneate';
+date = 03202017;
+unitNames = 'RightCuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
 beforeBump = .3;
@@ -27,14 +27,14 @@ w = gausswin(5);
 w = w/sum(w);
 
 
-numCount = 10;
+numCount = 4;
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 
-upMove = td([td.target_direction] == pi/2 & isnan([td.bumpDir]));
-leftMove = td([td.target_direction] ==pi& isnan([td.bumpDir]));
-downMove = td([td.target_direction] ==3*pi/2& isnan([td.bumpDir]));
-rightMove = td([td.target_direction]==0& isnan([td.bumpDir]));
+upMove = td([td.target_direction] == pi/2 );
+leftMove = td([td.target_direction] ==pi);
+downMove = td([td.target_direction] ==3*pi/2);
+rightMove = td([td.target_direction]==0);
 
 %% 
 close all
@@ -476,38 +476,15 @@ for num1 = numCount
     
     if savePlots
         set(up, 'Renderer', 'Painters');
-        saveas(up, [strrep(title1, ' ', '_'), '_Up_', num2str(date), '.pdf'])
+        save2pdf([strrep(title1, ' ', '_'), '_Up_', num2str(date), '.pdf'],up)
         set(down, 'Renderer', 'Painters');
-        saveas(down, [strrep(title1, ' ', '_'), 'Down', num2str(date), '.pdf'])
+        save2pdf([strrep(title1, ' ', '_'), 'Down', num2str(date), '.pdf'],down)
         set(left, 'Renderer', 'Painters');
-        saveas(left, [strrep(title1, ' ', '_'), 'Left', num2str(date), '.pdf'])
+        save2pdf([strrep(title1, ' ', '_'), 'Left', num2str(date), '.pdf'],left) 
         set(right, 'Renderer', 'Painters');
-        saveas(right, [strrep(title1, ' ', '_'),'Right', num2str(date), '.pdf'])
+        save2pdf([strrep(title1, ' ', '_'),'Right', num2str(date), '.pdf'],right)
     end
-        
-        
-        
-        
-        
-        
-        
-   shortRightBumpFiring{num1} = rightBumpFiring(:, beforeBump*100:beforeBump*100+10);
-   shortLeftBumpFiring{num1} = leftBumpFiring(:, beforeBump*100:beforeBump*100+10);
-   shortUpBumpFiring{num1} = upBumpFiring(:, beforeBump*100:beforeBump*100+10);
-   shortDownBumpFiring{num1} = downBumpFiring(:, beforeBump*100:beforeBump*100+10);
-   
-   shortRightMoveFiring{num1} = rightMoveFiring(:, beforeMove*100:beforeMove*100+10);
-   shortLeftMoveFiring{num1} = leftMoveFiring(:, beforeMove*100:beforeMove*100+10);
-   shortUpMoveFiring{num1} = upMoveFiring(:, beforeMove*100:beforeMove*100+10);
-   shortDownMoveFiring{num1} = downMoveFiring(:, beforeMove*100:beforeMove*100+10);
-   
-   preBumpFiring{num1} = [rightBumpFiring(:, 1:beforeBump*100); leftBumpFiring(:, 1:beforeBump*100);...
-       upBumpFiring(:,1:beforeBump*100); downBumpFiring(:,1:beforeBump*100)];
-   preMoveFiring{num1} = [rightMoveFiring(:, 1:beforeMove*100); leftMoveFiring(:, 1:beforeMove*100);...
-       upMoveFiring(:,1:beforeMove*100); downMoveFiring(:,1:beforeMove*100)];
-   
-   
-   
+
    
 end
 

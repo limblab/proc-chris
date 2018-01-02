@@ -175,17 +175,11 @@ params.arrays = {'LeftS1', 'RightCuneate'};
 
 processed09172017 = compiledCOActPasAnalysis(td, params);
 
-%%
 chanNames = cds.units(~cellfun(@isempty,([strfind({cds.units.array},'RightCuneate')])));
 
 sortedUnits = chanNames([chanNames.ID]>0 & [chanNames.ID]<255);
 elecNames = unique([sortedUnits.chan]);
 screenNames = {sortedUnits.label};
 for i= 1:length(sortedUnits)
-   labelNames(i) = str2num(screenNames{i}(5:end)); 
+   labelNames(i) = str2num(screenNames{5:end}); 
 end
-
-labels = unique(labelNames);
-
-conversionChart = [elecNames', labels'];
-processed03202017(2).namingConversion  = conversionChart;

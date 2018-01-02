@@ -7,15 +7,15 @@
     beforeMove = .3;
     afterMove = .3;
     
-    date1= '03202017';
+    date1= '09172017';
     histogramFlag= false;
     circleFlag = false;
-    cuneateFlag = true;
+    cuneateFlag = false;
     spikeFlag = false;
 
     saveFig =false;
     if ~cuneateFlag
-        unitLabel = 'LeftS1';
+        unitLabel = 'area2';
     else
         unitLabel = 'RightCuneate';
     end

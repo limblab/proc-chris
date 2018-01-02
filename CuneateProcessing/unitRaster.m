@@ -13,9 +13,9 @@ function fh1 = unitRaster(trialData, params)
 
         count =count +1;
         trial = trialData(trialNum);
-        alignStart = trial.bin_size * (trial.(['idx_',align]));
-        spikes = trial.([array,'_ts']){neuron};
-        spikes = spikes(spikes>alignStart & spikes < alignStart+ sum(abs(xBound)))- alignStart + xBound(1);
+        alignStart = trial.bin_size * (trial.(['idx_',align])-trial.idx_startTime);
+        spikes = trial.([array,'_ts']){neuron} - alignStart;
+        spikes = spikes(spikes>xBound(1) & spikes<xBound(2));
       for spike = 1:length(spikes)
         fh1 = plot([spikes(spike), spikes(spike)], [count*yMax/numTrials, (count+.8)*yMax/numTrials], 'k');
       end
