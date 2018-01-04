@@ -4,15 +4,15 @@ close all
 % load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
 savePlots = 1;
-% params.event_list = {'bumpTime'; 'bumpDir'};
-% params.extra_time = [.4,.6];
-% params.include_ts = true;
-% params.include_start = true;
-% td = parseFileByTrial(cds, params);
-% td = td(~isnan([td.target_direction]));
-% params.start_idx =  'idx_goCueTime';
-% params.end_idx = 'idx_endTime';
-% td = getMoveOnsetAndPeak(td, params);
+params.event_list = {'bumpTime'; 'bumpDir'};
+params.extra_time = [.4,.6];
+params.include_ts = true;
+params.include_start = true;
+td = parseFileByTrial(cds, params);
+td = td(~isnan([td.target_direction]));
+params.start_idx =  'idx_goCueTime';
+params.end_idx = 'idx_endTime';
+td = getMoveOnsetAndPeak(td, params);
 
 date = 03202017;
 unitNames = 'RightCuneate';
@@ -27,7 +27,7 @@ w = gausswin(5);
 w = w/sum(w);
 
 
-numCount = 4;
+numCount = 1:length(td(1).(unitSpikes)(1,:));
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 

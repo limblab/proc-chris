@@ -4,6 +4,7 @@
 array = 'RightCuneate';
 params.event_list = {'bumpTime'; 'bumpDir'};
 params.extra_time = [.4,.6];
+params.include_naming = true;
 trial_data = parseFileByTrial(cds, params);
 [tdIdx,td] = getTDidx(trial_data, 'result', 'R');
 params.go_cue_name ='idx_goCueTime';
