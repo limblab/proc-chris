@@ -170,22 +170,30 @@ params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
 params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
 params.distribution = 'normal';
 params.date = '03202017';
+
 params.arrays = {'LeftS1', 'RightCuneate'};
+params.tablePDsPas = {processed03202017.pasPDTable};
+params.tablePDsAct = {processed03202017.actPDTable};
+params.train_new_model = false;
 
-
-processed09172017 = compiledCOActPasAnalysis(td, params);
+processed03202017 = compiledCOActPasAnalysis(td, params);
 
 %%
-chanNames = cds.units(~cellfun(@isempty,([strfind({cds.units.array},'RightCuneate')])));
+params.array = 'RightCuneate';
+params.cutoff = 40;
+plotStruct = processed03202017(2).actPasStats;
 
-sortedUnits = chanNames([chanNames.ID]>0 & [chanNames.ID]<255);
-elecNames = unique([sortedUnits.chan]);
-screenNames = {sortedUnits.label};
-for i= 1:length(sortedUnits)
-   labelNames(i) = str2num(screenNames{i}(5:end)); 
+coActPasPlotting(plotStruct);
+
+plotStruct.tuned = plotStruct.tuned & getTrueCuneate(trial_data)';
+
+coActPasPlotting(plotStruct);
+%%
+close all
+figure
+hold on
+for spike = 1:length(spikes)
+        plot([spikes(spike), spikes(spike)], [0, 1], 'k');
 end
-
-labels = unique(labelNames);
-
-conversionChart = [elecNames', labels'];
-processed03202017(2).namingConversion  = conversionChart;
+xlim([6,10])
+ylim([-1, 1.5])

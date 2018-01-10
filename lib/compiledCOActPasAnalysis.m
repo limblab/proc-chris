@@ -6,6 +6,8 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
     windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
     windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
     distribution = 'normal';
+    train_new_model = true;
+    cuneate_flag = true;
     
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     if(td(1).bin_size == .01)
@@ -20,21 +22,25 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
     
     for i=1:length(arrays)
-        
         params.array= arrays{i};
-        params.out_signals = [params.array, '_spikes'];
-        params.distribution = distribution;
-        params.out_signal_names =td(1).([params.array, '_unit_guide']); 
-        
-        params.window = windowAct;
-        tablePDsAct = getTDPDs(tdAct, params);
-        tablePDsAct.sinTuned = isTuned(tablePDsAct.velPD, tablePDsAct.velPDCI, cutoff)';
-        
-        params.window=  windowPas;
-        tablePDsPas = getTDPDs(tdPas, params);
-        tablePDsPas.sinTuned = isTuned(tablePDsPas.velPD, tablePDsPas.velPDCI, cutoff)';
-        
-        params.sinTuned = tablePDsAct.sinTuned  & tablePDsPas.sinTuned;
+        if train_new_model
+
+            params.out_signals = [params.array, '_spikes'];
+            params.distribution = distribution;
+            params.out_signal_names =td(1).([params.array, '_unit_guide']); 
+
+            params.window = windowAct;
+            tablePDsAct = getTDPDs(tdAct, params);
+            tablePDsAct.sinTuned = isTuned(tablePDsAct.velPD, tablePDsAct.velPDCI, cutoff)';
+
+            params.window=  windowPas;
+            tablePDsPas = getTDPDs(tdPas, params);
+            tablePDsPas.sinTuned = isTuned(tablePDsPas.velPD, tablePDsPas.velPDCI, cutoff)';
+        else
+            tablePDsPas = params.tablePDsPas{i};
+            tablePDsAct = params.tablePDsAct{i};
+        end
+        params.sinTuned = tablePDsAct.sinTuned | tablePDsPas.sinTuned;
         [fh, outStruct] = getCOActPasStats(td, params);
         
         processedTrial(i).array = params.array;

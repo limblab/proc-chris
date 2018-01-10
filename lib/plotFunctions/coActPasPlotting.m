@@ -39,7 +39,7 @@ ylabel('ActivePD')
 set(gca,'TickDir','out', 'box', 'off', 'xtick', [-180,-135, -90,-45,0,45, 90, 135, 180],'ytick', [-180,-135, -90,-45,0,45, 90, 135, 180])
 save2pdf(['ActiveVsPassive_',array,'_',  date1,'.pdf'],f3)
 
-pasActDif = angleDiff(angBump, angMove);
+pasActDif = angleDiff(angBumpTuned, angMoveTuned);
 f4 =figure;
 histogram(rad2deg(pasActDif),15)
 title('Angle Between Active and Passive')
@@ -49,10 +49,10 @@ save2pdf(['AngleBetweenActPas_',array,'_',  date1,'.pdf'],f4)
 
 f5 = figure; 
 nBins = 15;
-h1 = histogram(dcBump,nBins);
+h1 = histogram(dcBump(tuned),nBins);
 width = h1.BinWidth; 
 hold on
-histogram(dcMove,'BinWidth', width)
+histogram(dcMove(tuned),'BinWidth', width)
 legend('show')
 title('Move Avg. Firing vs. Bump Avg. Firing')
 save2pdf(['AvgFiringMoveVsBump_',array,'_',  date1,'.pdf'], f5)

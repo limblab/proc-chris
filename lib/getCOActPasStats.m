@@ -11,17 +11,6 @@ function [fh, outStruct] = getCOActPasStats(td,params)
     circleFlag = false;
     plotFlag = false;
     saveFig =false;
-    
-    unitLabel = array;
-    unitGuide = [unitLabel, '_unit_guide'];
-    unitSpikes = [unitLabel, '_spikes'];
-    spikeLabel = [unitLabel, '_spikes'];
-    params.event_list = {'bumpTime'; 'ctrHoldTime'; 'bumpDir'};
-    params.extra_time = [.4,.6];
-    td = td(~isnan([td.target_direction]));
-    params.start_idx =  'idx_goCueTime';
-    params.end_idx = 'idx_endTime';
-    sinTuned = ones(length(td(1).(spikeLabel)(1,:)),1);
 
     if(~isfield(params,'sinTuned'))
         warning('No sinusoidal tuning provided, assuming all are tuned')
@@ -34,7 +23,17 @@ function [fh, outStruct] = getCOActPasStats(td,params)
     conf = .95;
     
     if nargin > 1, assignParams(who,params); end % overwrite parameters
-
+    
+    unitLabel = array;
+    unitGuide = [unitLabel, '_unit_guide'];
+    unitSpikes = [unitLabel, '_spikes'];
+    spikeLabel = [unitLabel, '_spikes'];
+    params.event_list = {'bumpTime'; 'ctrHoldTime'; 'bumpDir'};
+    params.extra_time = [.4,.6];
+    td = td(~isnan([td.target_direction]));
+    params.start_idx =  'idx_goCueTime';
+    params.end_idx = 'idx_endTime';
+    sinTuned = ones(length(td(1).(spikeLabel)(1,:)),1);
     td = getMoveOnsetAndPeak(td, params);
 
     bumpTrials = td(~isnan([td.bumpDir])); 
@@ -194,8 +193,13 @@ for i = 1:length(shortLeftBumpFiring)
     
     goodFiring(i) = meanDownMove>0 & meanUpMove >0 & meanRightMove >0 & meanLeftMove >0 & meanDownBump >0 & meanUpBump >0 & meanRightBump>0 & meanLeftBump >0;
     
-    tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i);%&sinTunedMove(i) & sinTunedBump(i);
+    if strcmp(array, 'cuneate') | strcmp(array, 'RightCuneate')
+        trueCuneate = getTrueCuneate(td, params);
+        tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i) & trueCuneate(i);%&sinTunedMove(i) & sinTunedBump(i);
+    else
+        tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i) ;%&sinTunedMove(i) & sinTunedBump(i);
 
+    end
     title1 = [array,'_Lando_Electrode_',date, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
 
     
