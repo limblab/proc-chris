@@ -10,13 +10,17 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
     cuneate_flag = true;
     
     if nargin > 1, assignParams(who,params); end % overwrite parameters
+
+    if(~isfield(td(1), 'idx_movement_on'))
+        td = getMoveOnsetAndPeak(td);
+    end
     if(td(1).bin_size == .01)
         tdBin = binTD(td,5);
     else
         error('This function requires that the input TD be binned at 10 ms');
     end
     
-    tdBump = td(~isnan([td.bumpDir])); 
+    tdBump = tdBin(~isnan([tdBin.bumpDir])); 
     
     tdAct = trimTD(tdBin, windowAct(1,:), windowAct(2,:));
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
@@ -36,11 +40,20 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
             params.window=  windowPas;
             tablePDsPas = getTDPDs(tdPas, params);
             tablePDsPas.sinTuned = isTuned(tablePDsPas.velPD, tablePDsPas.velPDCI, cutoff)';
-        else
+            sinTunedAct = tablePDsAct.sinTuned;
+            sinTunedPas = tablePDsPas.sinTuned;
+
+        elseif(isfield(params, 'tablePDsPas'))
             tablePDsPas = params.tablePDsPas{i};
+            sinTunedPas = tablePDsPas.sinTuned;
             tablePDsAct = params.tablePDsAct{i};
+            sinTunedAct = tablePDsAct.sinTuned;
+        else
+            sinTunedAct = ones(length(td(1).([params.array, '_spikes'])(1,:)),1);
+            sinTunedPas = ones(length(td(1).([params.array, '_spikes'])(1,:)),1);
+
         end
-        params.sinTuned = tablePDsAct.sinTuned | tablePDsPas.sinTuned;
+        params.sinTuned = sinTunedAct | sinTunedPas;
         [fh, outStruct] = getCOActPasStats(td, params);
         
         processedTrial(i).array = params.array;
@@ -48,8 +61,13 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
         processedTrial(i).actTrim = params.windowAct;
         processedTrial(i).pasTrim = params.windowPas;
         processedTrial(i).comments = 'Here goes nothing';
-        processedTrial(i).actPDTable = tablePDsAct;
-        processedTrial(i).pasPDTable = tablePDsPas;
+        if exist('tablePDsAct')
+            processedTrial(i).actPDTable = tablePDsAct;
+            processedTrial(i).pasPDTable = tablePDsPas;
+        else
+            processedTrial(i).actPDTable = 'Tuning curves not computed';
+            processedTrial(i).pasPDTable = 'Tuning Curves not computed';
+        end
         processedTrial(i).actPasStats = outStruct;
     end
     
