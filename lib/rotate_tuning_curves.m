@@ -1,4 +1,4 @@
-function [figure_handles, output_data]=rotate_tuning_curves(active, passive,options)
+function [figure_handles, output_data]=rotate_tuning_curves(active, passive,bins)
 % Find scaling and rotation between two tuning curves in PM and DL
 % workspaces
 
@@ -7,16 +7,16 @@ function [figure_handles, output_data]=rotate_tuning_curves(active, passive,opti
 % get relevant data
 tuning_PM = active;
 tuning_DL = passive;
-FR_PM = tuning_PM.binnedFR;
-FR_DL = tuning_DL.binnedFR;
-angs_PM = repmat(tuning_PM.bins',1,size(FR_PM,2));
-angs_DL = repmat(tuning_DL.bins',1,size(FR_DL,2));
+FR_PM = tuning_PM.binnedResponse;
+FR_DL = tuning_DL.binnedResponse;
+angs_PM = bins;
+angs_DL = bins;
 
 %% Convert to complex polar representation
-polar_PM_curve = FR_PM.*exp(1i*angs_PM);
-polar_DL_curve = FR_DL.*exp(1i*angs_DL);
+polar_PM_curve = [FR_PM.*exp(1i*angs_PM)]';
+polar_DL_curve = [FR_DL.*exp(1i*angs_DL)]';
 
-unit_ids = tuning_PM.unit_ids;
+unit_ids = tuning_PM.signalID;
 %% Fit data
 for i = 1:length(unit_ids(:,1))
 %     tbl = table(polar_PM_curve(:,i),polar_DL_curve(:,i),'VariableNames',{'PM_curve','DL_curve'});
@@ -31,13 +31,13 @@ for i = 1:length(unit_ids(:,1))
     
     disp(['Done with ' num2str(i)])
 end
-output_data = complex_scale_factor;
-scale_factor = abs(complex_scale_factor);
-rot_factor = angle(complex_scale_factor);
+output_data.complexScale = complex_scale_factor;
+output_data.scale_factor = abs(complex_scale_factor);
+output_data.rot_factor = angle(complex_scale_factor);
 
 %% Plot fits
 figure_handles = [];
-unit_ids = tuning_PM.unit_ids;
+unit_ids = tuning_PM.signalID;
 for i = 1:length(unit_ids(:,1))
     fig = figure('name',['channel_' num2str(unit_ids(i,1)) '_unit_' num2str(unit_ids(i,2)) '_tuning_plot']);
     figure_handles = [figure_handles fig];
@@ -73,7 +73,7 @@ for i = 1:length(unit_ids(:,1))
     set(gca,'xlim',[-180,180],'xtick',[-180 -90 0 90 180],'tickdir','out','box','off');
     xlabel 'Movement direction (deg)'
     ylabel 'Average spikes per 50 ms time bin'
-    legend('PM curve','DL curve','Rotated/Scaled PM curve')
+    legend('Active','Pas','Rotated/Scaled Active curve')
     legend('boxoff')
     title 'Unwrapped tuning curves'
     

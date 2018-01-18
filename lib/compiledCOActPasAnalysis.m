@@ -27,13 +27,14 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
     
     for i=1:length(arrays)
         params.array= arrays{i};
+        params.out_signals = [params.array, '_spikes'];
+        params.distribution = distribution;
+        params.out_signal_names =td(1).([params.array, '_unit_guide']); 
+        params.num_bins = 4;
+        params.window = windowAct;
         if train_new_model
 
-            params.out_signals = [params.array, '_spikes'];
-            params.distribution = distribution;
-            params.out_signal_names =td(1).([params.array, '_unit_guide']); 
-
-            params.window = windowAct;
+          
             tablePDsAct = getTDPDs(tdAct, params);
             tablePDsAct.sinTuned = isTuned(tablePDsAct.velPD, tablePDsAct.velPDCI, cutoff)';
 
@@ -65,10 +66,12 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
             processedTrial(i).actPDTable = tablePDsAct;
             processedTrial(i).pasPDTable = tablePDsPas;
         else
-            processedTrial(i).actPDTable = 'Tuning curves not computed';
-            processedTrial(i).pasPDTable = 'Tuning Curves not computed';
+            processedTrial(i).actPDTable = 'PDs not computed';
+            processedTrial(i).pasPDTable = 'PDs not computed';
         end
         processedTrial(i).actPasStats = outStruct;
+        processedTrial(i).tuningCurveAct= getTuningCurves(tdAct, params);
+        processedTrial(i).tuningCurvePas = getTuningCurves(tdPas,params);
     end
     
 end

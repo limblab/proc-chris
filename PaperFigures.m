@@ -6,7 +6,7 @@ params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
 params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
 params.distribution = 'normal';
 params.date = '03202017';
-params.train_new_model = true;
+params.train_new_model = false;
 params.cuneate_flag = true;
 
 processedTrial03202017 = compiledCOActPasAnalysis(td, params);
@@ -18,10 +18,12 @@ params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
 params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
 params.distribution = 'normal';
 params.date = '09032017';
-params.train_new_model = true;
+params.train_new_model = false;
 params.cuneate_flag = true;
 
 processedTrial09032017 = compiledCOActPasAnalysis(td, params);
+
+
 %% 
 load('/media/chris/HDD/Data/MonkeyData/CDS/Lando/20170917/Lando_COactpas_20170917_001_TD_wNaming.mat')
 params.cutoff = pi/4;
@@ -31,12 +33,25 @@ params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
 params.distribution = 'normal';
 params.date = '09172017';
 
-params.train_new_model = true;
+params.train_new_model = false;
 params.cuneate_flag = true;
 
 processedTrial09172017 = compiledCOActPasAnalysis(td, params);
 
+
 %%
+% get bins
+close all
+bins = linspace(-pi,pi,5);
+bins = bins(2:end);
+trial = processedTrial09172017;
+whichUnits = find(trial(2).actPDTable.sinTuned);
+compareTuning({trial(2).tuningCurveAct, trial(2).tuningCurvePas},...
+    {trial(2).actPDTable, trial(2).pasPDTable},bins, ...
+    whichUnits);
+[fh1, output1] = rotate_tuning_curves(trial(2).tuningCurveAct(whichUnits([1:11,13]),:), trial(2).tuningCurvePas(whichUnits([1:11,13]),:), bins);
+
+
 %%
 clear cuneateCompiledProcessed
 clear s1CompiledProcessed
