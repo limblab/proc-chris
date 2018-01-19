@@ -8,6 +8,7 @@ params.event_list = {'bumpTime'; 'bumpDir'};
 params.extra_time = [.4,.6];
 params.include_ts = true;
 params.include_start = true;
+params.include_naming = true;
 td = parseFileByTrial(cds, params);
 td = td(~isnan([td.target_direction]));
 params.start_idx =  'idx_goCueTime';

@@ -2,7 +2,7 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation
     cutoff = pi/4;
-    arrays= {'RightCuneate', 'LeftS1'};
+    arrays= {'RightCuneate'};
     windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
     windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
     distribution = 'normal';
@@ -20,6 +20,7 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
         error('This function requires that the input TD be binned at 10 ms');
     end
     
+<<<<<<< HEAD
     tdBump = tdBin(~isnan([td.bumpDir])); 
     tdAct = tdBin(strcmp({tdBin.result},'R'));
     tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));

@@ -1,4 +1,4 @@
-function [figure_handles, output_data]=rotate_tuning_curves(active, passive,options)
+function [figure_handles, output_data]=rotate_tuning_curves(active, passive,bins)
 % Find scaling and rotation between two tuning curves in PM and DL
 % workspaces
 
@@ -7,17 +7,18 @@ function [figure_handles, output_data]=rotate_tuning_curves(active, passive,opti
 % get relevant data
 tuning_PM = active;
 tuning_DL = passive;
-FR_PM = tuning_PM.binnedFR;
-FR_DL = tuning_DL.binnedFR;
-angs_PM = repmat(tuning_PM.bins',1,size(FR_PM,2));
-angs_DL = repmat(tuning_DL.bins',1,size(FR_DL,2));
+FR_PM = tuning_PM.binnedResponse;
+FR_DL = tuning_DL.binnedResponse;
+angs_PM = bins;
+angs_DL = bins;
 
 %% Convert to complex polar representation
-polar_PM_curve = FR_PM.*exp(1i*angs_PM);
-polar_DL_curve = FR_DL.*exp(1i*angs_DL);
+polar_PM_curve = [FR_PM.*exp(1i*angs_PM)]';
+polar_DL_curve = [FR_DL.*exp(1i*angs_DL)]';
 
-unit_ids = tuning_PM.unit_ids;
+unit_ids = tuning_PM.signalID;
 %% Fit data
+skips = zeros(length(unit_ids(:,1)),1);
 for i = 1:length(unit_ids(:,1))
 %     tbl = table(polar_PM_curve(:,i),polar_DL_curve(:,i),'VariableNames',{'PM_curve','DL_curve'});
 %     lm = fitlm(tbl,'DL_curve ~ PM_curve - 1');
@@ -26,18 +27,25 @@ for i = 1:length(unit_ids(:,1))
 %     complex_scale_manual(1,i) = (polar_PM_curve(:,i)'*polar_PM_curve(:,i))\polar_PM_curve(:,i)'*(polar_DL_curve(:,i));
 
     % Fit with optimization
-    real_imag_scale = fminsearch(@(x) (find_ms_curve_dist(polar_DL_curve(:,i),(x(1)+1i*x(2))*polar_PM_curve(:,i)))^2,rand(2,1));
-    complex_scale_factor(1,i) = real_imag_scale(1)+1i*real_imag_scale(2);
-    
-    disp(['Done with ' num2str(i)])
+    if sum(abs(polar_DL_curve(:,i)) == 0)<1 & sum(abs(polar_PM_curve(:,i)) == 0)<1
+
+        real_imag_scale = fminsearch(@(x) (find_ms_curve_dist(polar_DL_curve(:,i),(x(1)+1i*x(2))*polar_PM_curve(:,i)))^2,rand(2,1));
+        complex_scale_factor(1,i) = real_imag_scale(1)+1i*real_imag_scale(2);
+
+        disp(['Done with ' num2str(i)])
+    else
+        disp('Not a well formed unit')
+        skips(i) = 1;
+    end
 end
-output_data = complex_scale_factor;
-scale_factor = abs(complex_scale_factor);
-rot_factor = angle(complex_scale_factor);
+output_data.complexScale = complex_scale_factor;
+output_data.scale_factor = abs(complex_scale_factor);
+output_data.rot_factor = angle(complex_scale_factor);
 
 %% Plot fits
 figure_handles = [];
-unit_ids = tuning_PM.unit_ids;
+unit_ids = tuning_PM.signalID;
+unitList = unit_ids(~i);
 for i = 1:length(unit_ids(:,1))
     fig = figure('name',['channel_' num2str(unit_ids(i,1)) '_unit_' num2str(unit_ids(i,2)) '_tuning_plot']);
     figure_handles = [figure_handles fig];
@@ -73,7 +81,7 @@ for i = 1:length(unit_ids(:,1))
     set(gca,'xlim',[-180,180],'xtick',[-180 -90 0 90 180],'tickdir','out','box','off');
     xlabel 'Movement direction (deg)'
     ylabel 'Average spikes per 50 ms time bin'
-    legend('PM curve','DL curve','Rotated/Scaled PM curve')
+    legend('Active','Pas','Rotated/Scaled Active curve')
     legend('boxoff')
     title 'Unwrapped tuning curves'
     

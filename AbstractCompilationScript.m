@@ -197,3 +197,51 @@ for spike = 1:length(spikes)
 end
 xlim([6,10])
 ylim([-1, 1.5])
+%%
+%%
+
+paramsNN.model_type = 'nn';
+paramsNN.model_name = 'default';
+%paramsNN.in_signals = 'LeftS1_spikes';
+paramNNs.in_signals = 'RightCuneate_spikes';
+paramsNN.out_signals = 'vel';
+paramsNN.eval_metric = 'vaf';
+paramsNN.layer_sizes = [10,10];
+paramsNN.train_func = 'trainlm';
+
+tdBin = binTD(td, 5);
+% tdBin = trimTD(tdBin, 'idx_movement_on', 'idx_endTime');
+[tdNN, model] = getModel(tdBin, paramsNN);
+metricNN = evalModel(tdNN, paramsNN);
+
+paramsNN.model_type = 'linmodel';
+paramsNN.model_name = 'default';
+% paramNN.in_signals = 'RightCuneate_spikes';
+paramsNN.out_signals = 'vel';
+paramsNN.eval_metric = 'vaf';
+[tdLM, model] = getModel(tdBin, paramsNN);
+metricLM = evalModel(tdLM, paramsNN);
+
+metricLM
+metricNN
+a =1
+
+%%
+nnPred = cat(1,tdNN.nn_default);
+nnAct = cat(1, tdNN.vel);
+
+figure
+ax1 = subplot(2,1,1);
+plot(nnPred(:,1))
+yyaxis right
+plot(nnAct(:,1))
+
+ax2 = subplot(2,1,2)
+plot(nnPred(:,2))
+yyaxis right
+plot(nnAct(:,2))
+linkaxes([ax1, ax2], 'x')
+
+figure
+mod = fitlm(nnPred(:,1), nnAct(:,1))
+plot(mod)
