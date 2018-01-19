@@ -20,12 +20,10 @@ function processedTrial = compiledCOActPasAnalysis(td, params)
         error('This function requires that the input TD be binned at 10 ms');
     end
     
-    tdBump = tdBin(~isnan([td.bumpDir])); 
     tdAct = tdBin(strcmp({tdBin.result},'R'));
     tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
-=======
+    
     tdBump = tdBin(~isnan([tdBin.bumpDir])); 
->>>>>>> f8a750f4f596e78d6f5d135fb91aa6fd4d006736
     
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
     
