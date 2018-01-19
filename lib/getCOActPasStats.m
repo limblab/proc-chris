@@ -12,7 +12,7 @@ function [fh, outStruct] = getCOActPasStats(td,params)
     plotFlag = false;
     saveFig =false;
 
-    if(~isfield(params,'sinTuned'))
+    if(exist('params') && ~isfield(params,'sinTuned'))
         warning('No sinusoidal tuning provided, assuming all are tuned')
     end
     
