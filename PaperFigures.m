@@ -26,17 +26,17 @@
 % 
 % %% 
 % load('/media/chris/HDD/Data/MonkeyData/CDS/Lando/20170917/Lando_COactpas_20170917_001_TD_wNaming.mat')
-% params.cutoff = pi/4;
-% params.arrays ={'area2','cuneate'};
-% params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
-% params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
-% params.distribution = 'normal';
-% params.date = '09172017';
-% 
-% params.train_new_model = false;
-% params.cuneate_flag = true;
-% 
-% processedTrial09172017 = compiledCOActPasAnalysis(td, params);
+params.cutoff = pi/4;
+params.arrays ={'area2','cuneate'};
+params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
+params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
+params.distribution = 'normal';
+params.date = '09172017';
+
+params.train_new_model = false;
+params.cuneate_flag = true;
+
+processedTrial09172017 = compiledCOActPasAnalysis(td, params);
 
 
 %%

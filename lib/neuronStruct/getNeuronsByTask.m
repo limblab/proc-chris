@@ -9,6 +9,7 @@ function neuron_struct = getNeuronsByTask(td, params)
     params.task = task;
     params.date = date;
     params.monkey = monkey;
+    params.arrays = arrayNames;
     
     if (strcmp(task(1:2), 'CO'))
         neuron_struct= getCONeurons(td, params);
