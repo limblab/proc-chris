@@ -1,4 +1,4 @@
-function [fh, outStruct] = getCOActPasStats(td,params)
+function [fh, outStruct, neurons] = getCOActPasStats(td,params)
   
     beforeBump = .3;
     afterBump = .3;
@@ -21,9 +21,10 @@ function [fh, outStruct] = getCOActPasStats(td,params)
 
     numBoots = 1000;
     conf = .95;
-    
+    sinTuned = ones(length(td(1).([params.array, '_unit_guide'])(1,:)),1);
+
     if nargin > 1, assignParams(who,params); end % overwrite parameters
-    
+
     unitLabel = array;
     unitGuide = [unitLabel, '_unit_guide'];
     unitSpikes = [unitLabel, '_spikes'];
@@ -33,7 +34,6 @@ function [fh, outStruct] = getCOActPasStats(td,params)
     td = td(~isnan([td.target_direction]));
     params.start_idx =  'idx_goCueTime';
     params.end_idx = 'idx_endTime';
-    sinTuned = ones(length(td(1).(spikeLabel)(1,:)),1);
     td = getMoveOnsetAndPeak(td, params);
 
     bumpTrials = td(~isnan([td.bumpDir])); 
@@ -117,12 +117,12 @@ for i = 1:length(shortLeftBumpFiring)
     [meanLeftBump, botLeftBump, topLeftBump, bootstatLeftBump] = bootstrpFiringRates(shortLeftBumpFiring{i},numBoots, conf);
     [meanUpBump, botUpBump, topUpBump, bootstatUpBump] = bootstrpFiringRates(shortUpBumpFiring{i},numBoots, conf);
     [meanDownBump, botDownBump, topDownBump, bootstatDownBump] = bootstrpFiringRates(shortDownBumpFiring{i},numBoots, conf);
-    [meanPreBump, botPreBump, topPreBump, bootstatPreBump] = bootstrpFiringRates(preBumpFiring{i},numBoots,conf);
-    [meanPostBump, botPostBump, topPostBump, bootstatPostBump] = bootstrpFiringRates(postBumpFiring{i}, numBoots, conf);
-    dcBump(i) = meanPostBump - meanPreBump;
+    [meanPreBump(i), botPreBump(i), topPreBump(i), bootstatPreBump] = bootstrpFiringRates(preBumpFiring{i},numBoots,conf);
+    [meanPostBump(i), botPostBump(i), topPostBump(i), bootstatPostBump] = bootstrpFiringRates(postBumpFiring{i}, numBoots, conf);
+    dcBump(i) = meanPostBump(i) - meanPreBump(i);
     
-    bumpTuned(i) = meanDownBump > topPreBump | meanUpBump > topPreBump | meanRightBump > topPreBump| meanLeftBump > topPreBump |...
-        meanDownBump < botPreBump | meanUpBump< botPreBump | meanRightBump< botPreBump | meanLeftBump < botPreBump;
+    bumpTuned(i) = meanDownBump > topPreBump(i) | meanUpBump > topPreBump(i) | meanRightBump > topPreBump(i)| meanLeftBump > topPreBump(i) |...
+        meanDownBump < botPreBump(i) | meanUpBump< botPreBump(i) | meanRightBump< botPreBump(i) | meanLeftBump < botPreBump(i);
     rightSigBump(i) = topRightBump<meanLeftBump | topRightBump<meanUpBump | topRightBump<meanDownBump | botRightBump > meanLeftBump | botRightBump >meanUpBump | botRightBump > meanDownBump;
     leftSigBump(i) = topLeftBump<meanRightBump | topLeftBump<meanUpBump | topLeftBump<meanDownBump | botLeftBump > meanRightBump | botLeftBump >meanUpBump | botLeftBump > meanDownBump;
     upSigBump(i) = topUpBump<meanRightBump | topUpBump<meanLeftBump | topUpBump<meanDownBump | botUpBump > meanRightBump | botUpBump >meanLeftBump | botUpBump > meanDownBump;
@@ -144,9 +144,9 @@ for i = 1:length(shortLeftBumpFiring)
     [meanLeftMove, botLeftMove, topLeftMove, bootstatLeftMove] = bootstrpFiringRates(shortLeftMoveFiring{i},numBoots, conf);
     [meanUpMove, botUpMove, topUpMove, bootstatUpMove] = bootstrpFiringRates(shortUpMoveFiring{i},numBoots, conf);
     [meanDownMove, botDownMove, topDownMove, bootstatDownMove] = bootstrpFiringRates(shortDownMoveFiring{i},numBoots, conf);
-    [meanPreMove, botPreMove, topPreMove, bootstatPreMove] = bootstrpFiringRates(preMoveFiring{i},numBoots,conf);
-    [meanPostMove, botPostMove, topPostMove, bootstatPostMove] = bootstrpFiringRates(postMoveFiring{i}, numBoots, .99);
-    dcMove(i) = meanPostMove - meanPreMove;
+    [meanPreMove(i), botPreMove(i), topPreMove(i), bootstatPreMove] = bootstrpFiringRates(preMoveFiring{i},numBoots,conf);
+    [meanPostMove(i), botPostMove(i), topPostMove(i), bootstatPostMove] = bootstrpFiringRates(postMoveFiring{i}, numBoots, .99);
+    dcMove(i) = meanPostMove(i) - meanPreMove(i);
     modDepthMove(i) = max([meanUpMove, meanDownMove, meanLeftMove, meanRightMove]) - min([meanUpMove, meanDownMove, meanLeftMove, meanRightMove]);
     modDepthBump(i) = max([meanUpBump, meanDownBump, meanLeftBump, meanRightBump]) - min([meanUpBump, meanDownBump, meanLeftBump, meanRightBump]);
 
@@ -155,8 +155,8 @@ for i = 1:length(shortLeftBumpFiring)
     leftMoveSig(i) = topLeftMove<meanRightMove | topLeftMove<meanUpMove | topLeftMove<meanDownMove | botLeftMove > meanRightMove | botLeftMove >meanUpMove | botLeftMove > meanDownMove;
     upMoveSig(i) = topUpMove<meanRightMove | topUpMove<meanLeftMove | topUpMove<meanDownMove | botUpMove > meanRightMove | botUpMove >meanLeftMove | botUpMove > meanDownMove;
     downMoveSig(i) = topDownMove<meanRightMove | topDownMove<meanUpMove | topDownMove<meanLeftMove | botDownMove > meanRightMove | botDownMove >meanUpMove | botDownMove > meanLeftMove;
-    moveTuned(i) = meanDownMove > topPreMove | meanUpMove > topPreMove | meanRightMove > topPreMove| meanLeftMove > topPreMove |...
-    meanDownMove < botPreMove | meanUpMove< botPreMove | meanRightMove< botPreMove | meanLeftMove < botPreMove;
+    moveTuned(i) = meanDownMove > topPreMove(i) | meanUpMove > topPreMove(i) | meanRightMove > topPreMove(i)| meanLeftMove > topPreMove(i) |...
+    meanDownMove < botPreMove(i) | meanUpMove< botPreMove(i) | meanRightMove< botPreMove(i) | meanLeftMove < botPreMove(i);
 
     sigDifMove(i) = rightMoveSig(i) | leftMoveSig(i) | upMoveSig(i) | downMoveSig(i);
     %
@@ -276,24 +276,83 @@ for i = 1:length(shortLeftBumpFiring)
         end
     end
     close all
+
+    outStruct(i).angBump.high = highAngBump(i);
+    outStruct(i).angBump.low = lowAngBump(i);
+    outStruct(i).angBump.mean = angBump(i);
+
+outStruct(i).angMove.high = highAngMove(i);
+outStruct(i).angMove.low = lowAngMove(i);
+outStruct(i).angMove.mean = angMove(i);
+
+outStruct(i).moveTuned= sigDifMove(i);
+outStruct(i).bumpTuned = sigDifBump(i);
+outStruct(i).preMove.mean = meanPreMove(i);
+outStruct(i).preMove.high = topPreMove(i);
+outStruct(i).preMove.low = botPreMove(i);
+
+outStruct(i).postMove.mean = meanPostMove(i);
+outStruct(i).postMove.high = topPostMove(i);
+outStruct(i).postMove.low = botPostMove(i);
+
+%%
+outStruct(i).firing.bump.left.mean = meanLeftBump;
+outStruct(i).firing.bump.left.high = topLeftBump;
+outStruct(i).firing.bump.left.low= botLeftBump;
+
+outStruct(i).firing.bump.right.mean = meanRightBump;
+outStruct(i).firing.bump.right.high = topRightBump;
+outStruct(i).firing.bump.right.low = botRightBump;
+
+outStruct(i).firing.bump.up.mean = meanUpBump;
+outStruct(i).firing.bump.up.high = topUpBump;
+outStruct(i).firing.bump.up.low = botUpBump;
+
+outStruct(i).firing.bump.down.mean = meanDownBump;
+outStruct(i).firing.bump.down.high = topDownBump;
+outStruct(i).firing.bump.down.low = botDownBump;
+
+%%
+
+outStruct(i).firing.move.left.mean = meanLeftMove;
+outStruct(i).firing.move.left.high = topLeftMove;
+outStruct(i).firing.move.left.low= botLeftMove;
+
+outStruct(i).firing.move.right.mean = meanRightMove;
+outStruct(i).firing.move.right.high = topRightMove;
+outStruct(i).firing.move.right.low = botRightMove;
+
+outStruct(i).firing.move.up.mean = meanUpMove;
+outStruct(i).firing.move.up.high = topUpMove;
+outStruct(i).firing.move.up.low = botUpMove;
+
+outStruct(i).firing.move.down.mean = meanDownMove;
+outStruct(i).firing.move.down.high = topDownMove;
+outStruct(i).firing.move.down.low = botDownMove;
+%%
+
+outStruct(i).date = date;
+outStruct(i).array = array;
+
+
+pasActDif = angleDiff(angBump(i), angMove(i));
+
+outStruct(i).pasActDif = pasActDif;
+outStruct(i).numPasDif = sum(sigDifBump(i));
+outStruct(i).numActDif = sum(sigDifMove(i));
+
+
+outStruct(i).dcBump = dcBump(i);
+outStruct(i).dcMove= dcMove(i);
+
+outStruct(i).modDepthMove=modDepthMove(i);
+outStruct(i).modDepthBump = modDepthBump(i);
+
+outStruct(i).tuned= tuned(i);
 end
 %%
 
 
-pasActDif = angleDiff(angBump, angMove);
-
-outStruct.date = date;
-outStruct.array = array;
-outStruct.angBump = angBump;
-outStruct.angMove = angMove;
-outStruct.tuned= tuned;
-outStruct.pasActDif = pasActDif;
-outStruct.numPasDif = sum(sigDifBump);
-outStruct.numActDif = sum(sigDifMove);
-outStruct.dcBump = dcBump;
-outStruct.dcMove= dcMove;
-outStruct.modDepthMove=modDepthMove;
-outStruct.modDepthBump = modDepthBump;
 if plotFlag
     coActPasPlotting(outStruct);
 end

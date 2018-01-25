@@ -1,4 +1,4 @@
-function [processedTrial, neuronProcessed] = compiledCOActPasAnalysis(td, params)
+function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation
     cutoff = pi/4;
@@ -7,6 +7,7 @@ function [processedTrial, neuronProcessed] = compiledCOActPasAnalysis(td, params
     windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
     distribution = 'normal';
     train_new_model = true;
+    neuronProcessed1 = [];
     
     if nargin > 1, assignParams(who,params); end % overwrite parameters
 
@@ -73,25 +74,34 @@ function [processedTrial, neuronProcessed] = compiledCOActPasAnalysis(td, params
         processedTrial(i).actPasStats = outStruct;
         processedTrial(i).tuningCurveAct= getTuningCurves(tdAct, params);
         processedTrial(i).tuningCurvePas = getTuningCurves(tdPas,params);
+        clear neuronProcessed;
         neuronProcessed.chan = params.out_signal_names(:,1);
         neuronProcessed.unitNum = params.out_signal_names(:,2);
-        neuronProcessed.actTuningCurve = processedTrial.tuningCurveAct;
-        neuronProcessed.pasTuningCurve = processedTrial.tuningCurvePas;
-        neuronProcessed.angBump = processedTrial.actPasStats.angBump';
-        neuronProcessed.angMove = processedTrial.actPasStats.angMove';
-        neuronProcessed.tuned = processedTrial.actPasStats.tuned';
-        neuronProcessed.pasActDif = processedTrial.actPasStats.pasActDif';
-        neuronProcessed.dcBump = processedTrial.actPasStats.dcBump';
-        neuronProcessed.dcMove = processedTrial.actPasStats.dcMove';
-        
-        neuronProcessed.modDepthMove = processedTrial.actPasStats.modDepthMove';
-        neuronProcessed.modDepthBump = processedTrial.actPasStats.modDepthBump';
+        neuronProcessed.actTuningCurve = processedTrial(i).tuningCurveAct;
+        neuronProcessed.pasTuningCurve = processedTrial(i).tuningCurvePas;
+        neuronProcessed.actPD = processedTrial(i).actPDTable;
+        neuronProcessed.pasPD = processedTrial(i).pasPDTable;
+        neuronProcessed.angBump = [processedTrial(i).actPasStats.angBump]';
+        neuronProcessed.angMove = [processedTrial(i).actPasStats.angMove]';
+        neuronProcessed.tuned = [processedTrial(i).actPasStats.tuned]';
+        neuronProcessed.pasActDif = [processedTrial(i).actPasStats.pasActDif]';
+        neuronProcessed.dcBump = [processedTrial(i).actPasStats.dcBump]';
+        neuronProcessed.dcMove = [processedTrial(i).actPasStats.dcMove]';
+        neuronProcessed.firing = [outStruct.firing]';
+        neuronProcessed.modDepthMove = [outStruct.modDepthMove]';
+        neuronProcessed.modDepthBump = [outStruct.modDepthBump]';
+        neuronProcessed.moveTuned = [outStruct.moveTuned]';
+        neuronProcessed.bumpTuned = [outStruct.bumpTuned]';
+        neuronProcessed.preMove = [outStruct.preMove]';
+        neuronProcessed.postMove = [outStruct.postMove]';
+        neuronProcessed.sinTunedAct = processedTrial(i).actPDTable.sinTuned;
+        neuronProcessed.sinTunedPas = processedTrial(i).pasPDTable.sinTuned;
         
         neuronProcessed = struct2table(neuronProcessed);
         arrName.array = repmat({params.array}, [height(neuronProcessed), 1]);
         arrName.date = repmat({params.date},  [height(neuronProcessed), 1]);
         neuronProcessed = [struct2table(arrName), neuronProcessed];
-        neuronProcessed.array = {'area2'};
+        neuronProcessed1 = [neuronProcessed1; neuronProcessed];
     end
 end
 

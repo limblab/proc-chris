@@ -1,31 +1,32 @@
-% clear all
-% load('/media/chris/HDD/Data/MonkeyData/CDS/Lando/20170320/Lando_COactpas_20170320_001_TD_wNaming.mat')
-% params.cutoff = pi/4;
-% params.arrays ={'LeftS1','RightCuneate'};
-% params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
-% params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
-% params.distribution = 'normal';
-% params.date = '03202017';
-% params.train_new_model = false;
-% params.cuneate_flag = true;
-% 
-% processedTrial03202017 = compiledCOActPasAnalysis(td, params);
-% %%
-% load('/media/chris/HDD/Data/MonkeyData/CDS/Lando/20170903/Lando_COactpas_20170903_001_TD_wNaming.mat')
-% params.cutoff = pi/4;
-% params.arrays ={'LeftS1','RightCuneate'};
-% params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
-% params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
-% params.distribution = 'normal';
-% params.date = '09032017';
-% params.train_new_model = false;
-% params.cuneate_flag = true;
-% 
-% processedTrial09032017 = compiledCOActPasAnalysis(td, params);
-% 
-% 
-% %% 
-% load('/media/chris/HDD/Data/MonkeyData/CDS/Lando/20170917/Lando_COactpas_20170917_001_TD_wNaming.mat')
+clear all
+load('/media/chris/HDD/Data/MonkeyData/CDS/Lando/20170320/Lando_COactpas_20170320_001_TD_wNaming.mat')
+params.num_boots =1000;
+params.cutoff = pi/4;
+params.arrays ={'LeftS1','RightCuneate'};
+params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
+params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
+params.distribution = 'normal';
+params.date = '03202017';
+params.train_new_model = true;
+
+[processedTrial03202017, neurons03202017] = compiledCOActPasAnalysis(td, params);
+disp('03202017 Complete!')
+%%
+load('/media/chris/HDD/Data/MonkeyData/CDS/Lando/20170903/Lando_COactpas_20170903_001_TD_wNaming.mat')
+params.cutoff = pi/4;
+params.arrays ={'LeftS1','RightCuneate'};
+params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
+params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
+params.distribution = 'normal';
+params.date = '09032017';
+params.train_new_model = true;
+
+[processedTrial09032017, neurons09032017] = compiledCOActPasAnalysis(td, params);
+disp('09032017 Complete!')
+
+
+%% 
+load('/media/chris/HDD/Data/MonkeyData/CDS/Lando/20170917/Lando_COactpas_20170917_001_TD_wNaming.mat')
 params.cutoff = pi/4;
 params.arrays ={'area2','cuneate'};
 params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
@@ -33,12 +34,17 @@ params.windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
 params.distribution = 'normal';
 params.date = '09172017';
 
-params.train_new_model = false;
+params.train_new_model = true;
 params.cuneate_flag = true;
 
-processedTrial09172017 = compiledCOActPasAnalysis(td, params);
+[processedTrial09172017, neurons09172017] = compiledCOActPasAnalysis(td, params);
+disp('0917017 Complete!')
 
-
+save('COActPasAllAnalysis');
+% pause
+coActPasNeurons = [neurons03202017; neurons09032017; neurons09172017];
+s1Neurons = coActPasNeurons(strcmp('LeftS1',[coActPasNeurons.array]) | strcmp('area2',[coActPasNeurons.array]),:)
+cuneateNeurons = coActPasNeurons(~strcmp('LeftS1',[coActPasNeurons.array]) & ~strcmp('area2',[coActPasNeurons.array]),:)
 %%
 % get bins
 close all
@@ -156,7 +162,7 @@ end
 %%
 clear cuneateCompiledProcessed
 clear s1CompiledProcessed
-load('CompiledFiles.mat')
+% load('CompiledFiles.mat')
 cuneateCompiledProcessed(1) = processedTrial03202017(2).actPasStats;
 cuneateCompiledProcessed(2) = processedTrial09032017(2).actPasStats;
 cuneateCompiledProcessed(3) = processedTrial09172017(2).actPasStats;
@@ -187,3 +193,15 @@ inStructS1.dcMove = cat(2,s1CompiledProcessed.dcMove);
 inStructS1.modDepthMove = cat(2,s1CompiledProcessed.modDepthMove);
 inStructS1.modDepthBump = cat(2, s1CompiledProcessed.modDepthBump);
 coActPasPlotting(inStructS1)
+%%
+close all
+coActPasNeurons.actSinTuned = isTuned(coActPasNeurons.actPD.velPD, coActPasNeurons.actPD.velPDCI, pi/4);
+coActPasNeurons.pasSinTuned = isTuned(coActPasNeurons.pasPD.velPD, coActPasNeurons.pasPD.velPDCI, pi/4);
+
+s1Neurons = coActPasNeurons(strcmp('LeftS1',[coActPasNeurons.array]) | strcmp('area2',[coActPasNeurons.array]),:);
+cuneateNeurons = coActPasNeurons(~strcmp('LeftS1',[coActPasNeurons.array]) & ~strcmp('area2',[coActPasNeurons.array]),:);
+
+histogram(angleDiff([cuneateNeurons.angBump], [cuneateNeurons.angMove],true, false))
+hold on
+histogram(angleDiff([s1Neurons.angBump], [s1Neurons.angMove], true, false));
+

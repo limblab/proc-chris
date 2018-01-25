@@ -21,7 +21,7 @@ function [meanFiring, ciLow, ciHigh, bootstat] = bootstrpFiringRates(firing, num
     sortedBootstat = sort(bootstat);
      meanFiring = mean(sortedBootstat);
     ciLow = sortedBootstat(floor(numBoot*(1-CI)/2) );
-    ciHigh = sortedBootstat(floor(numBoot*(CI)/2) );
+    ciHigh = sortedBootstat(numBoot - floor(numBoot*(1-CI)/2) );
 
 end
 
