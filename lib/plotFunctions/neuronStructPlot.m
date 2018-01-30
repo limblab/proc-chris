@@ -1,8 +1,7 @@
 function [fh1, fh2, fh3, fh4] = neuronStructPlot(neuronStruct,params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-    close all
-    array = 'area2';
+    array = 'cuneate';
     date = 'all';
     plotModDepth = false;
     plotActVsPasPD = true;
@@ -10,7 +9,7 @@ function [fh1, fh2, fh3, fh4] = neuronStructPlot(neuronStruct,params)
     plotAngleDif = false;
     plotPDDists= false;
     savePlots = false;
-    tuningCondition = {'sinTunedAct', 'bumpTuned'};
+    tuningCondition = {'sinTunedAct'};
     fh1 = [];
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     if iscell(tuningCondition)
@@ -70,7 +69,7 @@ function [fh1, fh2, fh3, fh4] = neuronStructPlot(neuronStruct,params)
         errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'o')
         hold on
         plot([-pi, pi], [-pi, pi], 'r--')
-        title('Act vs. Pas PDs')
+        title(['Act vs. Pas PDs ', array, ' ', strjoin(tuningCondition, ' ')])
         xlabel('Active PD direction')
         ylabel('Passive PD direction')
         xlim([-pi, pi])
@@ -115,7 +114,24 @@ function [fh1, fh2, fh3, fh4] = neuronStructPlot(neuronStruct,params)
         legend('ActivePD Distribution', 'PassivePD Distribution')
     end
     
-
+    if (savePlots)
+        title1 = string([array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
+        if plotPDDists
+            saveas(fh5, strjoin(string([title1, 'PDDistributions.pdf']), ''));
+        end
+        if plotAngleDif 
+            saveas(fh4, strjoin(string([title1, 'DiffPDAngs.pdf']),''))
+        end
+        if plotAvgFiring
+            saveas(fh3, strjoin(string([title1, 'DCAvgFiring.pdf']),''))
+        end
+        if plotActVsPasPD
+            saveas(fh2, strjoin(string([title1, 'ActVsPasPD.pdf']),''));
+        end
+        if plotModDepth
+            saveas(fh1, strjoin(string([title1, 'ActPasModDepth.pdf']),''));
+        end
+ end
     
 end
 

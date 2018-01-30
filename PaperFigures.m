@@ -46,6 +46,19 @@ coActPasNeurons = [neurons03202017; neurons09032017; neurons09172017];
 s1Neurons = coActPasNeurons(strcmp('LeftS1',[coActPasNeurons.array]) | strcmp('area2',[coActPasNeurons.array]),:)
 cuneateNeurons = coActPasNeurons(~strcmp('LeftS1',[coActPasNeurons.array]) & ~strcmp('area2',[coActPasNeurons.array]),:)
 %%
+load('/media/chris/HDD/Data/MonkeyData/CDS/20170728/Lando_RW_hold_20170728_001_TD.mat')
+params.cutoff = pi/4;
+params.num_boots =1000;
+params.arrays ={'area2','cuneate'};
+params.windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
+params.windowPas ={'idx_trial_start',0; 'idx_movement_on',0};
+params.distribution = 'normal';
+params.date = '07282017';
+params.go_cue_name ='idx_goCueTime';
+params.end_name = 'idx_endTime';
+
+neuronStructRW = compiledRWAnalysis(trial_data, params);
+%%
 % get bins
 close all
 bins = linspace(-pi,pi,5);
