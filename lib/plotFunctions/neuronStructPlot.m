@@ -1,4 +1,4 @@
-function [fh1, fh2, fh3, fh4] = neuronStructPlot(neuronStruct,params)
+function [neurons] = neuronStructPlot(neuronStruct,params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
     array = 'cuneate';
