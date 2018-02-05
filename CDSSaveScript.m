@@ -1,5 +1,5 @@
-date = '20170728';
-task = 'RW_hold';
+date = '20170917';
+task = 'COactpas';
 monkey = 'Lando';
 array = {'area2', 'cuneate'};
 number = 1;
