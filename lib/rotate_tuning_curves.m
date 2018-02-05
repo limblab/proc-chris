@@ -34,6 +34,8 @@ for i = 1:length(unit_ids(:,1))
 
         disp(['Done with ' num2str(i)])
     else
+        real_imag_scale = 0;
+        complex_scale_factor (1,i) = 0 +0i
         disp('Not a well formed unit')
         skips(i) = 1;
     end
@@ -47,44 +49,45 @@ figure_handles = [];
 unit_ids = tuning_PM.signalID;
 unitList = unit_ids(~i);
 for i = 1:length(unit_ids(:,1))
-    fig = figure('name',['channel_' num2str(unit_ids(i,1)) '_unit_' num2str(unit_ids(i,2)) '_tuning_plot']);
-    figure_handles = [figure_handles fig];
-    
-    % polar tuning curve
-    subplot(211)
-    max_rad = max(abs([polar_PM_curve(:,i);polar_DL_curve(:,i)]));
-    h=polar(0,max_rad);
-    set(h,'color','w')
-    hold on
-    h=polar(angle(repmat(polar_PM_curve(:,i),2,1)),abs(repmat(polar_PM_curve(:,i),2,1)));
-    set(h,'linewidth',2,'color',[0.6 0.5 0.7])
-    hold on
-    h=polar(angle(repmat(polar_DL_curve(:,i),2,1)),abs(repmat(polar_DL_curve(:,i),2,1)));
-    set(h,'linewidth',2,'color',[1 0 0])
-    h=polar(angle(repmat(polar_PM_curve(:,i)*complex_scale_factor(i),2,1)),abs(repmat(polar_PM_curve(:,i)*complex_scale_factor(i),2,1)));
-    set(h,'linewidth',2,'color',[0 1 0])
-    title 'Wrapped tuning curves'
-    
-    % flat tuning curve
-    subplot(212)
-    [rays_PM,mags_PM] = get_full_curve(polar_PM_curve(:,i));
-    [rays_DL,mags_DL] = get_full_curve(polar_DL_curve(:,i));
-    [rays_fit,mags_fit] = get_full_curve(polar_PM_curve(:,i)*complex_scale_factor(i));
-    h=plot(180/pi*rays_PM,mags_PM);
-    set(h,'linewidth',2,'color',[0.6 0.5 0.7])
-    hold on
-    h=plot(180/pi*rays_DL,mags_DL);
-    set(h,'linewidth',2,'color',[1 0 0])
-    h=plot(180/pi*rays_fit,mags_fit);
-    set(h,'linewidth',2,'color',[0 1 0])
-    
-    set(gca,'xlim',[-180,180],'xtick',[-180 -90 0 90 180],'tickdir','out','box','off');
-    xlabel 'Movement direction (deg)'
-    ylabel 'Average spikes per 50 ms time bin'
-    legend('Active','Pas','Rotated/Scaled Active curve')
-    legend('boxoff')
-    title 'Unwrapped tuning curves'
-    
+    if ~skips(i)
+        fig = figure('name',['channel_' num2str(unit_ids(i,1)) '_unit_' num2str(unit_ids(i,2)) '_tuning_plot']);
+        figure_handles = [figure_handles fig];
+
+        % polar tuning curve
+        subplot(211)
+        max_rad = max(abs([polar_PM_curve(:,i);polar_DL_curve(:,i)]));
+        h=polar(0,max_rad);
+        set(h,'color','w')
+        hold on
+        h=polar(angle(repmat(polar_PM_curve(:,i),2,1)),abs(repmat(polar_PM_curve(:,i),2,1)));
+        set(h,'linewidth',2,'color',[0.6 0.5 0.7])
+        hold on
+        h=polar(angle(repmat(polar_DL_curve(:,i),2,1)),abs(repmat(polar_DL_curve(:,i),2,1)));
+        set(h,'linewidth',2,'color',[1 0 0])
+        h=polar(angle(repmat(polar_PM_curve(:,i)*complex_scale_factor(i),2,1)),abs(repmat(polar_PM_curve(:,i)*complex_scale_factor(i),2,1)));
+        set(h,'linewidth',2,'color',[0 1 0])
+        title 'Wrapped tuning curves'
+
+        % flat tuning curve
+        subplot(212)
+        [rays_PM,mags_PM] = get_full_curve(polar_PM_curve(:,i));
+        [rays_DL,mags_DL] = get_full_curve(polar_DL_curve(:,i));
+        [rays_fit,mags_fit] = get_full_curve(polar_PM_curve(:,i)*complex_scale_factor(i));
+        h=plot(180/pi*rays_PM,mags_PM);
+        set(h,'linewidth',2,'color',[0.6 0.5 0.7])
+        hold on
+        h=plot(180/pi*rays_DL,mags_DL);
+        set(h,'linewidth',2,'color',[1 0 0])
+        h=plot(180/pi*rays_fit,mags_fit);
+        set(h,'linewidth',2,'color',[0 1 0])
+
+        set(gca,'xlim',[-180,180],'xtick',[-180 -90 0 90 180],'tickdir','out','box','off');
+        xlabel 'Movement direction (deg)'
+        ylabel 'Average spikes per 50 ms time bin'
+        legend('Active','Pas','Rotated/Scaled Active curve')
+        legend('boxoff')
+        title 'Unwrapped tuning curves'
+    end
 %     saveas(fig,['channel_' num2str(unit_ids(i,1)) '_unit_' num2str(unit_ids(i,2)) '_tuning_plot' '.png'])
 end
 
