@@ -12,6 +12,13 @@ elseif strcmp(compName, 'DESKTOP')
     addpath(genpath('C:\Users\wrest_000\Documents\Github\TrialData\'));
     addpath(genpath('C:\Users\wrest_000\Documents\Github\KinectTracking\'));
     addpath(genpath('C:\Users\wrest_000\Documents\Github\proc-raeed\'));
+elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
+    addpath(genpath('C:\Users\wrest\Documents\Github\ClassyDataAnalysis\'));
+    addpath(genpath('C:\Users\wrest\Documents\Github\proc-chris\'));
+    addpath(genpath('C:\Users\wrest\Documents\Github\TrialData\'));
+    addpath(genpath('C:\Users\wrest\Documents\Github\KinectTracking\'));
+    addpath(genpath('C:\Users\wrest\Documents\Github\proc-raeed\'));
+    addpath(genpath('C:\Users\wrest\Documents\MATLAB\MonkeyData\'));
 elseif strcmp(arch, 'glnxa64')
     addpath(genpath('/home/chris/Documents/git/proc-chris/'));
     addpath(genpath('/home/chris/Documents/git/ClassyDataAnalysis/'));
