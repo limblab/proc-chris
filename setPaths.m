@@ -13,14 +13,14 @@ elseif strcmp(compName, 'DESKTOP')
     addpath(genpath('C:\Users\wrest_000\Documents\Github\KinectTracking\'));
     addpath(genpath('C:\Users\wrest_000\Documents\Github\proc-raeed\'));
 elseif strcmp(arch, 'glnxa64')
-    addpath(genpath('/home/chris/Documents/Git/proc-chris/'));
-    addpath(genpath('/home/chris/Documents/Git/ClassyDataAnalysis/'));
-    addpath(genpath('/home/chris/Documents/Git/KinectTracking/'));
-    addpath(genpath('/home/chris/Documents/Git/lfads-run-manager/'));
-    addpath(genpath('/home/chris/Documents/Git/models/research/lfads/'));
-    addpath(genpath('/home/chris/Documents/Git/trialdata/'))
-    addpath(genpath('/home/chris/Documents/Git/proc-raeed/'))
-
+    addpath(genpath('/home/chris/Documents/git/proc-chris/'));
+    addpath(genpath('/home/chris/Documents/git/ClassyDataAnalysis/'));
+    addpath(genpath('/home/chris/Documents/git/KinectTracking/'));
+    addpath(genpath('/home/chris/Documents/git/lfads-run-manager/'));
+    addpath(genpath('/home/chris/Documents/git/models/research/lfads/'));
+    addpath(genpath('/home/chris/Documents/git/trialdata/'))
+    addpath(genpath('/home/chris/Documents/git/proc-raeed/'))
+    disp('Desktop paths loaded')
 else
     error('This is not a supported computer');
 end
