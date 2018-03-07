@@ -1,10 +1,10 @@
-date = '20170917';
-task = 'COactpas';
-monkey = 'Lando';
-array = {'area2', 'cuneate'};
+date = '20180228';
+task = 'COKinTest';
+monkey = 'Butter';
+array = 'NoArray';
 number = 1;
-cds = easyCDS(monkey, task, date, array, number, {true, true});
-outpath = getCdsSavePath(monkey, date);
+cds = easyCDS(monkey, task, date, array, number, false);
+outpath = getCdsSavePath(monkey, date, getTask(task));
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS.mat'];
 mkdir(outpath);
 save(cdsPath, 'cds', '-v7.3');

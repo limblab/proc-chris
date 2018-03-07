@@ -1,4 +1,4 @@
-function [ path ] = getRawPath( monkey, date)
+function [ path ] = getRawPath( monkey, date, task)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
     compName = getenv('computername');
@@ -11,6 +11,9 @@ function [ path ] = getRawPath( monkey, date)
     elseif strcmp(compName, 'RESEARCHPC')
         whichComp = 'laptop';
         path = ['C:\Users\wrest_000\Documents\MATLAB\MonkeyData\RawData\',monkey,'\',date, '\'];
+    elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
+        whichComp = 'laptop2';
+        path = ['C:\Users\wrest\Documents\MATLAB\MonkeyData\',monkey,'\',task,'\',date, '\RawData\'];
     else 
         error('Computer not recognized......... Exiting');
     end    

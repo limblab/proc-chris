@@ -9,6 +9,9 @@ function [ path ] = getBasePath( monkey )
     elseif strcmp(compName, 'RESEARCHPC')
         whichComp = 'laptop';
         path = ['C:\Users\wrest_000\Documents\MATLAB\MonkeyData\RawData\',monkey,'\'];
+    elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
+        whichComp = 'laptop2';
+        path = ['C:\Users\wrest\Documents\MATLAB\MonkeyData\',monkey,filesep];
     else 
         error('Computer not recognized......... Exiting');
     end 
