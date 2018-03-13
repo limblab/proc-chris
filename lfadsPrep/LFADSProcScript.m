@@ -1,9 +1,10 @@
 close all
-
+% path='/media/chris/HDD/Data/MonkeyData/LFADSData/MultiMonkey Stitching S1 CoBump';
+% load([path, 'Han_20160415_td_peak.mat'])
 
 factNum =[1,2];
-numTrials = length(tdMove);
-rc.loadPosteriorMeans();
+numTrials = length(td);
+% rc.loadPosteriorMeans();
 for j = 1:4
 f1 = figure();
 hold on
@@ -77,17 +78,17 @@ close all
 % fitEndY = fitlm(factorAll{4}, tdEndVel(:,2))
 
 
-
+tdPeak = td;
 tdPeakVel = cat(1, tdPeak(1:numTrials).vel);
-params.signals= 'cuneate_spikes';
+params.signals= 'area2_spikes';
 tdPeakBinned = binTD(tdPeak, 5);
 tdPeakPCA = getPCA(tdPeakBinned, params); 
 
 tdBinnedVel = cat(1, tdPeakPCA.vel);
-tdBinnedPCA = cat(1, tdPeakPCA.cuneate_pca);
+tdBinnedPCA = cat(1, tdPeakPCA.area2_pca);
 
-fitPeakXPCA = fitlm(tdBinnedPCA, tdBinnedVel(:,1))
-fitPeakYPCA = fitlm(tdBinnedPCA, tdBinnedVel(:,2))
+fitPeakXPCA = fitlm(tdBinnedPCA, tdBinnedVel(:,1));
+fitPeakYPCA = fitlm(tdBinnedPCA, tdBinnedVel(:,2));
 figure
 plot(fitPeakXPCA)
 figure
