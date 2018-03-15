@@ -18,9 +18,10 @@ function fh1 = unitRaster(trialData, params)
         spikes = spikes(spikes>xBound(1) & spikes<xBound(2));
       for spike = 1:length(spikes)
         fh1 = plot([spikes(spike), spikes(spike)], [count*yMax/numTrials, (count+.8)*yMax/numTrials], 'k');
+        hold on
       end
     end
-    xlim(xBound);
-    ylim([0, yMax]); 
+%     xlim(xBound);
+%     ylim([0, yMax]); 
 end
 

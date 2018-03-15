@@ -1,7 +1,7 @@
 % clear all
 % load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170728\Lando_RW_hold_20170728_001_TD.mat');
 
-array = 'RightCuneate';
+array = 'cuneate';
 params.event_list = {'bumpTime'; 'bumpDir'};
 params.extra_time = [.4,.6];
 params.include_naming = true;

@@ -3,7 +3,7 @@ function [ path1 ] = getCdsSavePath( monkey, date, task )
     compName = getenv('computername');
     if strcmp(compName, 'FSM8M1SMD2')
         whichComp = 'GOB2';
-        path1 = ['C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\', monkey, '\',date, '\'];
+        path1 = ['C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\', monkey, '\', task,'\',date, '\'];
     elseif strcmp(compName, 'Chris-desktop')
         whichComp = 'home';
         path1 = ['C:\Users\wrest_000\Documents\MATLAB\MonkeyData\CDS\',monkey,'\',date, '\'];

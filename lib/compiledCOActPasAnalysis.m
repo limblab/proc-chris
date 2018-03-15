@@ -2,7 +2,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 %UNTITLED Summary of this function goes here
 %   Detailed explanation
     cutoff = pi/4;
-    arrays= {'RightCuneate', 'LeftS1'};
+    arrays= {'cuneate', 'LeftS1'};
     windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
     windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
     distribution = 'normal';

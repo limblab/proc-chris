@@ -15,8 +15,8 @@ params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
 td = getMoveOnsetAndPeak(td, params);
 
-date = 03202017;
-unitNames = 'RightCuneate';
+date = 03152018;
+unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
 beforeBump = .3;
@@ -41,7 +41,7 @@ rightMove = td([td.target_direction]==0);
 close all
 for num1 = numCount
     close all
-    title1 = ['Lando', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
+    title1 = ['Butter_', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
     paramsMove.neuron = num1;
     paramsMove.yMax = 40;
     paramsMove.align= 'movement_on';

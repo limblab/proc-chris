@@ -1,4 +1,4 @@
-function dif1 = angleDiffCV(angle1, angle2)
+function dif1 = angleDiff(angle1, angle2)
 %ANGLEDIFF Difference between two angles
 
 
