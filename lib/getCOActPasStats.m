@@ -5,9 +5,9 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     beforeMove = .3;
     afterMove = .3;
     
-    date= '03202017';
-    array= 'RightCuneate';
-    histogramFlag= false;
+    date= '03192017';
+    array= 'cuneate';
+    histogramFlag= true;
     circleFlag = false;
     plotFlag = false;
     saveFig =false;
@@ -200,7 +200,7 @@ for i = 1:length(shortLeftBumpFiring)
         tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i) ;%&sinTunedMove(i) & sinTunedBump(i);
 
     end
-    title1 = [array,'_Lando_Electrode_',date, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
+    title1 = [array,'_Butter_Electrode_',date, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
 
     
     if tuned(i)

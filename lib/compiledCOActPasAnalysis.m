@@ -2,7 +2,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 %UNTITLED Summary of this function goes here
 %   Detailed explanation
     cutoff = pi/4;
-    arrays= {'cuneate', 'LeftS1'};
+    arrays= {'cuneate'};
     windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
     windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
     distribution = 'normal';
@@ -29,6 +29,9 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     
     for i=1:length(arrays)
         params.array= arrays{i};
+        params.date = td(1).date;
+        params.windowAct = windowAct;
+        params.windowPas = windowPas;
         params.out_signals = [params.array, '_spikes'];
         params.distribution = distribution;
         params.out_signal_names =td(1).([params.array, '_unit_guide']); 
@@ -68,8 +71,8 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
             processedTrial(i).actPDTable = tablePDsAct;
             processedTrial(i).pasPDTable = tablePDsPas;
         else
-            processedTrial(i).actPDTable = 'PDs not computed';
-            processedTrial(i).pasPDTable = 'PDs not computed';
+            processedTrial(i).actPDTable = repmat({'PDs not computed'}, [length(params.out_signal_names(:,1)),1]);
+            processedTrial(i).pasPDTable = repmat({'PDs not computed'}, [length(params.out_signal_names(:,1)),1]);
         end
         processedTrial(i).actPasStats = outStruct;
         processedTrial(i).tuningCurveAct= getTuningCurves(tdAct, params);
@@ -94,8 +97,8 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         neuronProcessed.bumpTuned = [outStruct.bumpTuned]';
         neuronProcessed.preMove = [outStruct.preMove]';
         neuronProcessed.postMove = [outStruct.postMove]';
-        neuronProcessed.sinTunedAct = processedTrial(i).actPDTable.sinTuned;
-        neuronProcessed.sinTunedPas = processedTrial(i).pasPDTable.sinTuned;
+        neuronProcessed.sinTunedAct = sinTunedAct;
+        neuronProcessed.sinTunedPas = sinTunedPas;
         
         neuronProcessed = struct2table(neuronProcessed);
         arrName.array = repmat({params.array}, [height(neuronProcessed), 1]);

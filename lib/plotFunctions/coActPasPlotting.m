@@ -26,7 +26,7 @@ modDepthBump =  inStruct.modDepthBump;
 
 f3 = figure;
 
-angBumpTuned= angBump(tuned);
+angBumpTuned= angBump(tuned).mean;
 angMoveTuned = angMove(tuned);
 scatter(rad2deg(angBumpTuned), rad2deg(angMoveTuned))
 hold on
