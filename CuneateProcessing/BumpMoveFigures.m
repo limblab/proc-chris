@@ -37,6 +37,12 @@ leftMove = td([td.target_direction] ==pi);
 downMove = td([td.target_direction] ==3*pi/2);
 rightMove = td([td.target_direction]==0);
 
+
+upBump = bumpTrials([bumpTrials.bumpDir] == pi/2 );
+leftBump = bumpTrials([bumpTrials.bumpDir] ==pi);
+downBump = bumpTrials([bumpTrials.bumpDir] ==3*pi/2);
+rightBump = bumpTrials([bumpTrials.bumpDir]==0);
+
 %% 
 close all
 for num1 = numCount
