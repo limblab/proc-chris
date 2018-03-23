@@ -1,16 +1,116 @@
 function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, params)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation
-    cutoff = pi/4;
-    arrays= {'cuneate', 'LeftS1'};
-    windowAct= {'idx_movement_on', 0; 'idx_endTime',0};
-    windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2};
-    distribution = 'normal';
-    train_new_model = true;
-    neuronProcessed1 = [];
-    
-    if nargin > 1, assignParams(who,params); end % overwrite parameters
+% compiledCOActPasAnalysis:
+%   This function is a compiled analysis pipeline for all days which use
+%   the CObump paradigm in an attempt to disentangle the active/passive
+%   encoding of arm movements. The various things that are run here are:
+%
+%   GLMs: This computes a GLM for each neuron as a function of the handle
+%   movement direction. These can be used to construct tuning curves,
+%   determine sinusoidal tuning etc. This model is fit for all neurons in
+%   both the active and the passive windows.
+%
+%   The majority of the rest of the work is done by computeCOactpasStats,
+%   a helper function which does a lot of the other statistical
+%   comparisions including:
+%       Tuning curves
+%       Bump and movement tuning and directional tuning metrics
+%       Modulation depths
+%       Active/passive directional differences
+%       DC firing changes in active and passive
+%       Mean and conf int. for firing rates in all directions
 
+%Inputs :
+%    td: trial_data format binned at either 10 ms or 50 ms. (the code
+%    changes it to 50 ms)
+%  
+% Outputs:
+%   processedTrial: the compiled stats from this td. This is overall neural
+%   function stuff
+%       Tuning curves
+%       Bump and movement tuning and directional tuning metrics
+%       Modulation depths
+%       Active/passive directional differences
+%       DC firing changes in active and passive
+%       Mean and conf int. for firing rates in all directions
+%       
+%   neuronProcessed1: This is simply an easier format to display
+%   essentially the same date. This convert the processed trial to change
+%   the format so that it is a table which each neuron represented as a
+%   row, with columns describing the various stats that correspond to that
+%   neuron. The fields of this structure are as follows:
+%         monkey : what monkey this came from
+
+%         date   : the date that the neuron was processed
+
+%         array  : the array that the neuron came from
+
+%         chan   : the channel of the array that the neuron came from
+
+%         unitNum : the unitNumber on the channel
+
+%         actTuningCurve : firing rates in each of the 4 directions
+%         (active)
+
+%         pasTuningCurve : firing rates in each of the 4
+%         directions (passive)
+
+%         actPD : The pop vec. fit preferred direction  (active)
+
+%         pasPD : The pop vec. fit preferred direction (passive)
+
+%         angBump : the PD and the bootstrapped confidence interval
+%         (active GLM sinusoidally fit)
+
+%         angMove : the PD and the bootstrapped confidence interval
+%         (passive GLM sinusoidally fit)
+
+%         tuned : Checks to see if the neuron is tuned in some way
+%         (connfigurable)
+%
+%         pasActDif: angle between the active/passive GLM computed PDs
+%
+%         dcBump: Average firing change across all conditions for passive
+%         case
+%
+%         dcMove:  Average firing change across all conditions for active
+%         case
+
+%         firing: Mean firing and CIs for all directions
+
+%         modDepthMove: Difference between highest mean firing and lowest
+%         mean firind during active
+
+%         modDepthBump: Differences bewteen highest mean firing and lowest
+%         mean firing during passive
+
+%        
+%         moveTuned : One direction is statistically different than another
+%         direction in active movements
+
+%         bumpTuned : One direction is significantly different than another
+%         direction in passive movements
+
+%         preMove : Mean firing and CI for time before movement begins
+
+%         postMove : MEan firing and CI for time after movement starts
+
+%         sinTunedAct : Whether the unit is sinusoidally tuned in the
+%         active case
+
+%         sinTunedPas : Whetehr the unit is sinusoidally tuned in the
+%         passive case
+
+%% Parameter defaults
+    cutoff = pi/4; %cutoff for significant of sinusoidal tuning
+    arrays= {'cuneate', 'LeftS1'}; %default arrays to look for
+    windowAct= {'idx_movement_on', 0; 'idx_endTime',0}; %Default trimming windows active
+    windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2}; % Default trimming windows passive
+    distribution = 'normal'; %what distribution to use in the GLM models
+    train_new_model = false; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
+    neuronProcessed1 = []; %
+    %% Assign params
+    if nargin > 1, assignParams(who,params); end % overwrite parameters
+%% td preprocessing
     if(~isfield(td(1), 'idx_movement_on'))
         td = getMoveOnsetAndPeak(td);
     end
@@ -26,17 +126,16 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     tdBump = tdBin(~isnan([tdBin.bumpDir])); 
     
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
-    
-    for i=1:length(arrays)
+    %% Start the main processing
+    for i=1:length(arrays) % iterate through arrays
         params.array= arrays{i};
         params.out_signals = [params.array, '_spikes'];
         params.distribution = distribution;
         params.out_signal_names =td(1).([params.array, '_unit_guide']); 
         params.num_bins = 4;
         params.window = windowAct;
+        %% To train new GLM
         if train_new_model
-
-          
             tablePDsAct = getTDPDs(tdAct, params);
             tablePDsAct.sinTuned = checkIsTuned(tablePDsAct, params);
 
@@ -45,13 +144,14 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
             tablePDsPas.sinTuned = checkIsTuned(tablePDsPas, params);
             sinTunedAct = tablePDsAct.sinTuned;
             sinTunedPas = tablePDsPas.sinTuned;
-
         elseif(isfield(params, 'tablePDsPas'))
+            %% if you passed in tablePDsPas and table PDsAct as params
             tablePDsPas = params.tablePDsPas{i};
             sinTunedPas = tablePDsPas.sinTuned;
             tablePDsAct = params.tablePDsAct{i};
             sinTunedAct = tablePDsAct.sinTuned;
         else
+            %% or if you want to not train a model, it assumes all are sinusoidally tuned
             sinTunedAct = ones(length(td(1).([params.array, '_spikes'])(1,:)),1);
             sinTunedPas = ones(length(td(1).([params.array, '_spikes'])(1,:)),1);
 
@@ -64,13 +164,17 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         processedTrial(i).actTrim = params.windowAct;
         processedTrial(i).pasTrim = params.windowPas;
         processedTrial(i).comments = 'Here goes nothing';
+  
         if exist('tablePDsAct')
+            %% if you have GLM fits, put them in 
             processedTrial(i).actPDTable = tablePDsAct;
             processedTrial(i).pasPDTable = tablePDsPas;
         else
+            %% Otherwise, populate it with this info
             processedTrial(i).actPDTable = 'PDs not computed';
             processedTrial(i).pasPDTable = 'PDs not computed';
         end
+        %% Set all fields properly (probably a better way to do this)
         processedTrial(i).actPasStats = outStruct;
         processedTrial(i).tuningCurveAct= getTuningCurves(tdAct, params);
         processedTrial(i).tuningCurvePas = getTuningCurves(tdPas,params);
@@ -96,7 +200,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         neuronProcessed.postMove = [outStruct.postMove]';
         neuronProcessed.sinTunedAct = processedTrial(i).actPDTable.sinTuned;
         neuronProcessed.sinTunedPas = processedTrial(i).pasPDTable.sinTuned;
-        
+        %% Turn it from a structure array to a table
         neuronProcessed = struct2table(neuronProcessed);
         arrName.array = repmat({params.array}, [height(neuronProcessed), 1]);
         arrName.date = repmat({params.date},  [height(neuronProcessed), 1]);

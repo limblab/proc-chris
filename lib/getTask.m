@@ -1,6 +1,12 @@
 function [ cdsTask ] = getTask( inTask )
-%UNTITLED13 Summary of this function goes here
-%   Detailed explanation goes here
+% Inputs :
+%    
+%   inTask: task name in input file (whatever you call your nev) 
+%
+% 
+% Outputs:
+%   cdsTask: translation between the label on the trial and which task
+%   class it falls under
     if strcmp(inTask(1:2),'CO')
         cdsTask = 'CObump';
     elseif strcmp(inTask(1:2),'RW')

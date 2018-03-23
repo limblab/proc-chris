@@ -1,5 +1,114 @@
 function [fh, outStruct, neurons] = getCOActPasStats(td,params)
-  
+  % getCOActPasStats
+%   This function is a compiled analysis pipeline for all days which use
+%   the CObump paradigm in an attempt to disentangle the active/passive
+%   encoding of arm movements. The various things that are run here are:
+%
+%  This function computes a bunch of stuff, including:
+%       Tuning curves
+%       Bump and movement tuning and directional tuning metrics
+%       Modulation depths
+%       Active/passive directional differences
+%       DC firing changes in active and passive
+%       Mean and conf int. for firing rates in all directions
+
+%Inputs :
+%    td: trial_data format binned at either 10 ms or 50 ms. (the code
+%    changes it to 50 ms)
+%
+%    params: struct can optionally contain fields:
+%       beforeBump : time in seconds to use before the bump
+%       afterBump : time in seconds to use after the bump
+%       beforeMove : time in seconds to use before movement
+%       afterMove : time in seconds to use after movement
+%       date : date (string)
+%       array : array(string)
+%       histogramFlag : whether to make firing rate histogram plots
+%       circleFlag : whether to make tuning circle plots
+%       plotFlag : whether to make population plots
+%       saveFig  : whether to save figures
+%       numBoots : how many bootstrap iterations to do (1000 default)
+%       conf : what the confidence interval to use is (.95 default)
+%       sinTuned : if you want to do the plotting with only sinusoidally
+%       tuned units, this gives you a method to only plot them.
+%
+% Outputs:
+%   processedTrial: the compiled stats from this td. This is overall neural
+%   function stuff
+%       Tuning curves
+%       Bump and movement tuning and directional tuning metrics
+%       Modulation depths
+%       Active/passive directional differences
+%       DC firing changes in active and passive
+%       Mean and conf int. for firing rates in all directions
+%       
+%   neuronProcessed1: This is simply an easier format to display
+%   essentially the same date. This convert the processed trial to change
+%   the format so that it is a table which each neuron represented as a
+%   row, with columns describing the various stats that correspond to that
+%   neuron. The fields of this structure are as follows:
+%         monkey : what monkey this came from
+
+%         date   : the date that the neuron was processed
+
+%         array  : the array that the neuron came from
+
+%         chan   : the channel of the array that the neuron came from
+
+%         unitNum : the unitNumber on the channel
+
+%         actTuningCurve : firing rates in each of the 4 directions
+%         (active)
+
+%         pasTuningCurve : firing rates in each of the 4
+%         directions (passive)
+
+%         actPD : The pop vec. fit preferred direction  (active)
+
+%         pasPD : The pop vec. fit preferred direction (passive)
+
+%         angBump : the PD and the bootstrapped confidence interval
+%         (active GLM sinusoidally fit)
+
+%         angMove : the PD and the bootstrapped confidence interval
+%         (passive GLM sinusoidally fit)
+
+%         tuned : Checks to see if the neuron is tuned in some way
+%         (connfigurable)
+%
+%         pasActDif: angle between the active/passive GLM computed PDs
+%
+%         dcBump: Average firing change across all conditions for passive
+%         case
+%
+%         dcMove:  Average firing change across all conditions for active
+%         case
+
+%         firing: Mean firing and CIs for all directions
+
+%         modDepthMove: Difference between highest mean firing and lowest
+%         mean firind during active
+
+%         modDepthBump: Differences bewteen highest mean firing and lowest
+%         mean firing during passive
+
+%        
+%         moveTuned : One direction is statistically different than another
+%         direction in active movements
+
+%         bumpTuned : One direction is significantly different than another
+%         direction in passive movements
+
+%         preMove : Mean firing and CI for time before movement begins
+
+%         postMove : MEan firing and CI for time after movement starts
+
+%         sinTunedAct : Whether the unit is sinusoidally tuned in the
+%         active case
+
+%         sinTunedPas : Whetehr the unit is sinusoidally tuned in the
+%         passive case
+%% Parameters and preprocessing
     beforeBump = .3;
     afterBump = .3;
     beforeMove = .3;
@@ -24,7 +133,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     sinTuned = ones(length(td(1).([params.array, '_unit_guide'])(1,:)),1);
 
     if nargin > 1, assignParams(who,params); end % overwrite parameters
-
+%% Computing helpful temp variables
     unitLabel = array;
     unitGuide = [unitLabel, '_unit_guide'];
     unitSpikes = [unitLabel, '_spikes'];
@@ -48,7 +157,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     rightBump = bumpTrials([bumpTrials.bumpDir] == 0);
     
     timeVec = linspace(-1*beforeBump, afterBump, length(upMove(1).idx_movement_on-(beforeMove*100):upMove(1).idx_movement_on+(afterMove*100)));
-    
+    %% Compute firing for plots around bump start and movement onset
    for num1 = 1:length(td(1).(spikeLabel)(1,:))
        upMoveFiring = zeros(length(upMove), length(timeVec));
        for  i = 1:length(upMove)
@@ -87,17 +196,17 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
         for  i = 1:length(rightMove)
             rightMoveFiring(i,:) = rightMove(i).(spikeLabel)(rightMove(i).idx_movement_on-(beforeMove*100):rightMove(i).idx_movement_on+(afterMove*100),num1);
         end
-
+%% Compute firing rate in window 100 ms after bump onset
        shortRightBumpFiring{num1} = rightBumpFiring(:, beforeBump*100:beforeBump*100+10);
        shortLeftBumpFiring{num1} = leftBumpFiring(:, beforeBump*100:beforeBump*100+10);
        shortUpBumpFiring{num1} = upBumpFiring(:, beforeBump*100:beforeBump*100+10);
        shortDownBumpFiring{num1} = downBumpFiring(:, beforeBump*100:beforeBump*100+10);
-
+%% Compute firing rate in window 100 ms after movement onset
        shortRightMoveFiring{num1} = rightMoveFiring(:, beforeMove*100:beforeMove*100+10);
        shortLeftMoveFiring{num1} = leftMoveFiring(:, beforeMove*100:beforeMove*100+10);
        shortUpMoveFiring{num1} = upMoveFiring(:, beforeMove*100:beforeMove*100+10);
        shortDownMoveFiring{num1} = downMoveFiring(:, beforeMove*100:beforeMove*100+10);
-
+%% Compute general prebump and pre-movement firing rates
        preBumpFiring{num1} = [rightBumpFiring(:, beforeBump*50:beforeBump*100); leftBumpFiring(:, beforeBump*50:beforeBump*100);...
            upBumpFiring(:,beforeBump*50:beforeBump*100); downBumpFiring(:,beforeBump*50:beforeBump*100)];
        preMoveFiring{num1} = [rightMoveFiring(:, 1:beforeMove*50); leftMoveFiring(:, 1:beforeMove*50);...
@@ -111,7 +220,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
 
    sigDif = zeros(length(shortLeftBumpFiring),1);
 for i = 1:length(shortLeftBumpFiring)
-
+    %% compute bootstrapped confidence interval for bumps
     postBumpFiring{i} = [shortRightBumpFiring{i}; shortLeftBumpFiring{i}; shortUpBumpFiring{i}; shortDownBumpFiring{i}];
     [meanRightBump, botRightBump, topRightBump,bootstatRightBump] = bootstrpFiringRates(shortRightBumpFiring{i},numBoots, conf);
     [meanLeftBump, botLeftBump, topLeftBump, bootstatLeftBump] = bootstrpFiringRates(shortLeftBumpFiring{i},numBoots, conf);
@@ -120,7 +229,7 @@ for i = 1:length(shortLeftBumpFiring)
     [meanPreBump(i), botPreBump(i), topPreBump(i), bootstatPreBump] = bootstrpFiringRates(preBumpFiring{i},numBoots,conf);
     [meanPostBump(i), botPostBump(i), topPostBump(i), bootstatPostBump] = bootstrpFiringRates(postBumpFiring{i}, numBoots, conf);
     dcBump(i) = meanPostBump(i) - meanPreBump(i);
-    
+    %% compute significance etc.
     bumpTuned(i) = meanDownBump > topPreBump(i) | meanUpBump > topPreBump(i) | meanRightBump > topPreBump(i)| meanLeftBump > topPreBump(i) |...
         meanDownBump < botPreBump(i) | meanUpBump< botPreBump(i) | meanRightBump< botPreBump(i) | meanLeftBump < botPreBump(i);
     rightSigBump(i) = topRightBump<meanLeftBump | topRightBump<meanUpBump | topRightBump<meanDownBump | botRightBump > meanLeftBump | botRightBump >meanUpBump | botRightBump > meanDownBump;
@@ -138,7 +247,7 @@ for i = 1:length(shortLeftBumpFiring)
 %     histogram(bootstatPreBump)
 %     histogram(bootstatPostBump)
 %     legend('show')
-
+%% compute confidence intervals for active movements
     postMoveFiring{i} = [shortRightMoveFiring{i}; shortLeftMoveFiring{i}; shortUpMoveFiring{i}; shortDownMoveFiring{i}];
     [meanRightMove, botRightMove, topRightMove,bootstatRightMove] = bootstrpFiringRates(shortRightMoveFiring{i},numBoots, conf);
     [meanLeftMove, botLeftMove, topLeftMove, bootstatLeftMove] = bootstrpFiringRates(shortLeftMoveFiring{i},numBoots, conf);
@@ -150,7 +259,7 @@ for i = 1:length(shortLeftBumpFiring)
     modDepthMove(i) = max([meanUpMove, meanDownMove, meanLeftMove, meanRightMove]) - min([meanUpMove, meanDownMove, meanLeftMove, meanRightMove]);
     modDepthBump(i) = max([meanUpBump, meanDownBump, meanLeftBump, meanRightBump]) - min([meanUpBump, meanDownBump, meanLeftBump, meanRightBump]);
 
-    
+    %% compute significance for active movements
     rightMoveSig(i) = topRightMove<meanLeftMove | topRightMove<meanUpMove | topRightMove<meanDownMove | botRightMove > meanLeftMove | botRightMove >meanUpMove | botRightMove > meanDownMove;
     leftMoveSig(i) = topLeftMove<meanRightMove | topLeftMove<meanUpMove | topLeftMove<meanDownMove | botLeftMove > meanRightMove | botLeftMove >meanUpMove | botLeftMove > meanDownMove;
     upMoveSig(i) = topUpMove<meanRightMove | topUpMove<meanLeftMove | topUpMove<meanDownMove | botUpMove > meanRightMove | botUpMove >meanLeftMove | botUpMove > meanDownMove;
@@ -160,7 +269,7 @@ for i = 1:length(shortLeftBumpFiring)
 
     sigDifMove(i) = rightMoveSig(i) | leftMoveSig(i) | upMoveSig(i) | downMoveSig(i);
     %
-
+%% Compute population vector PD and bootstrapped confidence interval
     upVec = [0, 1];
     downVec = [0,-1];
     rightVec = [1,0];
@@ -190,12 +299,12 @@ for i = 1:length(shortLeftBumpFiring)
     lowAngMove(i) = sortedAngMove(50) +angMove(i);
     highAngMove(i) = sortedAngMove(950)+ angMove(i);
 
-    
+    %% General sanity checks and removing units I know to not be cuneate
     goodFiring(i) = meanDownMove>0 & meanUpMove >0 & meanRightMove >0 & meanLeftMove >0 & meanDownBump >0 & meanUpBump >0 & meanRightBump>0 & meanLeftBump >0;
     
     if strcmp(array, 'cuneate') | strcmp(array, 'RightCuneate')
         trueCuneate = getTrueCuneate(td, params);
-        tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i) & trueCuneate(i);%&sinTunedMove(i) & sinTunedBump(i);
+        tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i);% & trueCuneate(i);%&sinTunedMove(i) & sinTunedBump(i);
     else
         tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i) ;%&sinTunedMove(i) & sinTunedBump(i);
 
@@ -206,6 +315,7 @@ for i = 1:length(shortLeftBumpFiring)
     if tuned(i)
         title1 = [title1, '_TUNED'];
     end
+    %% Histogram plotting
     if histogramFlag & tuned(i)
 
         f1 = figure('Position', [100, 100, 1200, 800]);
@@ -237,6 +347,7 @@ for i = 1:length(shortLeftBumpFiring)
             saveas(f1,strrep(figTitle, ' ', '_'));
         end
     end
+    %% circle plotting
     if circleFlag & tuned(i)
         theta = [0, pi/2, pi, 3*pi/2, 0];
         bumpMean = [meanRightBump, meanUpBump, meanLeftBump, meanDownBump, meanRightBump];
@@ -276,10 +387,10 @@ for i = 1:length(shortLeftBumpFiring)
         end
     end
     close all
-
-    outStruct(i).angBump.high = highAngBump(i);
-    outStruct(i).angBump.low = lowAngBump(i);
-    outStruct(i).angBump.mean = angBump(i);
+%% Generate output structure
+outStruct(i).angBump.high = highAngBump(i);
+outStruct(i).angBump.low = lowAngBump(i);
+outStruct(i).angBump.mean = angBump(i);
 
 outStruct(i).angMove.high = highAngMove(i);
 outStruct(i).angMove.low = lowAngMove(i);
@@ -350,7 +461,7 @@ outStruct(i).modDepthBump = modDepthBump(i);
 
 outStruct(i).tuned= tuned(i);
 end
-%%
+%% If I want to plot stuff
 
 
 if plotFlag
