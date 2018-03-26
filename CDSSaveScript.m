@@ -28,17 +28,26 @@ sorted = true;
 
 makeFileStructure(monkey, date, getGenericTask(task));
 
+motionTrack = false;
+
 if sorted
     srtStr = 'sorted';
 else
     srtStr = 'unsorted';
 end
 
+if motionTrack
+    first_time = true;
+        motionTrackPath = [getBasicPath(monkey, date, getGenericTask(task)), 'MotionTracking', filesep];
+        motionTrackName = getMotionTrackName(monkey, date, getGenericTask(task), number);
+        load([motionTrackPath, motionTrackName])
+        color_tracker_4colors_script;
+end
 
 %% Generate CDS using easyCDS
-cds = easyCDS(monkey, task, date, array, number, sorted);
+cds = easyCDS(monkey, task, date, array, number, sorted, motionTrack);
 % compute the outpath depending on what computer you are using and the task
-outpath = getCdsSavePath(monkey, date, getTask(task));
+outpath = getCdsSavePath(monkey, date, getGenericTask(task));
 % compose the filename
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_', srtStr, '.mat'];
 % make the directory (if it doesnt exist)

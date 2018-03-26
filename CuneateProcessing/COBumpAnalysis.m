@@ -96,8 +96,8 @@ pasPDTableTuned = pasPDTable(isTunedPas, :);
 curvesActTuned = curvesAct(isTunedAct,:);
 curvesPasTuned = curvesPas(isTunedPas,:);
 
-colorsAct = linspecer(length(isTunedAct));
-colorsPas = linspecer(length(isTunedPas));
+colorsAct = linspecer(height(actPDTableTuned));
+colorsPas = linspecer(height(pasPDTableTuned));
 h1 = figure;
 hold on
 h2 = figure;
@@ -105,12 +105,12 @@ hold on
 maxDist = max(max(max(curvesActTuned.CIhigh), max(curvesPasTuned.CIhigh)));
 for i = 1:sum(isTunedAct)
     figure(h1)
-    plotTuning(binsAct,actPDTable(i,:),curvesActTuned(i,:),maxDist,colorsAct(i,:),'-')
+    plotTuning(binsAct,actPDTableTuned(i,:),curvesActTuned(i,:),maxDist,colorsAct(i,:),'-')
 end
-% for i = 1:sum(isTunedPas)
-%     figure(h2)
-%     plotTuning(binsAct,pasPDTableTuned(i,:),curvesPasTuned(i,:),maxDist,colorsPas(i,:),'--')
-% end
+for i = 1:sum(isTunedPas)
+    figure(h2)
+    plotTuning(binsAct,pasPDTableTuned(i,:),curvesPasTuned(i,:),maxDist,colorsPas(i,:),'--')
+end
 figure(h1)
 title('Active PDs')
 figure(h2)

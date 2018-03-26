@@ -14,7 +14,7 @@ function [ path ] = getRawPath( monkey, date, task)
     if strcmp(compName, 'FSM8M1SMD2')
         %% GOB2
         whichComp = 'GOB2';
-        path = ['C:\Users\csv057\Documents\MATLAB\MonkeyData\RawData\', monkey, '\',date, '\'];
+        path = ['C:\Users\csv057\Documents\MATLAB\MonkeyData\', task, '\', monkey, '\',date, '\NEV\'];
     elseif strcmp(compName, 'Chris-desktop')
         %% Desktop (windows)
         whichComp = 'home';
