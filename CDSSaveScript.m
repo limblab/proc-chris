@@ -19,12 +19,13 @@
 % The filename of the .nev should be monkey_date_task_array_number
 %% All of the loading variables
 
-date = '20180322';
+date = '20180326';
 task = 'CO';
 monkey = 'Butter';
 array = 'cuneate';
 number = 1;
-sorted = false;
+sorted = true;
+motionTrack = false;
 
 if sorted
     srtStr = 'sorted';
@@ -32,11 +33,18 @@ else
     srtStr = 'unsorted';
 end
 
+if motionTrack
+    first_time = true;
+        motionTrackPath = [getBasicPath(monkey, date, getGenericTask(task)), 'MotionTracking', filesep];
+        motionTrackName = getMotionTrackName(monkey, date, getGenericTask(task), number);
+        load([motionTrackPath, motionTrackName])
+        color_tracker_4colors_script;
+end
 
 %% Generate CDS using easyCDS
-cds = easyCDS(monkey, task, date, array, number, sorted);
+cds = easyCDS(monkey, task, date, array, number, sorted, motionTrack);
 % compute the outpath depending on what computer you are using and the task
-outpath = getCdsSavePath(monkey, date, getTask(task));
+outpath = getCdsSavePath(monkey, date, getGenericTask(task));
 % compose the filename
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_', srtStr, '.mat'];
 % make the directory (if it doesnt exist)

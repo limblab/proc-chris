@@ -7,8 +7,8 @@ function [ arrayPath ] = getArrayMap( monkey, array )
 % Outputs:
 %   arrayPath: the path to the array
     % if you have only one array
-    mapName = dir([getBasePath(monkey), 'ArrayMaps\', array, '\*.cmp']);
-    arrayPath = [getBasePath(monkey), 'ArrayMaps\', array, '\',mapName.name];
+    mapName = dir([getBasePath(monkey), 'MapData\', monkey, '\', array, '\*.cmp']);
+    arrayPath = [getBasePath(monkey), 'MapData\', monkey, '\', array, '\',mapName.name];
       
 
 end

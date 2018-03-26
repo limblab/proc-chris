@@ -16,7 +16,7 @@ function [ path1 ] = getCdsSavePath( monkey, date, task )
     if strcmp(compName, 'FSM8M1SMD2')
         %% GOB2
         whichComp = 'GOB2';
-        path1 = ['C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\', monkey, '\', task,'\',date, '\'];
+        path1 = ['C:\Users\csv057\Documents\MATLAB\MonkeyData\',task, filesep, monkey,'\',date, '\CDS\'];
     elseif strcmp(compName, 'Chris-desktop')
         %% my desktop (PC version)
         whichComp = 'home';

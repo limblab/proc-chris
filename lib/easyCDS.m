@@ -1,4 +1,4 @@
-function [ cds ] = easyCDS( monkey, task, date,  arrays, numbers, areSorted)
+function [ cds ] = easyCDS( monkey, task, date,  arrays, numbers, areSorted, doMotionTracking)
 % easyCDS is the helper function called by CDSSaveScript. It generates
 % the paths needed and loads the files into the CDS to pass back to
 % CDSSaveScript
@@ -21,10 +21,13 @@ function [ cds ] = easyCDS( monkey, task, date,  arrays, numbers, areSorted)
 % Outputs:
 %   cds: the compiled CDS
     % if you have only one array
+    if ~exist('doMotionTracking')
+        doMotionTracking= false;
+    end
     if ischar(arrays)
         %% Preprocessing
         % get the raw path to the file (assuming correct folder structure)
-        rawPath = getRawPath(monkey, date, getTask(task));
+        rawPath = getRawPath(monkey, date, getGenericTask(task));
         % compose the name of the file (assuming correct naming convention)
         nevName = getNameNEV(monkey, date, task, arrays, numbers, areSorted);
         % Get the path the the array map (system dependent)
@@ -61,5 +64,6 @@ function [ cds ] = easyCDS( monkey, task, date,  arrays, numbers, areSorted)
     else
         error('Doesnt make a cds')
     end
+
 end
 

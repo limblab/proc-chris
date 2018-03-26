@@ -104,11 +104,11 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 
     
     cutoff = pi/4; %cutoff for significant of sinusoidal tuning
-    arrays= {'cuneate', 'LeftS1'}; %default arrays to look for
+    arrays= {'cuneate'}; %default arrays to look for
     windowAct= {'idx_movement_on', 0; 'idx_endTime',0}; %Default trimming windows active
     windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2}; % Default trimming windows passive
     distribution = 'normal'; %what distribution to use in the GLM models
-    train_new_model = false; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
+    train_new_model = true; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
     neuronProcessed1 = []; %
     %% Assign params
     if nargin > 1, assignParams(who,params); end % overwrite parameters
