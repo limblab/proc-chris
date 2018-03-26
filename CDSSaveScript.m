@@ -19,12 +19,14 @@
 % The filename of the .nev should be monkey_date_task_array_number
 %% All of the loading variables
 
-date = '20180322';
+date = '20180326';
 task = 'CO';
 monkey = 'Butter';
 array = 'cuneate';
 number = 1;
-sorted = false;
+sorted = true;
+
+makeFileStructure(monkey, date, getGenericTask(task));
 
 if sorted
     srtStr = 'sorted';
@@ -40,6 +42,6 @@ outpath = getCdsSavePath(monkey, date, getTask(task));
 % compose the filename
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_', srtStr, '.mat'];
 % make the directory (if it doesnt exist)
-mkdir(outpath);
+makeFileStructure(monkey, date, task);
 %save the cds to the folder
 save(cdsPath, 'cds', '-v7.3');
