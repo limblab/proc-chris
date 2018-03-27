@@ -110,6 +110,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     distribution = 'normal'; %what distribution to use in the GLM models
     train_new_model = true; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
     neuronProcessed1 = []; %
+    monkey  = td(1).monkey;
     %% Assign params
     if nargin > 1, assignParams(who,params); end % overwrite parameters
 %% td preprocessing
@@ -161,6 +162,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
             sinTunedPas = ones(length(td(1).([params.array, '_spikes'])(1,:)),1);
 
         end
+        save('tablePDs', 'tablePDsPas', 'tablePDsAct')
         params.sinTuned = sinTunedAct | sinTunedPas;
         [fh, outStruct] = getCOActPasStats(td, params);
 %         

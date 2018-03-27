@@ -3,12 +3,12 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
 %   Detailed explanation goes here
     array = 'cuneate';
     date = 'all';
-    plotModDepth = false;
+    plotModDepth = true;
     plotActVsPasPD = true;
-    plotAvgFiring = false;
-    plotAngleDif = false;
-    plotPDDists= false;
-    savePlots = false;
+    plotAvgFiring = true;
+    plotAngleDif = true;
+    plotPDDists= true;
+    savePlots = true;
     tuningCondition = {'sinTunedAct'};
     fh1 = [];
     if nargin > 1, assignParams(who,params); end % overwrite parameters
@@ -117,19 +117,19 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     if (savePlots)
         title1 = string([array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
         if plotPDDists
-            saveas(fh5, strjoin(string([title1, 'PDDistributions.pdf']), ''));
+            saveas(fh5, char(strjoin(string([title1, 'PDDistributions.pdf']), '')));
         end
         if plotAngleDif 
-            saveas(fh4, strjoin(string([title1, 'DiffPDAngs.pdf']),''))
+            saveas(fh4, char(strjoin(string([title1, 'DiffPDAngs.pdf']),'')))
         end
         if plotAvgFiring
-            saveas(fh3, strjoin(string([title1, 'DCAvgFiring.pdf']),''))
+            saveas(fh3, char(strjoin(string([title1, 'DCAvgFiring.pdf']),'')))
         end
         if plotActVsPasPD
-            saveas(fh2, strjoin(string([title1, 'ActVsPasPD.pdf']),''));
+            saveas(fh2, char(strjoin(string([title1, 'ActVsPasPD.pdf']),'')));
         end
         if plotModDepth
-            saveas(fh1, strjoin(string([title1, 'ActPasModDepth.pdf']),''));
+            saveas(fh1, char(strjoin(string([title1, 'ActPasModDepth.pdf']),'')));
         end
  end
     
