@@ -1,4 +1,6 @@
-function makeFileStructure(monkey, date, task )
+function path1 = makeFileStructure(monkey, date, task )
+    compName = getenv('computername');
+    arch = computer('arch');
     if strcmp(compName, 'FSM8M1SMD2')
         %% GOB2
         whichComp = 'GOB2';
@@ -49,5 +51,5 @@ function makeFileStructure(monkey, date, task )
     end
 end
     
-end
+
 

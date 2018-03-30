@@ -15,7 +15,7 @@ params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
 td = getMoveOnsetAndPeak(td, params);
 
-date = 03262018;
+date = 09032017;
 unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];

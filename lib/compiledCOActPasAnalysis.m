@@ -104,7 +104,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 
     
     cutoff = pi/4; %cutoff for significant of sinusoidal tuning
-    arrays= {'cuneate'}; %default arrays to look for
+    arrays= {'RightCuneate'}; %default arrays to look for
     windowAct= {'idx_movement_on', 0; 'idx_endTime',0}; %Default trimming windows active
     windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2}; % Default trimming windows passive
     distribution = 'normal'; %what distribution to use in the GLM models
