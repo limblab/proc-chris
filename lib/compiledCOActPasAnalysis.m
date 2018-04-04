@@ -9,7 +9,8 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 %   determine sinusoidal tuning etc. This model is fit for all neurons in
 %   both the active and the passive windows.
 %
-%   The majority of the rest of the work is done by computeCOactpasStats,
+%   The majority of the rest of 
+the work is done by computeCOactpasStats,
 %   a helper function which does a lot of the other statistical
 %   comparisions including:
 %       Tuning curves
