@@ -4,18 +4,19 @@ close all
 % load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
 savePlots = 1;
-params.event_list = {'bumpTime'; 'bumpDir'};
-params.extra_time = [.4,.6];
-params.include_ts = true;
-params.include_start = true;
-params.include_naming = true;
-td = parseFileByTrial(cds, params);
-td = td(~isnan([td.target_direction]));
-params.start_idx =  'idx_goCueTime';
-params.end_idx = 'idx_endTime';
-td = getMoveOnsetAndPeak(td, params);
+% params.event_list = {'bumpTime'; 'bumpDir'};
+% params.extra_time = [.4,.6];
+% params.include_ts = true;
+% params.include_start = true;
+% params.include_naming = true;
+% td = parseFileByTrial(cds, params);
+% td = td(~isnan([td.target_direction]));
+% params.start_idx =  'idx_goCueTime';
+% params.end_idx = 'idx_endTime';
+% td = getMoveOnsetAndPeak(td, params);
 
-date = 09032017;
+date = '20180329';
+monkey = 'Butter';
 unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
@@ -23,6 +24,9 @@ beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
+
+savePath = [getBasePath(monkey), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
+mkdir(savePath);
 
 w = gausswin(5);
 w = w/sum(w);
@@ -483,13 +487,13 @@ for num1 = numCount
     
     if savePlots
         set(up, 'Renderer', 'Painters');
-        save2pdf([strrep(title1, ' ', '_'), '_Up_', num2str(date), '.pdf'],up)
+        save2pdf([savePath, strrep(title1, ' ', '_'), '_Up_', num2str(date), '.pdf'],up)
         set(down, 'Renderer', 'Painters');
-        save2pdf([strrep(title1, ' ', '_'), 'Down', num2str(date), '.pdf'],down)
+        save2pdf([savePath,strrep(title1, ' ', '_'), 'Down', num2str(date), '.pdf'],down)
         set(left, 'Renderer', 'Painters');
-        save2pdf([strrep(title1, ' ', '_'), 'Left', num2str(date), '.pdf'],left) 
+        save2pdf([savePath,strrep(title1, ' ', '_'), 'Left', num2str(date), '.pdf'],left) 
         set(right, 'Renderer', 'Painters');
-        save2pdf([strrep(title1, ' ', '_'),'Right', num2str(date), '.pdf'],right)
+        save2pdf([savePath,strrep(title1, ' ', '_'),'Right', num2str(date), '.pdf'],right)
     end
 
    

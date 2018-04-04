@@ -31,8 +31,9 @@ param.arrays = {'cuneate'};
 param.arrays = {'RightCuneate'};
 [processedTrial0903, neurons0903] = compiledCOActPasAnalysis(td20170903, param);
 
-param.arrays = {'RightCuneate'};
+param.arrays = {'RightCuneate', 'LeftS1'};
 [processedTrial0320, neurons0320] = compiledCOActPasAnalysis(td20170320, param);
 %%
-neuronsCO = [neurons0320; neurons0903; neurons0917];
-save('C:\Users\csv057\Documents\MATLAB\MonkeyData\CO\Lando\CompiledNeurons\LandoCONeurons.mat', 'neuronsCO')
+load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CO\CompiledNeurons\LandoCONeurons.mat')
+neuronsCO = [neuronsCO; neurons0320; neurons0903; neurons0917];
+save('C:\Users\csv057\Documents\MATLAB\MonkeyData\CO\CompiledNeurons\LandoCONeurons.mat', 'neuronsCO')

@@ -2,13 +2,14 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
     array = 'cuneate';
+    monkey = 'Butter';
     date = 'all';
     plotModDepth = true;
     plotActVsPasPD = true;
     plotAvgFiring = true;
     plotAngleDif = true;
     plotPDDists= true;
-    savePlots = true;
+    savePlots = false;
     tuningCondition = {'sinTunedAct'};
     fh1 = [];
     if nargin > 1, assignParams(who,params); end % overwrite parameters
@@ -68,12 +69,17 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         fh2 = figure;
         errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'o')
         hold on
+        for i = 1:length(actPDs)
+            dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
+            text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.chan(i)));
+        end
         plot([-pi, pi], [-pi, pi], 'r--')
-        title(['Act vs. Pas PDs ', array, ' ', strjoin(tuningCondition, ' ')])
+        title(['Act vs. Pas PDs ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
         xlabel('Active PD direction')
         ylabel('Passive PD direction')
         xlim([-pi, pi])
         ylim([-pi, pi])
+        set(gca,'TickDir','out', 'box', 'off')
         
     end
     
@@ -131,7 +137,6 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         if plotModDepth
             saveas(fh1, char(strjoin(string([title1, 'ActPasModDepth.pdf']),'')));
         end
- end
-    
+    end
 end
 
