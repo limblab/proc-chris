@@ -15,19 +15,20 @@ function coActPasPlotting(inStruct)
 
 date1 =         inStruct.date;
 array=          inStruct.array;
-angBump=        inStruct.angBump;
-angMove =       inStruct.angMove;
-tuned =         inStruct.tuned;
+angBump=        {inStruct.angBump};
+angMove =       {inStruct.angMove};
+tuned =         [inStruct.tuned];
 pasActDif =     inStruct.pasActDif;
-dcBump =        inStruct.dcBump;
-dcMove =        inStruct.dcMove;
-modDepthMove =  inStruct.modDepthMove;
-modDepthBump =  inStruct.modDepthBump;
+dcBump =        [inStruct.dcBump];
+dcMove =        [inStruct.dcMove];
+modDepthMove =  [inStruct.modDepthMove];
+modDepthBump =  [inStruct.modDepthBump];
 
 f3 = figure;
-
-angBumpTuned= angBump(tuned).mean;
-angMoveTuned = angMove(tuned);
+angBumpTunedTemp= [angBump{tuned}];
+angBumpTuned = [angBumpTunedTemp.mean];
+angMoveTunedTemp = [angMove{tuned}];
+angMoveTuned = [angMoveTunedTemp.mean];
 scatter(rad2deg(angBumpTuned), rad2deg(angMoveTuned))
 hold on
 plot([-180, 180], [-180, 180])
@@ -53,7 +54,7 @@ h1 = histogram(dcBump(tuned),nBins);
 width = h1.BinWidth; 
 hold on
 histogram(dcMove(tuned),'BinWidth', width)
-legend('show')
+legend('Bump change', 'Move Change')
 title('Move Avg. Firing vs. Bump Avg. Firing')
 save2pdf(['AvgFiringMoveVsBump_',array,'_',  date1,'.pdf'], f5)
 

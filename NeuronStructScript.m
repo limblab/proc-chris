@@ -1,4 +1,4 @@
-load('/media/chris/HDD/Data/MonkeyData/Tasks/COActPas/COActPasNeurons.mat')
+load('/mediacompchris/HDD/Data/MonkeyData/Tasks/COActPas/COActPasNeurons.mat')
 
 close all
 

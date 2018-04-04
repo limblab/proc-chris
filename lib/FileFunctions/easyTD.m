@@ -8,7 +8,6 @@ function td = easyTD(path, monkey, task, date)
         params.include_naming = true;
         params.start_idx =  'idx_goCueTime';
         params.end_idx = 'idx_endTime';
-        params.trial_results = {'R', 'A'};
         td= parseFileByTrial(cds,params);
         td = getMoveOnsetAndPeak(td, params);
     elseif strcmp(getGenericTask(task), 'RW')

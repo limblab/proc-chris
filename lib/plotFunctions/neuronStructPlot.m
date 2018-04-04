@@ -2,12 +2,13 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
     array = 'cuneate';
+    monkey = 'Butter';
     date = 'all';
-    plotModDepth = false;
+    plotModDepth = true;
     plotActVsPasPD = true;
-    plotAvgFiring = false;
-    plotAngleDif = false;
-    plotPDDists= false;
+    plotAvgFiring = true;
+    plotAngleDif = true;
+    plotPDDists= true;
     savePlots = false;
     tuningCondition = {'sinTunedAct'};
     fh1 = [];
@@ -68,12 +69,17 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         fh2 = figure;
         errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'o')
         hold on
+        for i = 1:length(actPDs)
+            dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
+            text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.chan(i)));
+        end
         plot([-pi, pi], [-pi, pi], 'r--')
-        title(['Act vs. Pas PDs ', array, ' ', strjoin(tuningCondition, ' ')])
+        title(['Act vs. Pas PDs ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
         xlabel('Active PD direction')
         ylabel('Passive PD direction')
         xlim([-pi, pi])
         ylim([-pi, pi])
+        set(gca,'TickDir','out', 'box', 'off')
         
     end
     
@@ -117,21 +123,20 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     if (savePlots)
         title1 = string([array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
         if plotPDDists
-            saveas(fh5, strjoin(string([title1, 'PDDistributions.pdf']), ''));
+            saveas(fh5, char(strjoin(string([title1, 'PDDistributions.pdf']), '')));
         end
         if plotAngleDif 
-            saveas(fh4, strjoin(string([title1, 'DiffPDAngs.pdf']),''))
+            saveas(fh4, char(strjoin(string([title1, 'DiffPDAngs.pdf']),'')))
         end
         if plotAvgFiring
-            saveas(fh3, strjoin(string([title1, 'DCAvgFiring.pdf']),''))
+            saveas(fh3, char(strjoin(string([title1, 'DCAvgFiring.pdf']),'')))
         end
         if plotActVsPasPD
-            saveas(fh2, strjoin(string([title1, 'ActVsPasPD.pdf']),''));
+            saveas(fh2, char(strjoin(string([title1, 'ActVsPasPD.pdf']),'')));
         end
         if plotModDepth
-            saveas(fh1, strjoin(string([title1, 'ActPasModDepth.pdf']),''));
+            saveas(fh1, char(strjoin(string([title1, 'ActPasModDepth.pdf']),'')));
         end
- end
-    
+    end
 end
 
