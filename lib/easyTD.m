@@ -18,7 +18,8 @@ function td = easyTD(path, monkey, task, date)
         params.include_naming = true;
         params.start_idx =  'idx_goCueTime';
         params.end_idx = 'idx_endTime';
-        td = getRWMovements(td, params);
+        td = parseFileByTrial(cds, params);
+%         td = getRWMovements(td, params);
         td = getMoveOnsetAndPeak(td,params);
     end
     save(['C:\Users\csv057\Documents\MATLAB\MonkeyData\', getGenericTask(task), filesep, monkey, filesep, date, filesep, 'TD', filesep, monkey, '_', task, '_', date, '_TD.mat'], 'td');

@@ -8,7 +8,7 @@ params.plotAvgFiring = false;
 params.plotAngleDif = false;
 params.plotPDDists= false;
 params.savePlots = false;
-params.tuningCondition = {'isSpindle', 'sameDayMap'};
+params.tuningCondition = {'isGracile'};
 
 cuneate = neuronStructPlot(neuronsCOButter, params);
 

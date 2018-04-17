@@ -19,15 +19,16 @@
 % The filename of the .nev should be monkey_date_task_array_number
 %% All of the loading variables
 
-date = '20180329';
-task = 'CO';
+date = '20180405';
+task = 'RW';
 monkey = 'Butter';
 array = {'cuneate'};
 
-number = 4;
+number = 1;
 sorted = [true];
-suffix = 'FirstSort';
+suffix = 'unsplit';
 makeFileStructure(monkey, date, getGenericTask(task));
+%%
 
 motionTrack = false;
 

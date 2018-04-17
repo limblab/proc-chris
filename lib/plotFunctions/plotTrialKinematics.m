@@ -16,5 +16,6 @@ for i = 1:length(td)
     plot(rownorm(td(i).vel))
     hold on
 end
+ylim([0,100])
 end
 

@@ -13,6 +13,8 @@ function [ cdsTask ] = getGenericTask( inTask )
         cdsTask = 'RW';
     elseif strcmp(inTask(1:3), 'OOR')
         cdsTask = 'OOR';
+%     elseif strcmp(inTask(1:9), 'vibration')
+%         cdsTask = 'Vibration';
     else
         cdsTask = 'Unknown';
     end
