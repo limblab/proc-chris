@@ -9,8 +9,8 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     plotAvgFiring = true;
     plotAngleDif = true;
     plotPDDists= true;
-    savePlots = false;
-    tuningCondition = {'sinTunedAct'};
+    savePlots = true;
+    tuningCondition = {'sinTunedAct', 'sinTunedPas', 'sameDayMap', 'isCuneate', 'isSpindle'};
     fh1 = [];
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     if iscell(tuningCondition)

@@ -18,6 +18,8 @@
 param.arrays = {'cuneate'};
 [processedTrialNew, neuronsNew] = compiledCOActPasAnalysis(td20180329, param);
 
+% param.array = 'cuneate';
+% getCOActPasStats(td20180329, param);
 %%
 load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CO\CompiledNeurons\ButterCONeurons.mat')
 neuronsCO = [neuronsNew];

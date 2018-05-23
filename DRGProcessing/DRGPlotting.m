@@ -104,7 +104,7 @@ save('DRGFirstTrialKinematics', 'shoulder', 'elbow', 'hand')
 
 %%
 close all
-clear all
+% clear all
 tStartNeural = 11.075;
 tStartIMU = 440;
 tStart = 5;
@@ -113,12 +113,12 @@ elbowFlexion = 1100:9150- tStartIMU;
 wristFlexion = 9400:15800 -tStartIMU;
 shoulderFlexion= 15960:21500- tStartIMU;
 freeMovement = 22000:27691- tStartIMU;
-cds = commonDataStructure();
-cds.file2cds('C:\Users\csv057\Documents\MATLAB\DRGAcute\Neural Data\NHP02_0081-sorted', 'taskUnknown', 'arrayDRG', 'monkeyMcKinley','ranByChris',1);
-% plotAcuteDRG(cds, elbow, wrist, hand, tStartNeural, tStartIMU, .01*elbowFlexion(1), .01*elbowFlexion(end));
-% plotAcuteDRG(cds, elbow, wrist, hand, tStartNeural, tStartIMU, .01*wristFlexion(1), .01*wristFlexion(end));
-% plotAcuteDRG(cds, elbow, wrist, hand, tStartNeural, tStartIMU, .01*shoulderFlexion(1), .01*shoulderFlexion(end));
-% plotAcuteDRG(cds, elbow, wrist, hand, tStartNeural, tStartIMU, .01*freeMovement(1), .01*freeMovement(end));
+% cds = commonDataStructure();
+% cds.file2cds('C:\Users\csv057\Documents\MATLAB\DRGAcute\Neural Data\NHP02_0081-sorted', 'taskUnknown', 'arrayDRG', 'monkeyMcKinley','ranByChris',1);
+plotAcuteDRG(cds, elbow, wrist, hand, tStartNeural, tStartIMU, .01*elbowFlexion(1), .01*elbowFlexion(end));
+plotAcuteDRG(cds, elbow, wrist, hand, tStartNeural, tStartIMU, .01*wristFlexion(1), .01*wristFlexion(end));
+plotAcuteDRG(cds, elbow, wrist, hand, tStartNeural, tStartIMU, .01*shoulderFlexion(1), .01*shoulderFlexion(end));
+plotAcuteDRG(cds, elbow, wrist, hand, tStartNeural, tStartIMU, .01*freeMovement(1), .01*freeMovement(end));
 %% 
 params.all_points = true;
 td = parseFileByTrial(cds, params);

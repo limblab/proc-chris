@@ -144,11 +144,11 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         %% To train new GLM
         if train_new_model
             tablePDsAct = getTDPDs(tdAct, params);
-            tablePDsAct.sinTuned = checkIsTuned(tablePDsAct, params);
+            tablePDsAct.sinTuned = tablePDsAct.velTuned;
 
             params.window=  windowPas;
             tablePDsPas = getTDPDs(tdPas, params);
-            tablePDsPas.sinTuned = checkIsTuned(tablePDsPas, params);
+            tablePDsPas.sinTuned = tablePDsPas.velTuned;
             sinTunedAct = tablePDsAct.sinTuned;
             sinTunedPas = tablePDsPas.sinTuned;
         elseif(isfield(params, 'tablePDsPas'))

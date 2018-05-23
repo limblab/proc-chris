@@ -13,6 +13,8 @@ function [ cdsTask ] = getTask( inTask )
         cdsTask = 'RW';
     elseif strcmp(inTask(1:3), 'OOR')
         cdsTask = 'OOR';
+    elseif strcmp(inTask(1:3), 'TRT')
+        cdsTask = 'TRT';
     else
         cdsTask = 'Unknown';
     end
