@@ -20,6 +20,7 @@ monkey = 'Butter';
 unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
+savePDF = false;
 beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
@@ -486,14 +487,31 @@ for num1 = numCount
     ylim([0, max(1,1.1*maxFiring)])
     
     if savePlots
-        set(up, 'Renderer', 'Painters');
-        save2pdf([savePath, strrep(title1, ' ', '_'), '_Up_', num2str(date), '.pdf'],up)
-        set(down, 'Renderer', 'Painters');
-        save2pdf([savePath,strrep(title1, ' ', '_'), 'Down', num2str(date), '.pdf'],down)
-        set(left, 'Renderer', 'Painters');
-        save2pdf([savePath,strrep(title1, ' ', '_'), 'Left', num2str(date), '.pdf'],left) 
-        set(right, 'Renderer', 'Painters');
-        save2pdf([savePath,strrep(title1, ' ', '_'),'Right', num2str(date), '.pdf'],right)
+        if savePDF
+            
+            set(up, 'Renderer', 'Painters');
+            save2pdf([savePath, strrep(title1, ' ', '_'), '_Up_', num2str(date), '.pdf'],up)
+            set(down, 'Renderer', 'Painters');
+            save2pdf([savePath,strrep(title1, ' ', '_'), 'Down', num2str(date), '.pdf'],down)
+            set(left, 'Renderer', 'Painters');
+            save2pdf([savePath,strrep(title1, ' ', '_'), 'Left', num2str(date), '.pdf'],left) 
+            set(right, 'Renderer', 'Painters');
+            save2pdf([savePath,strrep(title1, ' ', '_'),'Right', num2str(date), '.pdf'],right)
+        else
+            saveas(up,[savePath, strrep(title1, ' ', '_'), '_Up_', num2str(date), '.png'])
+            saveas(down,[savePath, strrep(title1, ' ', '_'), '_Down_', num2str(date), '.png'])
+            saveas(left,[savePath, strrep(title1, ' ', '_'), '_Left_', num2str(date), '.png'])
+            saveas(right,[savePath, strrep(title1, ' ', '_'), '_Right_', num2str(date), '.png'])
+        end
+        h3 = figure;
+        sUp = subplot(3, 3, 2);
+        imUp = imread('
+        sLeft = subplot(3,3,4);
+        sDown = subplot(3,3,8);
+        sRight=subplot(3,3,6);
+        
+        
+        
     end
 
    

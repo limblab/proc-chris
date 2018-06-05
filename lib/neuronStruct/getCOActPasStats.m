@@ -114,10 +114,10 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     beforeMove = .3;
     afterMove = .3;
     
-    date= '03292018';
+    date1= '03292018';
     array= 'cuneate';
     histogramFlag= true;
-    circleFlag = false;
+    circleFlag = true;
     plotFlag = true;
     saveFig =true;
 
@@ -130,7 +130,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
 
     numBoots = 1000;
     conf = .95;
-    sinTuned = ones(length(td(1).([params.array, '_unit_guide'])(1,:)),1);
+    sinTuned = ones(length(td(1).([params.array, '_unit_guide'])(:,1)),1);
 
     if nargin > 1, assignParams(who,params); end % overwrite parameters
 %% Computing helpful temp variables
@@ -309,11 +309,12 @@ for i = 1:length(shortLeftBumpFiring)
         tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i) ;%&sinTunedMove(i) & sinTunedBump(i);
 
     end
-    title1 = [array,'_Butter_Electrode_',date, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
-
+    title1 = [getBasicPath(td(1).monkey, dateToLabDate(date1), getGenericTask(td(1).task)),'plotting', filesep,'NeuronPlots',filesep, array,'_',td(1).monkey,'_Electrode_',date1, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
+    title2 = [array,'_',td(1).monkey,'_Electrode_',date1, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
     
     if tuned(i)
         title1 = [title1, '_TUNED'];
+        title2 = [title2, '_TUNED'];
     end
     %% Histogram plotting
     if histogramFlag & tuned(i)
@@ -326,7 +327,7 @@ for i = 1:length(shortLeftBumpFiring)
         histogram(bootstatUpBump)
         histogram(bootstatDownBump)
         histogram(bootstatPreBump)
-        title([strrep(title1, '_', ' '), ' Bump Tuning'])
+        title([strrep(title2, '_', ' '), ' Bump Tuning'])
         xlabel('Firing')
         legend('show')
 
@@ -337,12 +338,12 @@ for i = 1:length(shortLeftBumpFiring)
         histogram(bootstatUpMove)
         histogram(bootstatDownMove)
         histogram(bootstatPreMove)
-        title([strrep(title1, '_', ' '), ' Move Tuning'])
+        title([strrep(title2, '_', ' '), ' Move Tuning'])
         xlabel('Firing')
         legend('show')
 
         linkaxes([sp1, sp2]);
-        figTitle = [title1, 'Histogram.pdf'];
+        figTitle = [title1, 'Histogram.png'];
         if(saveFig)
             saveas(f1,strrep(figTitle, ' ', '_'));
         end
@@ -379,9 +380,9 @@ for i = 1:length(shortLeftBumpFiring)
         polarplot([lowAngMove(i), lowAngMove(i)], [0, magMove(i)],'Color', [.4 .4 1], 'LineWidth', 2);
         polarplot([highAngMove(i), highAngMove(i)], [0, magMove(i)],'Color', [.4 .4 1], 'LineWidth', 2);
         
-        title([strrep(title1, '_', ' '), ' Tuning Curves'])
+        title([strrep(title2, '_', ' '), ' Tuning Curves'])
         legend('show')
-        figTitle = [title1, 'TuningCurve.pdf'];
+        figTitle = [title1, 'TuningCurve.png'];
         if(saveFig)
             saveas(f2, strrep(figTitle, ' ', '_'));
         end
@@ -442,7 +443,7 @@ outStruct(i).firing.move.down.high = topDownMove;
 outStruct(i).firing.move.down.low = botDownMove;
 %%
 
-outStruct(i).date = date;
+outStruct(i).date = date1;
 outStruct(i).array = array;
 
 

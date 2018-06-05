@@ -1,13 +1,13 @@
-params.event_list = {'bumpTime'; 'bumpDir'};
-params.extra_time = [.4,.6];
-params.include_ts = true;
-params.include_start = true;
-params.include_naming = true;
-params.start_idx =  'idx_goCueTime';
-params.end_idx = 'idx_endTime';
-params.trial_results = {'R', 'A'};
-td= parseFileByTrial(cds,params);
-td = td(~isnan([td.idx_goCueTime]));
+% params.event_list = {'bumpTime'; 'bumpDir'};
+% params.extra_time = [.4,.6];
+% params.include_ts = true;
+% params.include_start = true;
+% params.include_naming = true;
+% params.start_idx =  'idx_goCueTime';
+% params.end_idx = 'idx_endTime';
+% params.trial_results = {'R', 'A'};
+% td= parseFileByTrial(cds,params);
+% td = td(~isnan([td.idx_goCueTime]));
 %%
 close all
 dsVec = 1.9;
