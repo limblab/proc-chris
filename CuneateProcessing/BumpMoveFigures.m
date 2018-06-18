@@ -70,12 +70,12 @@ for num1 = numCount
     % Generate Movement Kinematics
     for  i = 1:length(upMove)
         upMoveKin(i,:,:) = upMove(i).vel(upMove(i).idx_movement_on-(beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
-        upMoveForce(i,:,:) = upMove(i).force(upMove(i).idx_movement_on- (beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
+%         upMoveForce(i,:,:) = upMove(i).force(upMove(i).idx_movement_on- (beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
 %         upMoveEMG(i,:,:) = upMove(i).emg(upMove(i).idx_movement_on- (beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),:);
     end
     meanUpKin = squeeze(mean(upMoveKin));
     speedUpKin = sqrt(meanUpKin(:,1).^2 + meanUpKin(:,2).^2);
-    meanupForce = squeeze(mean(upMoveForce));
+%     meanupForce = squeeze(mean(upMoveForce));
 %     meanUpEMG = squeeze(mean(upMoveEMG));
     
     upMoveFiring = zeros(length(upMove), length(speedUpKin));
@@ -105,12 +105,12 @@ for num1 = numCount
     upBumpKin = zeros(length(upBump), length(upBump(1).idx_bumpTime-(beforeBump*100):upBump(1).idx_bumpTime+(afterBump*100)), 2);
     for  i = 1:length(upBump)
         upBumpKin(i,:,:) = upBump(i).vel(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
-        upBumpForce(i,:,:)=upBump(i).force(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
+%         upBumpForce(i,:,:)=upBump(i).force(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
 %         upBumpEMG(i,:,:)=upBump(i).emg(upBump(i).idx_bumpTime-(beforeBump*100):upBump(i).idx_bumpTime+(afterBump*100),:);
     end
     meanUpKin = squeeze(mean(upBumpKin));
     speedUpKin = sqrt(meanUpKin(:,1).^2 + meanUpKin(:,2).^2); 
-    meanupForce = squeeze(mean(upBumpForce));
+% %     meanupForce = squeeze(mean(upBumpForce));
 %     meanUpEMG = squeeze(mean(upBumpEMG));
     
     subplot(2,2,1);
@@ -129,9 +129,9 @@ for num1 = numCount
     end
     yyaxis right
 %     plot(linspace(-1*beforeBump, afterBump, length(meanUpEMG(:,1))), meanUpEMG(:,20), 'r')
-    plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,2), 'r')
+%     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,2), 'r')
     hold on
-    plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
+%     plot(linspace(-1*beforeBump, afterBump, length(meanupForce(:,1))), meanupForce(:,1), 'b')
 
     
     
@@ -172,12 +172,12 @@ for num1 = numCount
     % Generate Movement Kinematics
     for  i = 1:length(downMove)
         downMoveKin(i,:,:) = downMove(i).vel(downMove(i).idx_movement_on-(beforeMove*100):downMove(i).idx_movement_on+(afterMove*100),:);
-        downMoveForce(i,:,:)= downMove(i).force(downMove(i).idx_movement_on -(beforeMove*100):downMove(i).idx_movement_on + (afterMove*100),:);
+%         downMoveForce(i,:,:)= downMove(i).force(downMove(i).idx_movement_on -(beforeMove*100):downMove(i).idx_movement_on + (afterMove*100),:);
     
     end
     meandownKin = squeeze(mean(downMoveKin));
     speeddownKin = sqrt(meandownKin(:,1).^2 + meandownKin(:,2).^2);
-    meandownForce1 = squeeze(mean(downMoveForce));
+%     meandownForce1 = squeeze(mean(downMoveForce));
     
     downMoveFiring = zeros(length(downMove), length(speeddownKin));
     down = figure();
@@ -195,12 +195,12 @@ for num1 = numCount
     downBumpKin = zeros(length(downBump), length(downBump(1).idx_bumpTime-(beforeBump*100):downBump(1).idx_bumpTime+(afterBump*100)), 2);
     for  i = 1:length(downBump)
         downBumpKin(i,:,:) = downBump(i).vel(downBump(i).idx_bumpTime-(beforeBump*100):downBump(i).idx_bumpTime+(afterBump*100),:);
-        downBumpForce(i,:,:)= downBump(i).force(downBump(i).idx_bumpTime-(beforeBump*100):downBump(i).idx_bumpTime+(afterBump*100),:);
+%         downBumpForce(i,:,:)= downBump(i).force(downBump(i).idx_bumpTime-(beforeBump*100):downBump(i).idx_bumpTime+(afterBump*100),:);
        
     end
     meandownKin = squeeze(mean(downBumpKin));
     speeddownKin = sqrt(meandownKin(:,1).^2 + meandownKin(:,2).^2);
-    meandownForce = squeeze(mean(downBumpForce));
+%     meandownForce = squeeze(mean(downBumpForce));
     
    
     if plotRasters
@@ -270,13 +270,13 @@ for num1 = numCount
 
     for  i = 1:length(leftMove)
         leftMoveKin(i,:,:) = leftMove(i).vel(leftMove(i).idx_movement_on-(beforeMove*100):leftMove(i).idx_movement_on+(afterMove*100),:);
-        leftMoveForce(i,:,:)= leftMove(i).force(leftMove(i).idx_movement_on-(beforeMove*100):leftMove(i).idx_movement_on+(afterMove*100),:);
+%         leftMoveForce(i,:,:)= leftMove(i).force(leftMove(i).idx_movement_on-(beforeMove*100):leftMove(i).idx_movement_on+(afterMove*100),:);
     end
     meanleftKin = squeeze(mean(leftMoveKin));
     speedleftKin = sqrt(meanleftKin(:,1).^2 + meanleftKin(:,2).^2);
     leftBumpFiring = zeros(length(leftBump), length(speedleftKin));
 
-    meanleftForce1 = squeeze(mean(leftMoveForce));
+%     meanleftForce1 = squeeze(mean(leftMoveForce));
 
     leftMoveFiring = zeros(length(leftMove), length(speedleftKin));
     left = figure();
@@ -294,11 +294,11 @@ for num1 = numCount
     leftBumpKin = zeros(length(leftBump), length(leftBump(1).idx_bumpTime-(beforeBump*100):leftBump(1).idx_bumpTime+(afterBump*100)), 2);
     for  i = 1:length(leftBump)
         leftBumpKin(i,:,:) = leftBump(i).vel(leftBump(i).idx_bumpTime-(beforeBump*100):leftBump(i).idx_bumpTime+(afterBump*100),:);
-        leftBumpForce(i,:,:)= leftBump(i).force(leftBump(i).idx_bumpTime-(beforeBump*100):leftBump(i).idx_bumpTime+(afterBump*100),:);
+%         leftBumpForce(i,:,:)= leftBump(i).force(leftBump(i).idx_bumpTime-(beforeBump*100):leftBump(i).idx_bumpTime+(afterBump*100),:);
     end
     meanleftKin = squeeze(mean(leftBumpKin));
     speedleftKin = sqrt(meanleftKin(:,1).^2 + meanleftKin(:,2).^2); 
-    meanleftForce = squeeze(mean(leftBumpForce));
+%     meanleftForce = squeeze(mean(leftBumpForce));
     
   
     if plotRasters
@@ -369,11 +369,11 @@ for num1 = numCount
     % Generate Movement Kinematics
     for  i = 1:length(rightMove)
         rightMoveKin(i,:,:) = rightMove(i).vel(rightMove(i).idx_movement_on-(beforeMove*100):rightMove(i).idx_movement_on+(afterMove*100),:);
-        rightMoveForce(i,:,:)= rightMove(i).force(rightMove(i).idx_movement_on-(beforeMove*100):rightMove(i).idx_movement_on+(afterMove*100),:);
+%         rightMoveForce(i,:,:)= rightMove(i).force(rightMove(i).idx_movement_on-(beforeMove*100):rightMove(i).idx_movement_on+(afterMove*100),:);
     end
     meanrightKin = squeeze(mean(rightMoveKin));
     speedrightKin = sqrt(meanrightKin(:,1).^2 + meanrightKin(:,2).^2);
-    meanrightForce1= squeeze(mean(rightMoveForce));
+%     meanrightForce1= squeeze(mean(rightMoveForce));
 
     rightMoveFiring = zeros(length(rightMove), length(speedrightKin));
     right = figure();
@@ -391,10 +391,10 @@ for num1 = numCount
     rightBumpKin = zeros(length(rightBump), length(rightBump(1).idx_bumpTime-(beforeBump*100):rightBump(1).idx_bumpTime+(afterBump*100)), 2);
     for  i = 1:length(rightBump)
         rightBumpKin(i,:,:) = rightBump(i).vel(rightBump(i).idx_bumpTime-(beforeBump*100):rightBump(i).idx_bumpTime+(afterBump*100),:);
-        rightBumpForce(i,:,:)= rightBump(i).force(rightBump(i).idx_bumpTime-(beforeBump*100):rightBump(i).idx_bumpTime+(afterBump*100),:);
+%         rightBumpForce(i,:,:)= rightBump(i).force(rightBump(i).idx_bumpTime-(beforeBump*100):rightBump(i).idx_bumpTime+(afterBump*100),:);
     end
     meanrightKin = squeeze(mean(rightBumpKin));
-    meanrightForce = squeeze(mean(rightBumpForce));
+%     meanrightForce = squeeze(mean(rightBumpForce));
     speedrightKin = sqrt(meanrightKin(:,1).^2 + meanrightKin(:,2).^2); 
 
     if plotRasters
@@ -503,12 +503,7 @@ for num1 = numCount
             saveas(left,[savePath, strrep(title1, ' ', '_'), '_Left_', num2str(date), '.png'])
             saveas(right,[savePath, strrep(title1, ' ', '_'), '_Right_', num2str(date), '.png'])
         end
-        h3 = figure;
-        sUp = subplot(3, 3, 2);
-        imUp = imread('
-        sLeft = subplot(3,3,4);
-        sDown = subplot(3,3,8);
-        sRight=subplot(3,3,6);
+
         
         
         
