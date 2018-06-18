@@ -3,7 +3,7 @@ clear all
 % load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CO\Butter\20180329\TD\Butter_CO_20180329_TD.mat')
 % load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CO\Lando\20170917\TD\Lando_COactpas_20170917_TD_001.mat')
 % load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CO\Lando\20170320\TD\Lando_COactpas_20170320_1_TD_sorted_ConservativeSort.mat')
-% load('Lando_CO_20170903_TD.mat')
+load('Lando_COactpas_20170917_TD_001.mat')
 
 array = 'cuneate';
 
