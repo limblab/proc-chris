@@ -105,9 +105,9 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 
     
     cutoff = pi/4; %cutoff for significant of sinusoidal tuning
-    arrays= {'RightCuneate'}; %default arrays to look for
-    windowAct= {'idx_movement_on', 0; 'idx_endTime',0}; %Default trimming windows active
-    windowPas ={'idx_bumpTime',-2; 'idx_bumpTime',2}; % Default trimming windows passive
+    arrays= {'cuneate'}; %default arrays to look for
+    windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
+    windowPas ={'idx_bumpTime',0; 'idx_bumpTime',2}; % Default trimming windows passive
     distribution = 'normal'; %what distribution to use in the GLM models
     train_new_model = true; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
     neuronProcessed1 = []; %
@@ -189,11 +189,13 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         mapping = td(1).([params.array,'_naming']);
         clear neuronProcessed;
         neuronProcessed.chan = params.out_signal_names(:,1);
+        neuronProcessed.ID = params.out_signal_names(:,2);
         for j = 1:length(neuronProcessed.chan)
             neuronProcessed.mapName(j, 1) = mapping(find(mapping(:,1) == neuronProcessed.chan(j)), 2);
         end
         
         neuronProcessed.unitNum = params.out_signal_names(:,2);
+        neuronProcessed.isSorted = neuronProcessed.unitNum >0;
         neuronProcessed.actTuningCurve = processedTrial(i).tuningCurveAct;
         neuronProcessed.pasTuningCurve = processedTrial(i).tuningCurvePas;
         neuronProcessed.actPD = processedTrial(i).actPDTable;

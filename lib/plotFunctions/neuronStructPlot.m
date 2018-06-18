@@ -2,7 +2,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
     array = 'cuneate';
-    monkey = 'Lando';
+    monkey = 'Butter';
     date = 'all';
     plotModDepth = true;
     plotActVsPasPD = true;
@@ -10,7 +10,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     plotAngleDif = true;
     plotPDDists= true;
     savePlots = true;
-    tuningCondition = {'sinTunedAct'};
+    tuningCondition = {'sinTunedAct','sinTunedPas'};
     fh1 = [];
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     if iscell(tuningCondition)

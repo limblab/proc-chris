@@ -1,5 +1,5 @@
 run= true;
-unitNum = 131;
+unitNum = 241;
 while run
     if strcmp(input('Do you want to input another file \n', 's'), 'y')
         moreUnits=true;
@@ -25,3 +25,4 @@ while run
         run = false;
         disp('completed sensory mapping entry')
     end
+end
