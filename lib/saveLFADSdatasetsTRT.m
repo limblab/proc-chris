@@ -1,4 +1,4 @@
-function datasetPath =  saveLFADSdatasetsCObump(td, params)
+function datasetPath =  saveLFADSdatasetsTRT(td, params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 condition = 'NA';

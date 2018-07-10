@@ -22,7 +22,7 @@ tdLandoBin = binTD(tdLando,5);
 velHanBin = cat(1, tdHanBin.vel);
 % velChipsBin = cat(1, tdChipsBin.vel);
 velLandoBin = cat(1, tdLandoBin.vel);
-velComboBin = [velHanBin; velChipsBin; velLandoBin];
+velComboBin = [velHanBin;  velLandoBin];
 
 spikesHanBin = cat(1, tdHanBin.area2_spikes);
 % spikesChipsBin = cat(1, tdChipsBin.LeftS1_spikes);
