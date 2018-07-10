@@ -1,24 +1,26 @@
 % clear all
 % load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170728\Lando_RW_hold_20170728_001_TD.mat');
 % clear all
-
-array = 'RightCuneate';
-date = '20170728';
+% 
+array = 'cuneate';
+date = '20180405';
 task= 'RW';
-paramTD.include_ts = true;
-paramTD.include_start = true;
-trial_data = parseFileByTrial(cds, paramTD);
-%%
-[tdIdx,td] = getTDidx(trial_data, 'result', 'R');
-params.go_cue_name ='idx_goCueTime';
-params.end_name = 'idx_endTime';
-td1 = binTD(td, 5);
+% paramTD.include_ts = true;
+% paramTD.include_start = true;
+% trial_data = parseFileByTrial(cds, paramTD);
+% %%
+% [tdIdx,td] = getTDidx(trial_data, 'result', 'R');
+% params.go_cue_name ='idx_goCueTime';
+% params.end_name = 'idx_endTime';
+% td1 = binTD(td, 5);
+% td1 = removeBadTrials(td1);
+% td1 = removeBadNeurons(td1);
+% td1 = getRWMovements(td1, params);
+td1 = binTD(td,5);
 td1 = removeBadTrials(td1);
-td1 = removeBadNeurons(td1);
-td1 = getRWMovements(td1, params);
-td1 = removeBadTrials(td1);
+
 td_act = trimTD(td1, 'idx_movement_on', 'idx_endTime');
-td_pas = trimTD(td1, 'idx_trial_start', 'idx_movement_on');
+td_pas = trimTD(td1, 'idx_startTime', 'idx_movement_on');
 
 
 %% 
@@ -70,15 +72,15 @@ paramHeatPas.velocityCutoffHigh =10;
 %     
 % end
 %%
-paramPDs.out_signals = 'RightCuneate_spikes';
+paramPDs.out_signals = 'cuneate_spikes';
 paramPDs.move_corr = 'vel';
 paramPDs.num_boots =100;
 actPDTable = getTDPDs(td_act, paramPDs);
 
 
 %%
-[curvesAct, binsAct] = getTuningCurves(td_act,struct('out_signals',{paramPDs.out_signals},'out_signal_names',{td_act(1).RightCuneate_unit_guide},'num_bins',8));
-save(['D:\Data\MonkeyData\PDTables\PDTable','_', task, '_', date, '.mat'], 'actPDTable','curvesAct', 'binsAct', 'date', 'task')
+[curvesAct, binsAct] = getTuningCurves(td_act,struct('out_signals',{paramPDs.out_signals},'out_signal_names',{td_act(1).cuneate_unit_guide},'num_bins',8));
+save(['C:\Users\csv057\Documents\MATLAB\MonkeyData\RW\Butter\20180405\neuronStruct\PDTable','_', task, '_', date, '.mat'], 'actPDTable','curvesAct', 'binsAct', 'date', 'task')
 %%
 close all
 isTuned_params = struct('move_corr','vel','CIthresh',pi/3);
@@ -97,7 +99,6 @@ for i = 1:sum(isTunedAct)
     plotTuning(binsAct,actPDTableTuned(i,:),curvesActTuned(i,:),maxDist,colorsAct(i,:),'-')
 end
 
-figure(h1)
 title('Active PDs')
 %%
 plotAllTuning({curvesActTuned},{actPDTableTuned}, binsAct)
