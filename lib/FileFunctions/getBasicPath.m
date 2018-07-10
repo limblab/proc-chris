@@ -26,7 +26,7 @@ function [ path ] = getBasicPath( monkey, date, task)
     elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
         %% My (new) laptop
         whichComp = 'laptop2';
-        path = ['C:\Users\wrest\Documents\MATLAB\MonkeyData\',monkey,'\',task,'\',date, '\RawData\'];
+        path = ['C:\Users\wrest\Documents\MATLAB\MonkeyData\',task,'\',monkey,'\',date, filesep];
     else 
         error('Computer not recognized......... Exiting');
     end    

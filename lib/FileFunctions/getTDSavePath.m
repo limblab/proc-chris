@@ -28,7 +28,7 @@ function [ path1 ] = getTDSavePath( monkey, date, task )
     elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
         %% My (new) laptop
         whichComp = 'laptop2';
-        path1 = ['C:\Users\wrest\Documents\MATLAB\MonkeyData\',task,'\',monkey,'\',date, '\'];
+        path1 = ['C:\Users\wrest\Documents\MATLAB\MonkeyData\',task,'\',monkey,'\',date, '\CDS\'];
     else 
         error('Computer not recognized......... Exiting');
     end

@@ -2,20 +2,20 @@
 % load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170728\Lando_RW_hold_20170728_001_TD.mat');
 % clear all
 
-array = 'RightCuneate';
-date = '20170917';
-task= 'COactpas';
+array = 'cuneate';
+date = '20180703';
+task= 'RWIso';
 
-trial_data = parseFileByTrial(cds);
-[tdIdx,td] = getTDidx(trial_data, 'result', 'R');
-params.go_cue_name ='idx_goCueTime';
-params.end_name = 'idx_endTime';
-params.do_onset = false;
+% trial_data = parseFileByTrial(cds);
+% [tdIdx,td] = getTDidx(trial_data, 'result', 'R');
+% params.go_cue_name ='idx_goCueTime';
+% params.end_name = 'idx_endTime';
+% params.do_onset = false;
 td1 = binTD(td, 5);
 td1 = removeBadTrials(td1);
 td1 = removeBadNeurons(td1);
-td1 = getRWMovements(td1, params);
-td1 = removeBadTrials(td1);
+% td1 = getRWMovements(td1, params);
+% td1 = removeBadTrials(td1);
 % td_act = trimTD(td1, 'idx_movement_on', 'idx_endTime');
 % td_pas = trimTD(td1, 'idx_trial_start', 'idx_movement_on');
 
@@ -32,7 +32,7 @@ histogram(rownorm(velAct),'Normalization', 'probability')
 %%
 close all
 
-paramHeat.array = 'RightCuneate';
+paramHeat.array = 'cuneate';
 paramHeat.unitsToPlot = 1:length(td(1).([paramHeat.array,'_spikes'])(1,:));
 paramHeat.numBounds = 8;
 paramHeat.xLimits = [-10,10];
@@ -68,12 +68,16 @@ paramHeatPas = paramHeat;
 %     
 % end
 %%
-paramPDs.out_signals = 'RightCuneate_spikes';
+% td1 = binTD(tdRw, 5);
+% % td1 = removeBadTrials(td1);
+% td1 = removeBadNeurons(td1);
+paramPDs.out_signals = 'cuneate_spikes';
+paramPDs.out_signal_names= td1(1).cuneate_unit_guide;
 paramPDs.move_corr = 'force';
 paramPDs.num_boot =100;
 actPDTable = getTDPDs(td1, paramPDs);
-[curvesAct, binsAct] = getTuningCurves(td1,struct('out_signals',{paramPDs.out_signals},'out_signal_names',{td1(1).RightCuneate_unit_guide},'num_bins',8));
-save(['D:\Data\MonkeyData\PDTables\PDTable','_', task, '_', date, '.mat'], 'actPDTable','curvesAct', 'binsAct', 'date', 'task')
+% [curvesAct, binsAct] = getTuningCurves(td1,struct('out_signals',{paramPDs.out_signals},'out_signal_names',{td1(1).RightCuneate_unit_guide},'num_bins',8));
+% save(['D:\Data\MonkeyData\PDTables\PDTable','_', task, '_', date, '.mat'], 'actPDTable','curvesAct', 'binsAct', 'date', 'task')
 
 %%
 close all

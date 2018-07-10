@@ -132,6 +132,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
     %% Start the main processing
     for i=1:length(arrays) % iterate through arrays
+        params.monkey = td(1).monkey;
         params.array= arrays{i};
         params.date = td(1).date;
         params.windowAct = windowAct;

@@ -116,10 +116,11 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     
     date1= '03292018';
     array= 'cuneate';
-    histogramFlag= true;
-    circleFlag = true;
-    plotFlag = true;
-    saveFig =true;
+    monkey1 = td(1).monkey;
+    histogramFlag= false;
+    circleFlag = false;
+    plotFlag = false;
+    saveFig =false;
 
     if(exist('params') && ~isfield(params,'sinTuned'))
         warning('No sinusoidal tuning provided, assuming all are tuned')
@@ -442,7 +443,7 @@ outStruct(i).firing.move.down.mean = meanDownMove;
 outStruct(i).firing.move.down.high = topDownMove;
 outStruct(i).firing.move.down.low = botDownMove;
 %%
-
+outStruct(i).monkey = monkey1;
 outStruct(i).date = date1;
 outStruct(i).array = array;
 
