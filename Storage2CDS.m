@@ -1,4 +1,4 @@
-dirList = dir('\\fsmresfiles.fsm.northwestern.edu\fsmresfiles\Basic_Sciences\Phys\L_MillerLab\data\Lando_13B2\Raw');
+dirList = dir('/fsmresfiles.fsm.northwestern.edu/fsmresfiles/Basic_Sciences/Phys/L_MillerLab/data/Lando_13B2/Raw/');
 % dirList = dir('C:\Users\csv057\Documents\MATLAB\MonkeyData\RawData\Butter\20180314\Sorted')
 fileList = {dirList(~[dirList.isdir]).name};
 expr = '(\w*)_(\d*)_(\w*)_(\w*)_(\d*)-sorted(\w*)';

@@ -4,8 +4,8 @@ close all
 
 factNum =[1,2];
 numTrials = length(td);
-% rc.loadPosteriorMeans();
-for j = 1:4
+rc.loadPosteriorMeans();
+for j = 1:1
 f1 = figure();
 hold on
 f2 = figure();
