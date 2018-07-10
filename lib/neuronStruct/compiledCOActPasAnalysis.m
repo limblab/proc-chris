@@ -191,6 +191,11 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         clear neuronProcessed;
         neuronProcessed.chan = params.out_signal_names(:,1);
         neuronProcessed.ID = params.out_signal_names(:,2);
+        %% Iterate through the channels (channel #) and assign electrode # (corresponding to sensory mapping)
+        % mapping is an nx2 matrix where n = number of units; the first
+        % column corresponds to the channel # (what is in the cds) while
+        % the second column is what I see when I do the sensory mapping.
+        % The neuronProcessed.chan
         for j = 1:length(neuronProcessed.chan)
             neuronProcessed.mapName(j, 1) = mapping(find(mapping(:,1) == neuronProcessed.chan(j)), 2);
         end

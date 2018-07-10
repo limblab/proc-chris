@@ -1,4 +1,4 @@
-function [fh1, percentTuned, tablePD] = plotTuningDist(tablePDs, fh1, color, cutoff)
+function [fh1, percentTuned, tablePD, tunedPDs] = plotTuningDist(tablePDs, fh1, color, cutoff)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
     coActPasPDs = tablePDs;
@@ -9,7 +9,7 @@ function [fh1, percentTuned, tablePD] = plotTuningDist(tablePDs, fh1, color, cut
     totalTuned = sum(coActPasPDs.velTuned);
     percentTuned = totalTuned/length(coActPasPDs.velTuned);
     
-    tunedPDs = [coActPasPDs.velPD(coActPasPDs.velTuned)];
+    tunedPDs = [coActPasPDs.velPD(logical([coActPasPDs.velTuned]))];
     fh1;
     hold on
     for i = 1:sum(coActPasPDs.velTuned)

@@ -71,7 +71,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         hold on
         for i = 1:length(actPDs)
             dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
-            text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.chan(i)));
+            text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.mapName(i)));
         end
         plot([-pi, pi], [-pi, pi], 'r--')
         title(['Act vs. Pas PDs ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])

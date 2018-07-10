@@ -304,7 +304,7 @@ for i = 1:length(shortLeftBumpFiring)
     goodFiring(i) = meanDownMove>0 & meanUpMove >0 & meanRightMove >0 & meanLeftMove >0 & meanDownBump >0 & meanUpBump >0 & meanRightBump>0 & meanLeftBump >0;
     
     if strcmp(array, 'cuneate') | strcmp(array, 'RightCuneate')
-        trueCuneate = getTrueCuneate(td, params);
+%         trueCuneate = getTrueCuneate(td, params);
         tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i);% & trueCuneate(i);%&sinTunedMove(i) & sinTunedBump(i);
     else
         tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i) ;%&sinTunedMove(i) & sinTunedBump(i);

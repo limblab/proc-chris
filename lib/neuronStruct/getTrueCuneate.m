@@ -13,7 +13,7 @@ function trueCuneateFlag = getTrueCuneate(td, params)
 
 
 cutoff = 40;
-    array = 'RightCuneate';
+    array = 'cuneate';
     
     if nargin > 1, assignParams(who,params); end % overwrite parameters
 

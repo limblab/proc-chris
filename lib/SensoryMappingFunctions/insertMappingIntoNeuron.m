@@ -6,8 +6,8 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
     elec = neuron.chan;
     unit = neuron.unitNum;
     mapName = neuron.mapName;
-    neuron.isCuneate = ~getGracile(monkey, elec);
-    neuron.isGracile =  getGracile(monkey, elec);
+    neuron.isCuneate = ~getGracile(monkey, mapName);
+    neuron.isGracile =  getGracile(monkey, mapName);
     closestMap = getClosestMap(neuron, mappingFile);
     if ~ischar(closestMap)
         daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'yyyyMMdd'), datetime(date, 'InputFormat', 'MM-dd-yyyy'));
