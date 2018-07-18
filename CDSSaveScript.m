@@ -25,11 +25,12 @@ monkey = 'Lando';
 array = {'area2', 'cuneate'};
 
 number = 1;
-sorted = [false, true];
+
+sorted = [false,true];
 suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
-%%
 
+%%
 motionTrack = false;
 
 if sorted(1)

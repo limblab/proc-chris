@@ -3,9 +3,9 @@ function [ closeMap ] = getClosestMap( neuron, mapping )
 %   Detailed explanation goes here
     date= neuron.date;
     monkey = neuron.monkey;
-    elec = neuron.mapName;
+    elec = neuron.chan;
     unit = neuron.unitNum;
-    mapName = neuron.chan;
+    mapName = neuron.mapName;
 
     daysApart = 100;
     bestRow = -1;
