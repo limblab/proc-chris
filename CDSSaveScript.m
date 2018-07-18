@@ -22,10 +22,10 @@
 date = '20170917';
 task = 'COactpas';
 monkey = 'Lando';
-array = {'cuneate'};
+array = {'area2', 'cuneate'};
 
 number = 1;
-sorted = [true];
+sorted = [false,true];
 suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
 %%
