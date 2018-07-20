@@ -1,9 +1,8 @@
 % load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat')
 % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180329\TD\Butter_CO_20180329_4_TD_sorted-resort_resort.mat')
-% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_1_TD_sorted-resort_resort.mat');
+load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat');
+load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_1_TD_sorted-resort_resort.mat');
 %% Compute the PDs of neurons
-load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Lando\20170917\TD\Lando_COactpas_20170917_TD.mat')
-mappingFile = [];
 td20180607 =td;
 
 param.arrays = {'cuneate'};
@@ -19,7 +18,7 @@ neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
 params.tuningCondition = {'isSpindle','isSorted','sinTunedAct'};
 neuronStructPlot(neuronsCO, params);
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
-windowPas ={'idx_bumpTime',0; 'idx_bumpTime',2};
+windowPas ={'idx_bumpTime',0; 'idx_bumpTime',1};
 tdBin = binTD(td20180607,5);
 tdPas = tdBin(~isnan([tdBin.idx_bumpTime]));
 tdAct = trimTD(tdBin, windowAct(1,:), windowAct(2,:));
@@ -44,38 +43,38 @@ scatter(meanVelPas(1), meanVelPas(2),100,'g', 'filled')
 ang1 = rad2deg(atan2(meanVelAct(2), meanVelAct(1)));
 %% Plot the tuning of the neurons and compare it to the highest velocity
 actPDTable = neuronsCO(find(neuronsCO.isSorted & neuronsCO.isCuneate & neuronsCO.sinTunedAct) ,:).actPD;
+pasPDTable = neuronsCO(find(neuronsCO.isSorted & neuronsCO.isCuneate & neuronsCO.sinTunedPas), :).pasPD;
 fh1 = figure;
 [~,~,~,tunedPDs] = plotTuningDist(actPDTable,fh1, 'k', pi/2);
+figure
+[~,~,~,tunedPDsPas] = plotTuningDist(pasPDTable,fh1, 'k', pi/2);
+
 meanDir = rad2deg(circ_mean(tunedPDs));
+
 %% Fit decoding models to velocity and position to determine which neurons
 %  best reflect the kinematics of the handle
 disp('all units')
+params.z_score_x = false;
 params.flag = 1:length(tdAct(1).cuneate_spikes(1,:));
-tdVel = linearVelocityDecoder(tdAct, params);
-tdNNVel = nnVelocityDecoder(tdAct, params);
+[tdVel, modelEval.All, modelFits.All] = linearVelocityDecoder(tdAct, params);
 
-%% Only sorted units
+% Only sorted units
 disp('Sorted units')
 params.flag = find(neuronsCO.isSorted);
-tdVel = linearVelocityDecoder(tdAct, params);
-tdNNVel = nnVelocityDecoder(tdAct, params);
-%% Only sorted cuneate units
+[tdVel, modelEval.Sorted, modelFits.Sorted] = linearVelocityDecoder(tdAct, params);
+% Only sorted cuneate units
 disp('Sorted Cuneate')
 params.flag = find(neuronsCO.isCuneate& neuronsCO.isSorted);
-tdVel = linearVelocityDecoder(tdAct, params);
-tdNNVel = nnVelocityDecoder(tdAct, params);
-%% Only gracile channels
+[tdVel, modelEval.SortedCuneate, modelFits.SortedCuneate] = linearVelocityDecoder(tdAct, params);
+% Only gracile channels
 disp('Gracile')
 params.flag = find(neuronsCO.isGracile);
-tdVel = linearVelocityDecoder(tdAct, params);
-tdNNVel = nnVelocityDecoder(tdAct, params);
-%% Only sorted Gracile units
+[tdVel, modelEval.Gracile, modelFits.Gracile] = linearVelocityDecoder(tdAct, params);
+% Only sorted Gracile units
 disp('Gracile sorted')
 params.flag = find(neuronsCO.isGracile & neuronsCO.isSorted);
-tdVel = linearVelocityDecoder(tdAct, params);
-tdNNVel = nnVelocityDecoder(tdAct, params);
-%% Only spindles
+[tdVel, modelEval.SortedGracile, modelFits.SortedGracile] = linearVelocityDecoder(tdAct, params);
+% Only spindles
 disp('spindles')
 params.flag = find(neuronsCO.isSpindle & neuronsCO.sameDayMap & neuronsCO.isSorted);
-tdVel = linearVelocityDecoder(tdAct, params);
-tdNNVel = nnVelocityDecoder(tdAct, params);
+[tdVel, modelEval.Spindles, modelFits.Spindles] = linearVelocityDecoder(tdAct, params);
