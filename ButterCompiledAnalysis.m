@@ -15,7 +15,7 @@ getCOActPasStats(td20180607, param);
 neuronsCO = [neuronsNew];
 neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
 %% Compute the trial averaged speed of each direction
-params.tuningCondition = {'isSpindle','isSorted','sinTunedAct'};
+params.tuningCondition = {'isCuneate','isSorted','sinTunedAct'};
 neuronStructPlot(neuronsCO, params);
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',1};
@@ -23,7 +23,7 @@ tdBin = binTD(td20180607,5);
 tdPas = tdBin(~isnan([tdBin.idx_bumpTime]));
 tdAct = trimTD(tdBin, windowAct(1,:), windowAct(2,:));
 tdPas = trimTD(tdPas, windowPas(1,:), windowPas(2,:));
-
+%%
 velActTrial = cat(3, tdAct.vel);
 velAct = squeeze(mean(velActTrial,1))';
 meanVelAct = mean(velAct);
@@ -44,6 +44,15 @@ ang1 = rad2deg(atan2(meanVelAct(2), meanVelAct(1)));
 %% Plot the tuning of the neurons and compare it to the highest velocity
 actPDTable = neuronsCO(find(neuronsCO.isSorted & neuronsCO.isCuneate & neuronsCO.sinTunedAct) ,:).actPD;
 pasPDTable = neuronsCO(find(neuronsCO.isSorted & neuronsCO.isCuneate & neuronsCO.sinTunedPas), :).pasPD;
+actPasPDTable = neuronsCO(find(neuronsCO.isSorted & neuronsCO.isCuneate & neuronsCO.sinTunedPas & neuronsCO.sinTunedAct), :);
+
+% for i = 1:length(actPasPDTable)
+    pds = [actPasPDTable.actPD.velPD, actPasPDTable.pasPD.velPD];
+    diffs= angleDiff(pds(:,1), pds(:,2), true, false);
+    histogram(diffs)
+   
+
+
 fh1 = figure;
 [~,~,~,tunedPDs] = plotTuningDist(actPDTable,fh1, 'k', pi/2);
 figure
