@@ -199,7 +199,8 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         for j = 1:length(neuronProcessed.chan)
             neuronProcessed.mapName(j, 1) = mapping(find(mapping(:,1) == neuronProcessed.chan(j)), 2);
         end
-        
+        neuronProcessed.actWindow = repmat({windowAct}, [length(params.out_signal_names(:,1)),1]);
+        neuronProcessed.pasWindow = repmat({windowPas}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.unitNum = params.out_signal_names(:,2);
         neuronProcessed.isSorted = neuronProcessed.unitNum >0;
         neuronProcessed.actTuningCurve = processedTrial(i).tuningCurveAct;
@@ -227,6 +228,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         arrName.array = repmat({params.array}, [height(neuronProcessed), 1]);
         arrName.date = repmat({params.date},  [height(neuronProcessed), 1]);
         arrName.monkey = repmat({td(1).monkey}, [height(neuronProcessed),1]);
+        arrName.task = repmat({td(1).task}, [height(neuronProcessed),1]);
         neuronProcessed = [struct2table(arrName), neuronProcessed];
         neuronProcessed1 = [neuronProcessed1; neuronProcessed];
     end
