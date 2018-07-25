@@ -22,21 +22,22 @@
 date = '20170917';
 task = 'COactpas';
 monkey = 'Lando';
-array = {'cuneate'};
+array = {'area2', 'cuneate'};
 
 number = 1;
-sorted = [true];
+
+sorted = [false,true];
 suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
-%%
 
+%%
 motionTrack = false;
 
-% if sorted(1)
-%     srtStr = 'sorted-resort';
-% else
-%     srtStr = 'unsorted';
-% end
+if sorted(1)
+    srtStr = 'sorted-resort';
+else
+    srtStr = 'unsorted';
+end
 
 if motionTrack
     first_time = true;
@@ -53,10 +54,10 @@ outpath = getCdsSavePath(monkey, date, getGenericTask(task));
 makeFileStructure(monkey, date, getGenericTask(task));
 
 % compose the filename
-cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_', srtStr,'_',suffix '.mat'];
+cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_',suffix '.mat'];
 %save the cds to the folder
 save(cdsPath, 'cds', '-v7.3');
 %%
 td = easyTD(cdsPath, monkey, task, date);
 tdPath = getTDSavePath(monkey, date, getGenericTask(task));
-save([tdPath,monkey, '_', task, '_', date,'_',num2str(number), '_TD_', srtStr,'_',suffix, '.mat'], 'td');
+save([tdPath,monkey, '_', task, '_', date,'_',num2str(number), '_TD_','_',suffix, '.mat'], 'td');

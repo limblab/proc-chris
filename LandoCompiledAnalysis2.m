@@ -1,8 +1,13 @@
-load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat')
-load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180329\TD\Butter_CO_20180329_4_TD_sorted-resort_resort.mat')
+%% Compute the PDs of neurons
+load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Lando\20170917\TD\Lando_COactpas_20170917_TD.mat')
+load('C:\Users\wrest\Documents\MATLAB\MonkeyData\MapData\Lando\LandoCompiledSensoryMappings.mat')
+
+%% Compute the PDs of neurons
+% load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat')
+% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180329\TD\Butter_CO_20180329_4_TD_sorted-resort_resort.mat')
 % load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat');
 % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_1_TD_sorted-resort_resort.mat');
-%%
+%% Compute the PDs of neurons
 td20180607 =td;
 
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
@@ -12,7 +17,6 @@ param.in_signals = {'vel'};
 
 param.windowAct= windowAct;
 param.windowPas =windowPas;
-param.date = td(1).date;
 [processedTrialNew, neuronsNew] = compiledCOActPasAnalysis(td20180607, param);
 %%
 saveNeurons(neuronsNew,param);
@@ -26,7 +30,7 @@ neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
 params.tuningCondition = {'isCuneate','isSorted','sinTunedAct'};
 neuronStructPlot(neuronsCO, params);
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
-windowPas ={'idx_bumpTime',0; 'idx_bumpTime',1};
+windowPas ={'idx_bumpTime',0; 'idx_bumpTime',2};
 tdBin = binTD(td20180607,5);
 tdPas = tdBin(~isnan([tdBin.idx_bumpTime]));
 tdAct = trimTD(tdBin, windowAct(1,:), windowAct(2,:));

@@ -1,37 +1,26 @@
 close all
-v=  VideoWriter('HumanReachingVideo.avi');
+v=  VideoWriter('EricVideo.avi');
 v.FrameRate = 100;
 open(v)
 
-
-upperLength = 10;
-lowerLength = 11;
+upperLength = 18;
+lowerLength = 23;
 
 angle1 = [Roll1, Pitch1, Yaw1];
 angle2 = [Roll, Pitch, Yaw];
 
-
-
-% elbow(:,1) = upperLength*cosd(angle1(:,3)).*cosd(angle1(:,2));
-% elbow(:,2) = upperLength*sind(angle1(:,3)).*cosd(angle1(:,2));
-% elbow(:,3) = upperLength*sind(angle1(:,2));
 for i = 1:length(Roll1)
     rotMat1{i} = getRotMat(Roll(i), Pitch(i), Yaw(i));
     rotMat2{i} = getRotMat(Roll1(i), Pitch1(i), Yaw1(i));
 end
 
-
-
 upperArm = [-1*upperLength;0;0];
 lowerArm = [-1*lowerLength;0;0];
-
-% wrist(:,1) = elbow(:,1) + lowerLength*cosd(angle2(:,3)).*cosd(angle2(:,2));
-% wrist(:,2) = elbow(:,2) + lowerLength*sind(angle2(:,3)).*cosd(angle2(:,2));
-% wrist(:,3) = elbow(:,3) + lowerLength*sind(angle2(:,2));
 
 fig1= figure;
 for i = 1:length(Roll1)
     elbow = rotMat1{i}*upperArm;
+    elbowVec(i,:) = elbow;
     hand =elbow + rotMat2{i}*lowerArm;
     handVec(i,:) = hand;
     plot3([0, elbow(1)], [0,elbow(2)], [0, elbow(3)])

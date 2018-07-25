@@ -11,7 +11,7 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
     closestMap = getClosestMap(neuron, mappingFile);
     if ~ischar(closestMap)
         daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'yyyyMMdd'), datetime(date, 'InputFormat', 'MM-dd-yyyy'));
-        if daysDiff == 0 
+        if daysDiff < Inf
             neuron.sameDayMap = daysDiff == 0;
             neuron.daysDiff = daysDiff;
             neuron.isProprioceptive = strcmp(closestMap.pc, 'p');
