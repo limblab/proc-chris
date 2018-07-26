@@ -10,25 +10,6 @@ function [ path ] = getRawPath( monkey, date, task)
 % Outputs:
 %   path: the path to the directory containing the raw .NEV file you want
 %   to process
-    compName = getenv('computername');
-    if strcmp(compName, 'FSM8M1SMD2')
-        %% GOB2
-        whichComp = 'GOB2';
-        path = ['C:\Users\csv057\Documents\MATLAB\MonkeyData\', task, '\', monkey, '\',date, '\NEV\'];
-    elseif strcmp(compName, 'Chris-desktop')
-        %% Desktop (windows)
-        whichComp = 'home';
-        path = ['C:\Users\wrest_000\Documents\MATLAB\MonkeyData\RawData\',monkey,'\',date, '\'];
-    elseif strcmp(compName, 'RESEARCHPC')
-        %% My (old) laptop
-        whichComp = 'laptop';
-        path = ['C:\Users\wrest_000\Documents\MATLAB\MonkeyData\RawData\',monkey,'\',date, '\'];
-    elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
-        %% My (new) laptop
-        whichComp = 'laptop2';
-        path = ['C:\Users\wrest\Documents\MATLAB\MonkeyData\',task,'\',monkey,'\',date,'\NEV\'];
-    else 
-        error('Computer not recognized......... Exiting');
-    end    
+    path = [getBasicPath(monkey, date, task), 'NEV', filesep];
 end
 
