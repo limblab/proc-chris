@@ -20,11 +20,11 @@ function td = easyTD(path, monkey, task, date)
 %         td = getRWMovements(td, params);
         params.min_ds = 1.9;
         params.s_thresh = 10;
-%         td = getMoveOnsetAndPeak(td,params);
+        td = getMoveOnsetAndPeak(td,params);
     elseif strcmp(getGenericTask(task),'TRT')
         
         td = parseFileByTrial(cds, params);
         
     end
-    save([getBasePath(monkey), getGenericTask(task), filesep, monkey, filesep, date, filesep, 'TD', filesep, monkey, '_', task, '_', date, '_TD.mat'], 'td');
+    save([getBasePath(), getGenericTask(task), filesep, monkey, filesep, date, filesep, 'TD', filesep, monkey, '_', task, '_', date, '_TD.mat'], 'td');
 end

@@ -75,16 +75,18 @@ paramHeatPas.velocityCutoffHigh =10;
 paramPDs.out_signals = 'cuneate_spikes';
 paramPDs.move_corr = 'vel';
 paramPDs.num_boots =100;
+paramPDs.out_signal_names = td_act.cuneate
 actPDTable = getTDPDs(td_act, paramPDs);
 
 
 %%
-[curvesAct, binsAct] = getTuningCurves(td_act,struct('out_signals',{paramPDs.out_signals},'out_signal_names',{td_act(1).cuneate_unit_guide},'num_bins',8));
-save(['C:\Users\csv057\Documents\MATLAB\MonkeyData\RW\Butter\20180405\neuronStruct\PDTable','_', task, '_', date, '.mat'], 'actPDTable','curvesAct', 'binsAct', 'date', 'task')
+[curvesAct] = getTuningCurves(td_act,struct('out_signals',{paramPDs.out_signals},'out_signal_names',{td_act(1).cuneate_unit_guide},'num_bins',8));
+% save(['C:\Users\csv057\Documents\MATLAB\MonkeyData\RW\Butter\20180405\neuronStruct\PDTable','_', task, '_', date, '.mat'], 'actPDTable','curvesAct', 'binsAct', 'date', 'task')
 %%
 close all
-isTuned_params = struct('move_corr','vel','CIthresh',pi/3);
-isTunedAct = checkIsTuned(actPDTable,isTuned_params);
+isTuned_params = struct('move_corr','vel','CIthresh',pi/3, 'out_signals', 'cuneate_spikes');
+isTunedAct = actPDTable.velTuned;
+isTunedAct=  isTunedAct & isGracile
 actPDTableTuned = actPDTable(isTunedAct,:);
 
 curvesActTuned = curvesAct(isTunedAct,:);
@@ -92,13 +94,13 @@ curvesActTuned = curvesAct(isTunedAct,:);
 colorsAct = linspecer(length(isTunedAct(isTunedAct)));
 h1 = figure;
 hold on
-
-maxDist = max(max(curvesActTuned.CIhigh));
+%%
+maxDist = max(max(curvesActTuned.velCurveCIhigh));
 for i = 1:sum(isTunedAct)
     figure(h1)
-    plotTuning(binsAct,actPDTableTuned(i,:),curvesActTuned(i,:),maxDist,colorsAct(i,:),'-')
+    plotTuning(actPDTableTuned(i,:), curvesActTuned(i,:),maxDist,colorsAct(i,:),'-')
 end
 
 title('Active PDs')
 %%
-plotAllTuning({curvesActTuned},{actPDTableTuned}, binsAct)
+plotAllTuning({curvesActTuned},{actPDTableTuned})

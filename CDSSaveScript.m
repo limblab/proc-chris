@@ -19,14 +19,14 @@
 % The filename of the .nev should be monkey_date_task_array_number
 %% All of the loading variables
 
-date = '20170917';
-task = 'COactpas';
-monkey = 'Lando';
-array = {'area2', 'cuneate'};
+date = '20180405';
+task = 'RW';
+monkey = 'Butter';
+array = {'cuneate'};
 
 number = 1;
 
-sorted = [false,true];
+sorted = [true];
 suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
 
@@ -61,3 +61,4 @@ save(cdsPath, 'cds', '-v7.3');
 td = easyTD(cdsPath, monkey, task, date);
 tdPath = getTDSavePath(monkey, date, getGenericTask(task));
 save([tdPath,monkey, '_', task, '_', date,'_',num2str(number), '_TD_','_',suffix, '.mat'], 'td');
+disp('Done creating cds and saving TD');
