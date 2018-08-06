@@ -1,4 +1,4 @@
-function path = getNeuronsPath(neurons, params)
+function path = getNeuronsPath(neurons)
     basePath = getBasePath();
-    path = [basePath, getGenericTask(neurons.task{1}),'\Neurons\'];
+    path = [basePath, getGenericTask(neurons.task{1}),filesep, 'Neurons',filesep];
 end

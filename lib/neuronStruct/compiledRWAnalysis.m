@@ -67,6 +67,7 @@ function [processedTrial, neuronProcessed1] = compiledRWAnalysis(td, params)
     train_new_model = true; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
     neuronProcessed1 = []; %
     monkey  = td(1).monkey;
+    doTrim = false;
     %% Assign params
     if nargin > 1, assignParams(who,params); end % overwrite parameters
 %% td preprocessing
@@ -78,9 +79,13 @@ function [processedTrial, neuronProcessed1] = compiledRWAnalysis(td, params)
     else
         error('This function requires that the input TD be binned at 10 ms');
     end
-    
-    tdAct = tdBin(strcmp({tdBin.result},'R'));
-    tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
+    if doTrim
+        tdAct = tdBin(strcmp({tdBin.result},'R'));
+        tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
+    else
+        tdAct = tdBin;
+    end
+    params.arrays = arrays;
     %% Start the main processing
     for i=1:length(arrays) % iterate through arrays
         params.monkey = td(1).monkey;
@@ -90,12 +95,12 @@ function [processedTrial, neuronProcessed1] = compiledRWAnalysis(td, params)
         params.out_signals = [params.array, '_spikes'];
         params.distribution = distribution;
         params.out_signal_names =td(1).([params.array, '_unit_guide']); 
-        params.num_bins = 4;
+        params.num_bins = 8;
         params.window = windowAct;
         %% To train new GLM
         if train_new_model
             tablePDs = getTDPDs(tdAct, params);
-            tablePDs.sinTuned = tablePDs.velTuned;
+            tablePDs.sinTuned = tablePDs.([params.in_signals, 'Tuned']);
             sinTuned = tablePDs.sinTuned;
         elseif(isfield(params, 'tablePDsPas'))
             %% if you passed in tablePDsPas and table PDsAct as params
@@ -138,8 +143,9 @@ function [processedTrial, neuronProcessed1] = compiledRWAnalysis(td, params)
         neuronProcessed.actWindow = repmat({windowAct}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.unitNum = params.out_signal_names(:,2);
         neuronProcessed.isSorted = neuronProcessed.unitNum >0;
+        neuronProcessed.isTuned = tablePDs.sinTuned;
         neuronProcessed.tuningCurve = processedTrial(i).tuningCurve;
-        neuronProcessed.modDepth = [outStruct.modDepthMove]';
+        neuronProcessed.modDepth = tablePDs.([params.in_signals, 'Moddepth']);
         neuronProcessed.PD = tablePDs;
 
         neuronProcessed = struct2table(neuronProcessed);

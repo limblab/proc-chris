@@ -1,7 +1,7 @@
 % clear all
 % load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170728\Lando_RW_hold_20170728_001_TD.mat');
 % clear all
-% 
+getSensoryMappings();
 array = 'cuneate';
 date = '20180405';
 task= 'RW';
@@ -16,16 +16,37 @@ task= 'RW';
 % td1 = removeBadTrials(td1);
 % td1 = removeBadNeurons(td1);
 % td1 = getRWMovements(td1, params);
-td1 = binTD(td,5);
-td1 = removeBadTrials(td1);
+td1 = removeBadTrials(td);
 
 td_act = trimTD(td1, 'idx_movement_on', 'idx_endTime');
 td_pas = trimTD(td1, 'idx_startTime', 'idx_movement_on');
 
+[trialProcessed, neuronNew] = compiledRWAnalysis(td_act);
+param.array = 'cuneate';
+param.sinTuned= neuronNew.isTuned;
+param.in_signals      = 'vel';
 
+%%
+neuronsRW = [neuronNew];
+neuronsRW = insertMappingsIntoNeuronStruct(neuronsRW,mappingLog);
+
+saveNeurons(neuronsRW)
+%%
+actPDTable = neuronsRW(find(neuronsRW.isSorted & neuronsRW.isCuneate),:).PD;
+gracilePDTable = neuronsRW(find(neuronsRW.isSorted & neuronsRW.isGracile),:).PD;
+
+% for i = 1:length(actPasPDTable)
+
+fh1 = figure;
+[~,~,~,tunedPDs] = plotTuningDist(actPDTable,fh1, 'k', pi/2);
+fh2 = figure;
+[~,~,~,tunedPDs] = plotTuningDist(gracilePDTable,fh2, 'k', pi/2);
+
+meanDir = rad2deg(circ_mean(tunedPDs));
 %% 
 pos = cat(1, td1.pos);
 vel = cat(1,td1.vel);
+
 velAct = cat(1, td_act.vel);
 figure
 histogram(rownorm(vel), 'Normalization', 'probability')
@@ -71,12 +92,6 @@ paramHeatPas.velocityCutoffHigh =10;
 %     set(a2, 'clim', [minC, maxC]);
 %     
 % end
-%%
-paramPDs.out_signals = 'cuneate_spikes';
-paramPDs.move_corr = 'vel';
-paramPDs.num_boots =100;
-paramPDs.out_signal_names = td_act.cuneate
-actPDTable = getTDPDs(td_act, paramPDs);
 
 
 %%

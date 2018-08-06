@@ -17,7 +17,7 @@ function td = easyTD(path, monkey, task, date)
         td = getMoveOnsetAndPeak(td, params);
     elseif strcmp(getGenericTask(task), 'RW')
         td = parseFileByTrial(cds, params);
-%         td = getRWMovements(td, params);
+        td = getRWMovements(td, params);
         params.min_ds = 1.9;
         params.s_thresh = 10;
         td = getMoveOnsetAndPeak(td,params);
