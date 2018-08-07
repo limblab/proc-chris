@@ -52,13 +52,13 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     end
     
     if plotActVsPasPD
-        actPDs = neurons.actPD.velPD;
-        actPDsHigh = neurons.actPD.velPDCI(:,2);
-        actPDsLow = neurons.actPD.velPDCI(:,1);
+        actPDs = rad2deg(neurons.actPD.velPD);
+        actPDsHigh = rad2deg(neurons.actPD.velPDCI(:,2));
+        actPDsLow = rad2deg(neurons.actPD.velPDCI(:,1));
         
-        pasPDs = neurons.pasPD.velPD;
-        pasPDsHigh = neurons.pasPD.velPDCI(:,2);
-        pasPDsLow = neurons.pasPD.velPDCI(:,1);
+        pasPDs = rad2deg(neurons.pasPD.velPD);
+        pasPDsHigh = rad2deg(neurons.pasPD.velPDCI(:,2));
+        pasPDsLow = rad2deg(neurons.pasPD.velPDCI(:,1));
         
         yneg = pasPDs-pasPDsLow;
         ypos = pasPDsHigh -pasPDs;
@@ -67,33 +67,36 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         xpos = actPDsHigh - actPDs;
         
         fh2 = figure;
-        errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'o')
+        scatter(actPDs, pasPDs)
+%         errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'o')
         hold on
-        for i = 1:length(actPDs)
-            dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
-            text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.mapName(i)));
-        end
-        plot([-pi, pi], [-pi, pi], 'r--')
+%         for i = 1:length(actPDs)
+%             dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
+%             text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.mapName(i)));
+%         end
+        plot([-180, 180], [-180, 180], 'r--')
         title(['Act vs. Pas PDs ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
         xlabel('Active PD direction')
         ylabel('Passive PD direction')
-        xlim([-pi, pi])
-        ylim([-pi, pi])
+        xlim([-180, 180])
+        ylim([-180, 180])
         set(gca,'TickDir','out', 'box', 'off')
-        
+        xticks([-180 -90 0 90 180])
+        yticks([-180 -90 0 90 180])
     end
     
     if plotAvgFiring
         bumpAvg = neurons.dcBump;
         moveAvg = neurons.dcMove;
         fh3 = figure;
-        histogram(moveAvg,10)
+        scatter(moveAvg,bumpAvg)
         hold on
-        histogram(bumpAvg,10)
+        plot([min([bumpAvg;moveAvg]), max([bumpAvg;moveAvg])], [min([bumpAvg;moveAvg]), max([bumpAvg;moveAvg])], 'r--')
         title('Active and passive change in firing across all directions')
-        xlabel('Delta firing rate (Hz)')
-        ylabel('# of units')
-        legend('Active DC Shift', 'Passive DC Shift')
+        xlabel('Delta firing rate Active (Hz)')
+        ylabel('Delta firing rate Passive (Hz)')
+        axis equal
+        set(gca,'TickDir','out', 'box', 'off')
     end
     
     if plotAngleDif
@@ -121,21 +124,21 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     end
     
     if (savePlots)
-        title1 = string([array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
+        title1 = string([monkey, '_',array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
         if plotPDDists
-            saveas(fh5, char(strjoin(string([title1, 'PDDistributions.png']), '')));
+            saveas(fh5, char(strjoin(string([title1, 'PDDistributions.pdf']), '')));
         end
         if plotAngleDif 
-            saveas(fh4, char(strjoin(string([title1, 'DiffPDAngs.png']),'')))
+            saveas(fh4, char(strjoin(string([title1, 'DiffPDAngs.pdf']),'')))
         end
         if plotAvgFiring
-            saveas(fh3, char(strjoin(string([title1, 'DCAvgFiring.png']),'')))
+            saveas(fh3, char(strjoin(string([title1, 'DCAvgFiring.pdf']),'')))
         end
         if plotActVsPasPD
-            saveas(fh2, char(strjoin(string([title1, 'ActVsPasPD.png']),'')));
+            saveas(fh2, char(strjoin(string([title1, 'ActVsPasPD.pdf']),'')));
         end
         if plotModDepth
-            saveas(fh1, char(strjoin(string([title1, 'ActPasModDepth.png']),'')));
+            saveas(fh1, char(strjoin(string([title1, 'ActPasModDepth.pdf']),'')));
         end
     end
 end

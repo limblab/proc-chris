@@ -15,7 +15,7 @@ savePlots = 1;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20180329';
+date = '20180326';
 monkey = 'Butter';
 unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
@@ -26,7 +26,7 @@ afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
 
-savePath = [getBasePath(monkey), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
+savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
 mkdir(savePath);
 
 w = gausswin(5);
@@ -485,7 +485,7 @@ for num1 = numCount
     ylim([0, max(1,1.1*maxFiring)])
     subplot(2,2,4)
     ylim([0, max(1,1.1*maxFiring)])
-    
+    disp(num1)
     if savePlots
         if savePDF
             
@@ -504,8 +504,6 @@ for num1 = numCount
             saveas(right,[savePath, strrep(title1, ' ', '_'), '_Right_', num2str(date), '.png'])
         end
 
-        
-        
         
     end
 

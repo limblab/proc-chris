@@ -12,12 +12,13 @@ function plotCONeurons(monkey)
         end
     end
     
-    params.plotModDepth = true;
+    params.plotModDepth = false;
     params.plotActVsPasPD = true;
     params.plotAvgFiring = true;
     params.plotAngleDif = false;
     params.plotPDDists= true;
-    params.savePlots = false;
-    params.tuningCondition = {'isSorted', 'isCuneate', 'isProprioceptive', 'sinTunedAct', 'sinTunedPas'};
+    params.savePlots = true;
+    params.monkey = monkey;
+    params.tuningCondition = {'isSorted'};
     neuronStructPlot(neurons1, params);
 end
