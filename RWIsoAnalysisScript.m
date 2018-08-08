@@ -21,7 +21,7 @@ params.do_onset = false;
 td1 = getRWMovements(td, params);
 td1 = removeBadTrials(td1);
 
-params.useForce = true;
+params.useForce = false;
 params.which_field = 'force';
 params.min_ds        =  .1;
 params.s_thresh      =  5;
