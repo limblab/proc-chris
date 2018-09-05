@@ -9,5 +9,4 @@ function fh1 = plotRWNeuronsTuningCurve(neurons,color,  fh1)
     for i = 1:height(neurons)
         plotTuning(neurons.PD(i,:), neurons.tuningCurve(i,:), maxTuning,color, [], move_corr);
     end
-    title('Red is Isometric, blue is kinematic')
 end

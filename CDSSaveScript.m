@@ -19,14 +19,14 @@
 % The filename of the .nev should be monkey_date_task_array_number
 %% All of the loading variables
 
-date = '20170917';
-task = 'COactpas';
+date = '20170223';
+task = 'RW';
 monkey = 'Lando';
-array = {'area2','cuneate'};
+array = 'LeftS1';
 
 number = 1;
 
-sorted = [false,true];
+sorted = true;
 suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
 
@@ -52,6 +52,14 @@ cds = easyCDS(monkey, task, date, array, number, sorted);
 % compute the outpath depending on what computer you are using and the task
 outpath = getCdsSavePath(monkey, date, getGenericTask(task));
 makeFileStructure(monkey, date, getGenericTask(task));
+meta = cds.meta;
+
+markersFilename = ['markers_',monkey '_' date,'_',task, '.mat']
+opensimFilename = ['opensim_',monkey '_' date,'_',task, '.trc'];
+affine_xform = cds.loadRawMarkerData(fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep,markersFilename));
+writeTRCfromCDS(cds,fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep, opensimFilename));
+writeHandleForceFromCDS(cds,fullfile(meta.folder,'OpenSim',[meta.monkey '_' meta.date '_' meta.taskAlias{fileIdx} '_handleForce.mot']))
+
 
 % compose the filename
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_',suffix '.mat'];

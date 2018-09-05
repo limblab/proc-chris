@@ -6,7 +6,7 @@ load('Butter_04-05-2018_RW_NeuronStruct.mat')
 % load('Lando_07-28-2017_RW_NeuronStruct.mat')
 neuronsKin= neurons;
 
-params.cutoff = pi/4;
+params.cutoff = pi/8;
 
 neuronsIso.sinTunedCIMetric = neuronStructIsTuned(neuronsIso, params)';
 neuronsKin.sinTunedCIMetric = neuronStructIsTuned(neuronsKin, params)';
@@ -16,7 +16,7 @@ neuronsKinTuned = neuronsKin(find(neuronsKin.sinTunedCIMetric & neuronsKin.isSor
 fh1 = figure;
 
 plotRWNeuronsTuningCurve(neuronsKinTuned,'b', fh1)
-plotRWNeuronsTuningCurve(neuronsIsoTuned,'r', fh1)
+% plotRWNeuronsTuningCurve(neuronsIsoTuned,'r', fh1)
 
 % plotRWNeuronsModDepth(neurons0703Tuned)
 % plotRWNeuronsModDepth(neurons0405Tuned)

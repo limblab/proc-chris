@@ -1,5 +1,5 @@
 %% Compute the PDs of neurons
-load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Lando\20170917\TD\Lando_COactpas_20170917_TD.mat')
+load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Lando\20170320\TD\Lando_COactpas_20170320_TD.mat')
 load('C:\Users\wrest\Documents\MATLAB\MonkeyData\MapData\Lando\LandoCompiledSensoryMappings.mat')
 
 %% Compute the PDs of neurons
@@ -10,25 +10,40 @@ load('C:\Users\wrest\Documents\MATLAB\MonkeyData\MapData\Lando\LandoCompiledSens
 %% Compute the PDs of neurons
 td20180607 =td;
 
-windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
+windowAct= {'idx_movement_on', 0; 'idx_endTime', 0}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',2}; % Default trimming windows passive
-param.arrays = {'cuneate'};
+param.arrays = {'RightCuneate'};
 param.in_signals = {'vel'};
 
 param.windowAct= windowAct;
 param.windowPas =windowPas;
 [processedTrialNew, neuronsNew] = compiledCOActPasAnalysis(td20180607, param);
 %%
-saveNeurons(neuronsNew,param);
 %% Load the sensory mapping files, upload into the neuron structure
-param.array = 'cuneate';
-param.sinTuned= neuronsNew.sinTunedAct | neuronsNew.sinTunedPas;
+param.array = 'LeftS1';
 getCOActPasStats(td20180607, param);
+%%
 neuronsCO = [neuronsNew];
 neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
+%%
+cutoff = pi/2;
+
+neuronsCO.cutoff = cutoff*ones(height(neuronsCO),1);
+
+for i =1:height(neuronsCO)
+   curveAct = neuronsCO(i,:).actPD;
+   curvePas = neuronsCO(i,:).pasPD;
+   neuronsCO(i,:).sinTunedAct = isTuned(curveAct.velPD,curveAct.velPDCI, cutoff);
+   neuronsCO(i,:).sinTunedPas = isTuned(curvePas.velPD,curvePas.velPDCI, cutoff);
+end
+neuronsCO.sinTuned= neuronsCO.sinTunedAct | neuronsCO.sinTunedPas;
+
+saveNeurons(neuronsCO,param);
 %% Compute the trial averaged speed of each direction
-params.tuningCondition = {'isCuneate','isSorted','sinTunedAct'};
+params.array = 'LeftS1';
+params.tuningCondition = {'isSorted', 'sinTuned'};
 neuronStructPlot(neuronsCO, params);
+%%
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',2};
 tdBin = binTD(td20180607,5);

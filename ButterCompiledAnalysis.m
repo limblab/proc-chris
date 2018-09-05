@@ -1,18 +1,23 @@
 % load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat')
-% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180329\TD\Butter_CO_20180329_4_TD_sorted-resort_resort.mat')
-% load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat');
-% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_1_TD_sorted-resort_resort.mat');
+% % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180329\TD\Butter_CO_20180329_4_TD_sorted-resort_resort.mat')
+load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat');
+% % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180326\TD\Butter_CO_20180326_TD.mat');
+% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_1_TD_sorted-resort_resort.mat')
+load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180326\TD\Butter_CO_20180326_1_TD__Conservative.mat')
+
 %%
 td20180607 =td;
 
-windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
+windowAct= {'idx_movement_on', 0; 'idx_endTime',0}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',2}; % Default trimming windows passive
 param.arrays = {'cuneate'};
 param.in_signals = {'vel'};
+param.train_new_model = true;
 
 param.windowAct= windowAct;
 param.windowPas =windowPas;
 param.date = td(1).date;
+%%
 [processedTrialNew, neuronsNew] = compiledCOActPasAnalysis(td20180607, param);
 %%
 %% Load the sensory mapping files, upload into the neuron structure
@@ -21,10 +26,10 @@ param.sinTuned= neuronsNew.sinTunedAct | neuronsNew.sinTunedPas;
 getCOActPasStats(td20180607, param);
 neuronsCO = [neuronsNew];
 neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
-saveNeurons(neuronsNew,param);
+saveNeurons(neuronsCO,param);
 
 %% Compute the trial averaged speed of each direction
-params.tuningCondition = {'isCuneate','isSorted','sinTunedAct'};
+params.tuningCondition = {'isCuneate','isSorted'};
 neuronStructPlot(neuronsCO, params);
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',1};
@@ -61,7 +66,7 @@ actPasPDTable = neuronsCO(find(neuronsCO.isSorted & neuronsCO.isCuneate & neuron
     histogram(diffs)
    
 
-
+%%
 fh1 = figure;
 [~,~,~,tunedPDs] = plotTuningDist(actPDTable,fh1, 'k', pi/2);
 figure

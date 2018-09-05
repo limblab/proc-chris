@@ -1,8 +1,8 @@
 function [neurons] = neuronStructPlot(neuronStruct,params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-    array = 'cuneate';
-    monkey = 'Butter';
+    array = neuronStruct.array{1};
+    monkey = neuronStruct.monkey{1};
     date = 'all';
     plotModDepth = true;
     plotActVsPasPD = true;
@@ -10,7 +10,9 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     plotAngleDif = true;
     plotPDDists= true;
     savePlots = true;
-    tuningCondition = {'sinTunedAct','sinTunedPas'};
+    useModDepths = true;
+    size1 = 18;
+    tuningCondition = {'sinTunedAct','isSorted'};
     fh1 = [];
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     if iscell(tuningCondition)
@@ -48,17 +50,28 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
 
     if plotModDepth
         fh1 = figure;
-        scatter(neurons.modDepthMove, neurons.modDepthBump)
+        scatter(neurons.modDepthMove, neurons.modDepthBump,'k', 'filled')
+        lims = [min([neurons.modDepthMove; neurons.modDepthBump])-5, max([neurons.modDepthMove; neurons.modDepthBump])+5];
+        hold on
+        plot([lims(1), lims(2)], [lims(1), lims(2)], 'r--')
+        xlim(lims)
+        ylim(lims)
+        set(gca,'TickDir','out', 'box', 'off')
     end
     
     if plotActVsPasPD
-        actPDs = rad2deg(neurons.actPD.velPD);
-        actPDsHigh = rad2deg(neurons.actPD.velPDCI(:,2));
-        actPDsLow = rad2deg(neurons.actPD.velPDCI(:,1));
+        actPDs = mod(rad2deg(neurons.actPD.velPD)+360, 360);
+        actPDsHigh = mod(rad2deg(neurons.actPD.velPDCI(:,2))+360,360);
+        actPDsLow = mod(rad2deg(neurons.actPD.velPDCI(:,1))+360,360);
         
-        pasPDs = rad2deg(neurons.pasPD.velPD);
-        pasPDsHigh = rad2deg(neurons.pasPD.velPDCI(:,2));
-        pasPDsLow = rad2deg(neurons.pasPD.velPDCI(:,1));
+        modDepths = max([neurons.modDepthMove, neurons.modDepthBump]');
+        if useModDepths
+            size1 = modDepths;
+        end
+        
+        pasPDs = mod(rad2deg(neurons.pasPD.velPD)+360, 360);
+        pasPDsHigh = mod(rad2deg(neurons.pasPD.velPDCI(:,2))+360,360);
+        pasPDsLow = mod(rad2deg(neurons.pasPD.velPDCI(:,1))+360, 360);
         
         yneg = pasPDs-pasPDsLow;
         ypos = pasPDsHigh -pasPDs;
@@ -67,42 +80,46 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         xpos = actPDsHigh - actPDs;
         
         fh2 = figure;
-        scatter(actPDs, pasPDs)
-%         errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'o')
+        scatter(actPDs, pasPDs, size1*2,'k', 'filled')
         hold on
+        errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'k.')
 %         for i = 1:length(actPDs)
 %             dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
 %             text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.mapName(i)));
 %         end
-        plot([-180, 180], [-180, 180], 'r--')
+        plot([0, 360], [0, 360], 'r--')
         title(['Act vs. Pas PDs ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
         xlabel('Active PD direction')
         ylabel('Passive PD direction')
-        xlim([-180, 180])
-        ylim([-180, 180])
+        xlim([0, 360])
+        ylim([0, 360])
         set(gca,'TickDir','out', 'box', 'off')
-        xticks([-180 -90 0 90 180])
-        yticks([-180 -90 0 90 180])
+        xticks([0, 90, 180, 270, 360])
+        yticks([0, 90, 180, 270, 360])
     end
     
     if plotAvgFiring
         bumpAvg = neurons.dcBump;
         moveAvg = neurons.dcMove;
         fh3 = figure;
-        scatter(moveAvg,bumpAvg)
+        scatter(moveAvg,bumpAvg, size1*2, 'filled')
         hold on
-        plot([min([bumpAvg;moveAvg]), max([bumpAvg;moveAvg])], [min([bumpAvg;moveAvg]), max([bumpAvg;moveAvg])], 'r--')
-        title('Active and passive change in firing across all directions')
-        xlabel('Delta firing rate Active (Hz)')
-        ylabel('Delta firing rate Passive (Hz)')
-        axis equal
+%         scatter(0, 40, 50, 'r', 'filled')
+%         text(-18, 40, '25 Hz Mod Depth' ,'FontSize',7)
+        plot([min([bumpAvg;moveAvg]), max([bumpAvg;moveAvg])], [min([bumpAvg;moveAvg]), max([bumpAvg;moveAvg])], 'r--', 'LineWidth' ,4)
+%         title('Active and passive change in firing across all directions')
+        xlabel('Firing rate change Active (Hz)')
+        ylabel('Firing rate change Passive (Hz)')
+        axis square
         set(gca,'TickDir','out', 'box', 'off')
     end
     
     if plotAngleDif
-        bumpDif = neurons.pasActDif;
+        actPDs = neurons.actPD.velPD;
+        pasPDs = neurons.pasPD.velPD;
+        pdDif = angleDiff(actPDs, pasPDs, true, true);
         fh4 = figure;
-        histogram(bumpDif)
+        histogram(pdDif)
         title('PD rotations between active and passive')
         xlabel('change in PD directions')
         ylabel('# of units')
@@ -114,31 +131,38 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         pasPDs = neurons.pasPD.velPD;
         
         fh5= figure;
-        histogram(actPDs);
-        hold on
-        histogram(pasPDs);
-        title('Distribution of PDs in Active and Passive')
+        histogram(rad2deg(actPDs), rad2deg(-pi:pi/6:pi));
+        title('Distribution of PDs in Active')
         xlabel('Angle')
         ylabel('# of units')
-        legend('ActivePD Distribution', 'PassivePD Distribution')
+        set(gca,'TickDir','out', 'box', 'off')
+
+        fh6 = figure;
+        histogram(rad2deg(pasPDs),rad2deg(-pi:pi/6:pi));
+        title('Distribution of PDs in Passive')
+        xlabel('Angle')
+        ylabel('# of units')
+        set(gca,'TickDir','out', 'box', 'off')
+
     end
     
     if (savePlots)
         title1 = string([monkey, '_',array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
         if plotPDDists
-            saveas(fh5, char(strjoin(string([title1, 'PDDistributions.pdf']), '')));
+            saveas(fh5, char(strjoin(string([title1, 'PDDistributionsActive.pdf']), '')));
+            saveas(fh6, char(strjoin(string([title1, 'PDDistributionsPassive.pdf']), '')));
         end
         if plotAngleDif 
-            saveas(fh4, char(strjoin(string([title1, 'DiffPDAngs.pdf']),'')))
+            saveas(fh4, char(strjoin(string([title1, 'DiffPDAngs.png']),'')))
         end
         if plotAvgFiring
-            saveas(fh3, char(strjoin(string([title1, 'DCAvgFiring.pdf']),'')))
+            saveas(fh3, char(strjoin(string([title1, 'DCAvgFiring.png']),'')))
         end
         if plotActVsPasPD
             saveas(fh2, char(strjoin(string([title1, 'ActVsPasPD.pdf']),'')));
         end
         if plotModDepth
-            saveas(fh1, char(strjoin(string([title1, 'ActPasModDepth.pdf']),'')));
+            saveas(fh1, char(strjoin(string([title1, 'ActPasModDepth.png']),'')));
         end
     end
 end

@@ -1,9 +1,11 @@
 % clear all
 close all
+clear all
 % clearvars -except cds
 % load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
 savePlots = 1;
+savePDF = false;
 % params.event_list = {'bumpTime'; 'bumpDir'};
 % params.extra_time = [.4,.6];
 % params.include_ts = true;
@@ -20,11 +22,12 @@ monkey = 'Butter';
 unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
-savePDF = false;
 beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
+
+td =getTD(monkey, date, 'CO');
 
 savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
 mkdir(savePath);
@@ -33,7 +36,7 @@ w = gausswin(5);
 w = w/sum(w);
 
 
-numCount = 1:length(td(1).(unitSpikes)(1,:));
+numCount = 169:length(td(1).(unitSpikes)(1,:));
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 
@@ -52,15 +55,15 @@ rightBump = bumpTrials([bumpTrials.bumpDir]==0);
 close all
 for num1 = numCount
     close all
-    title1 = ['Butter_', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
+    title1 = ['Butter ', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
     paramsMove.neuron = num1;
-    paramsMove.yMax = 40;
+    paramsMove.yMax = 60;
     paramsMove.align= 'movement_on';
     paramsMove.xBound = [-.3, .3];
     paramsMove.array =unitNames;
     
     paramsBump.neuron = num1;
-    paramsBump.yMax = 40;
+    paramsBump.yMax = 60;
     paramsBump.align= 'bumpTime';
     paramsBump.xBound = [-.3, .3];
     paramsBump.array = unitNames;
@@ -84,8 +87,8 @@ for num1 = numCount
     subplot(2,2,2);
     plot(linspace(-1*beforeMove, afterMove, length(speedUpKin(:,1))), speedUpKin(:,1), 'k')
     hold on
-    plot([0,0],[0,40], 'b--')
-    ylim([0,40])
+    plot([0,0],[0,paramsBump.yMax], 'b--')
+    ylim([0,paramsBump.yMax])
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out','box', 'off') 
 %     set(gca,'xtick',[],'ytick',[])
@@ -116,9 +119,9 @@ for num1 = numCount
     subplot(2,2,1);
     plot(linspace(-1*beforeBump, afterBump, length(speedUpKin(:,1))), speedUpKin(:,1), 'k')
     hold on
-    plot([0,0],[0,40], 'b--')
-    plot([.125,.125],[0,40], 'r--')
-    ylim([0,40])
+    plot([0,0],[0,paramsBump.yMax], 'b--')
+    plot([.125,.125],[0,paramsBump.yMax], 'r--')
+    ylim([0,paramsBump.yMax])
     set(gca,'TickDir','out', 'box', 'off') 
     set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeBump, afterBump])
@@ -185,8 +188,8 @@ for num1 = numCount
     subplot(2,2,2);
     plot(linspace(-1*beforeMove, afterMove, length(speeddownKin(:,1))), speeddownKin(:,1), 'k')
     hold on
-    plot([0,0],[0,40], 'b--')
-    ylim([0,40])
+    plot([0,0],[0,paramsBump.yMax], 'b--')
+    ylim([0,paramsBump.yMax])
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out','box', 'off')
     set(gca,'xtick',[],'ytick',[])
@@ -215,9 +218,9 @@ for num1 = numCount
     subplot(2,2,1);
     plot(linspace(-1*beforeBump, afterBump, length(speeddownKin(:,1))), speeddownKin(:,1), 'k')
     hold on
-    plot([0,0],[0,40], 'b--')
-    plot([.125,.125],[0,40], 'r--')
-    ylim([0,40])
+    plot([0,0],[0,paramsBump.yMax], 'b--')
+    plot([.125,.125],[0,paramsBump.yMax], 'r--')
+    ylim([0,paramsBump.yMax])
     set(gca,'TickDir','out', 'box', 'off') 
     set(gca,'xtick',[])
     ylabel('Trial #')
@@ -284,8 +287,8 @@ for num1 = numCount
     subplot(2,2,2);
     plot(linspace(-1*beforeMove, afterMove, length(speedleftKin(:,1))), speedleftKin(:,1), 'k')
     hold on
-    plot([0,0],[0,40], 'b--')
-    ylim([0,40])
+    plot([0,0],[0,paramsBump.yMax], 'b--')
+    ylim([0,paramsBump.yMax])
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out','box', 'off')
     set(gca,'xtick',[],'ytick',[])
@@ -313,9 +316,9 @@ for num1 = numCount
     subplot(2,2,1);
     plot(linspace(-1*beforeBump, afterBump, length(speedleftKin(:,1))), speedleftKin(:,1), 'k')
     hold on
-    plot([0,0],[0,40], 'b--')
-    plot([.125,.125],[0,40], 'r--')
-    ylim([0,40])
+    plot([0,0],[0,paramsBump.yMax], 'b--')
+    plot([.125,.125],[0,paramsBump.yMax], 'r--')
+    ylim([0,paramsBump.yMax])
     set(gca,'TickDir','out', 'box', 'off') 
     set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeBump, afterBump])
@@ -381,8 +384,8 @@ for num1 = numCount
     subplot(2,2,2);
     plot(linspace(-1*beforeMove, afterMove, length(speedrightKin(:,1))), speedrightKin(:,1), 'k')
     hold on
-    plot([0,0],[0,40], 'b--')
-    ylim([0,40])
+    plot([0,0],[0,paramsBump.yMax], 'b--')
+    ylim([0,paramsBump.yMax])
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out','box', 'off')
     set(gca,'xtick',[],'ytick',[])
@@ -408,9 +411,9 @@ for num1 = numCount
     subplot(2,2,1);
     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), speedrightKin(:,1), 'k')
     hold on
-    plot([0,0],[0,40], 'b--')
-    plot([.125,.125],[0,40], 'r--')
-    ylim([0,40])
+    plot([0,0],[0,paramsBump.yMax], 'b--')
+    plot([.125,.125],[0,paramsBump.yMax], 'r--')
+    ylim([0,paramsBump.yMax])
     set(gca,'TickDir','out', 'box', 'off')
     set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeBump, afterBump])

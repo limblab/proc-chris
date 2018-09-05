@@ -103,12 +103,12 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 
 %% Parameter defaults
 
-    
+    includSpeedTerm = true;
     cutoff = pi/4; %cutoff for significant of sinusoidal tuning
     arrays= {'cuneate'}; %default arrays to look for
     windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
     windowPas ={'idx_bumpTime',0; 'idx_bumpTime',2}; % Default trimming windows passive
-    distribution = 'normal'; %what distribution to use in the GLM models
+    distribution = 'poisson'; %what distribution to use in the GLM models
     train_new_model = true; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
     neuronProcessed1 = []; %
     monkey  = td(1).monkey;
@@ -144,11 +144,11 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         params.window = windowAct;
         %% To train new GLM
         if train_new_model
-            tablePDsAct = getTDPDs(tdAct, params);
+            tablePDsAct = getTDPDsSpeedCorr(tdAct, params);
             tablePDsAct.sinTuned = tablePDsAct.velTuned;
 
             params.window=  windowPas;
-            tablePDsPas = getTDPDs(tdPas, params);
+            tablePDsPas = getTDPDsSpeedCorr(tdPas, params);
             tablePDsPas.sinTuned = tablePDsPas.velTuned;
             sinTunedAct = tablePDsAct.sinTuned;
             sinTunedPas = tablePDsPas.sinTuned;

@@ -114,13 +114,13 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     beforeMove = .3;
     afterMove = .3;
     
-    date1= '03292018';
+    date1= '03262018';
     array= 'cuneate';
     monkey1 = td(1).monkey;
     histogramFlag= false;
-    circleFlag = false;
-    plotFlag = false;
-    saveFig =false;
+    circleFlag = true;
+    plotFlag = true;
+    saveFig =true;
 
     if(exist('params') && ~isfield(params,'sinTuned'))
         warning('No sinusoidal tuning provided, assuming all are tuned')
@@ -412,36 +412,50 @@ outStruct(i).postMove.low = botPostMove(i);
 outStruct(i).firing.bump.left.mean = meanLeftBump;
 outStruct(i).firing.bump.left.high = topLeftBump;
 outStruct(i).firing.bump.left.low= botLeftBump;
+outStruct(i).firing.bump.left.all = shortLeftBumpFiring{i};
 
 outStruct(i).firing.bump.right.mean = meanRightBump;
 outStruct(i).firing.bump.right.high = topRightBump;
 outStruct(i).firing.bump.right.low = botRightBump;
+outStruct(i).firing.bump.right.all = shortRightBumpFiring{i};
 
 outStruct(i).firing.bump.up.mean = meanUpBump;
 outStruct(i).firing.bump.up.high = topUpBump;
 outStruct(i).firing.bump.up.low = botUpBump;
+outStruct(i).firing.bump.up.all = shortUpBumpFiring{i};
+
 
 outStruct(i).firing.bump.down.mean = meanDownBump;
 outStruct(i).firing.bump.down.high = topDownBump;
 outStruct(i).firing.bump.down.low = botDownBump;
+outStruct(i).firing.bump.down.all = shortDownBumpFiring{i};
+
 
 %%
 
 outStruct(i).firing.move.left.mean = meanLeftMove;
 outStruct(i).firing.move.left.high = topLeftMove;
 outStruct(i).firing.move.left.low= botLeftMove;
+outStruct(i).firing.move.left.all = shortLeftMoveFiring{i};
+
 
 outStruct(i).firing.move.right.mean = meanRightMove;
 outStruct(i).firing.move.right.high = topRightMove;
 outStruct(i).firing.move.right.low = botRightMove;
+outStruct(i).firing.move.right.all = shortRightMoveFiring{i};
+
 
 outStruct(i).firing.move.up.mean = meanUpMove;
 outStruct(i).firing.move.up.high = topUpMove;
 outStruct(i).firing.move.up.low = botUpMove;
+outStruct(i).firing.move.up.all = shortUpMoveFiring{i};
+
 
 outStruct(i).firing.move.down.mean = meanDownMove;
 outStruct(i).firing.move.down.high = topDownMove;
 outStruct(i).firing.move.down.low = botDownMove;
+outStruct(i).firing.move.down.all = shortDownMoveFiring{i};
+
 %%
 outStruct(i).monkey = monkey1;
 outStruct(i).date = date1;

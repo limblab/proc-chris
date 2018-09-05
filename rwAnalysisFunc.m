@@ -2,9 +2,9 @@
 function rwAnalysisFunc(monkey, date)
 
 mappingLog = getSensoryMappings(monkey);
-td =getTD(monkey, date, 'RW_hold');
+td =getTD(monkey, date, 'RW');
 
-getSensoryMappings(monkey);
+mappingFile = getSensoryMappings(monkey);
 
 td1 = removeBadTrials(td);
 param.windowAct = {'idx_movement_on'; 'idx_endTime'};

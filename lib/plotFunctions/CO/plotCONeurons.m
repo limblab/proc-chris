@@ -13,7 +13,7 @@ function plotCONeurons(monkey)
     end
     
     params.plotModDepth = false;
-    params.plotActVsPasPD = true;
+    params.plotActVsPasPD = false;
     params.plotAvgFiring = true;
     params.plotAngleDif = false;
     params.plotPDDists= true;
