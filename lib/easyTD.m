@@ -25,9 +25,9 @@ function td = easyTD(path, monkey, task, date)
         params.array_alias = {'LeftS1Area2','S1';'RightCuneate','CN'};
         params.event_list = {'bumpTime';'bumpDir';'ctHoldTime';'otHoldTime';'spaceNum';'targetStartTime'};
         params.trial_results = {'R','A','F','I'};
-        td_meta = struct('task',meta.task);
+        td_meta = struct('task',task);
         params.meta = td_meta;
-        trial_data = parseFileByTrial(cds{1},params);
+        trial_data = parseFileByTrial(cds,params);
         % sanitize?
         idxkeep = cat(1,trial_data.spaceNum) == 1 | cat(1,trial_data.spaceNum) == 2;
         td = trial_data(idxkeep);

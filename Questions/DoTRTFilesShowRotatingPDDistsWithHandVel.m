@@ -4,7 +4,7 @@ butterArray = 'cuneate';
 
 monkeyButter = 'Butter';
 
-dateButter = '20180524';
+dateButter = '20180522';
 mappingLog = getSensoryMappings(monkeyButter);
 
 td=getTD(monkeyButter, dateButter, 'TRT');
@@ -59,17 +59,17 @@ figure
 histogram(pdsSpace1Tuned.velPD,20, 'Normalization','probability')
 hold on
 histogram(pdsSpace2Tuned.velPD,20, 'Normalization','probability')
-histogram(pdsPasTuned.velPD,20, 'Normalization','probability')
+histogram(pdsPasTunedinPas.velPD,20, 'Normalization','probability')
 legend({'Space1','Space2', 'Passive'})
 %%
 tunedBothSpace1 = tablePDsActSpace1Sorted(tablePDsActSpace1Sorted.sinTuned & tablePDsActSpace2Sorted.sinTuned,:);
 tunedBothSpace2 = tablePDsActSpace2Sorted(tablePDsActSpace1Sorted.sinTuned & tablePDsActSpace2Sorted.sinTuned,:);
 
-% space1 = tunedBothSpace1;
-% space2 = tunedBothSpace2;
+space1 = tunedBothSpace1;
+space2 = tunedBothSpace2;
 
-space1 = pdsActTunedinPas;
-space2 = pdsPasTunedinPas;
+% space1 = pdsActTunedinPas;
+% space2 = pdsPasTunedinPas;
 
 actPDs = rad2deg(space1.velPD);
 actPDsHigh = rad2deg(space1.velPDCI(:,2));
@@ -106,5 +106,16 @@ yticks([-180 -90 0 90 180])
 rot = angleDiff(rad2deg([tunedBothSpace1.velPD]), rad2deg([tunedBothSpace2.velPD]));
 %%
 fh1 = plotHandSpeed(tdMoveSpace1);
+hold on
+yyaxis right
+histogram(tunedBothSpace1.velPD,15)
+
 plotHandSpeed(tdMoveSpace2);
+hold on
+yyaxis right
+histogram(tunedBothSpace2.velPD,15)
+
 plotHandSpeed(tdBump);
+hold on
+yyaxis right
+histogram(pdsPasTunedinPas.velPD,10)

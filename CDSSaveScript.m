@@ -19,33 +19,26 @@
 % The filename of the .nev should be monkey_date_task_array_number
 %% All of the loading variables
 
-date = '20170223';
-task = 'RW';
-monkey = 'Lando';
-array = 'LeftS1';
+date = '20180522';
+task = 'TRT';
+monkey = 'Butter';
+array = 'cuneate';
 
 number = 1;
 
-sorted = true;
-suffix = 'resort';
+sorted = false;
+% suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
 
 %%
-motionTrack = false;
+motionTrack = true;
 
 if sorted(1)
-    srtStr = 'sorted-resort';
+    srtStr = 'sorted';
 else
     srtStr = 'unsorted';
 end
 
-if motionTrack
-    first_time = true;
-        motionTrackPath = [getBasicPath(monkey, date, getGenericTask(task)), 'MotionTracking', filesep];
-        motionTrackName = getMotionTrackName(monkey, date, getGenericTask(task), number);
-        load([motionTrackPath, motionTrackName])
-        color_tracker_4colors_script;
-end
 
 %% Generate CDS using easyCDS
 cds = easyCDS(monkey, task, date, array, number, sorted);
@@ -54,19 +47,57 @@ outpath = getCdsSavePath(monkey, date, getGenericTask(task));
 makeFileStructure(monkey, date, getGenericTask(task));
 meta = cds.meta;
 
-markersFilename = ['markers_',monkey '_' date,'_',task, '.mat']
+markersFilename = ['markers_', monkey, '_', date, '_', task,'.mat'];
 opensimFilename = ['opensim_',monkey '_' date,'_',task, '.trc'];
-affine_xform = cds.loadRawMarkerData(fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep,markersFilename));
-writeTRCfromCDS(cds,fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep, opensimFilename));
-writeHandleForceFromCDS(cds,fullfile(meta.folder,'OpenSim',[meta.monkey '_' meta.date '_' meta.taskAlias{fileIdx} '_handleForce.mot']))
+
+%%
+
+%%
+if motionTrack
+    cds = easyCDS(monkey, task, date, array, number, sorted);
+
+    first_time = true;
+    motionTrackPath = [getBasicPath(monkey, date, getGenericTask(task)), 'MotionTracking', filesep];
+    motionTrackName = getMotionTrackName(monkey, date, task, number);
+    load([motionTrackPath, motionTrackName])
+%     color_tracker_4colors_script;
+    affine_xform = cds.loadRawMarkerData(fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep,markersFilename));
+    writeTRCfromCDS(cds,fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep, opensimFilename));
+    writeHandleForceFromCDS(cds,fullfile('OpenSim',[monkey '_' date '_TRT_handleForce.mot']))
+
+    % load joint information
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_ang')
+
+    % load joint velocities
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_vel')
+
+    % load joint moments
+    % cds{fileIdx}.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_dyn')
+
+    % load muscle information
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'muscle_len')
+
+    % load muscle velocities
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'muscle_vel')
+    
+    % load hand positions
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_pos')
+    
+    % load hand velocities
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_vel')
+    
+    % load hand accelerations
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_acc')
+
+end
 
 
 % compose the filename
-cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_',suffix '.mat'];
+cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_.mat'];
 %save the cds to the folder
 save(cdsPath, 'cds', '-v7.3');
 %%
 td = easyTD(cdsPath, monkey, task, date);
 tdPath = getTDSavePath(monkey, date, getGenericTask(task));
-save([tdPath,monkey, '_', task, '_', date,'_',num2str(number), '_TD_','_',suffix, '.mat'], 'td');
+save([tdPath,monkey, '_', task, '_', date,'_',num2str(number), '_TD_.mat'], 'td');
 disp('Done creating cds and saving TD');

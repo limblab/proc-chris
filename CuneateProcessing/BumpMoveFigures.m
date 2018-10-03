@@ -17,7 +17,7 @@ savePDF = false;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20180326';
+date = '20180607';
 monkey = 'Butter';
 unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
@@ -36,7 +36,7 @@ w = gausswin(5);
 w = w/sum(w);
 
 
-numCount = 169:length(td(1).(unitSpikes)(1,:));
+numCount = 1:length(td(1).(unitSpikes)(1,:));
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 

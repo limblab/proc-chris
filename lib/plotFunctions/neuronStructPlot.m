@@ -67,6 +67,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         modDepths = max([neurons.modDepthMove, neurons.modDepthBump]');
         if useModDepths
             size1 = modDepths;
+            size1(size1==0) =1;
         end
         
         pasPDs = mod(rad2deg(neurons.pasPD.velPD)+360, 360);
