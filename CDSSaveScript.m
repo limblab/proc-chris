@@ -26,7 +26,7 @@ array = 'cuneate';
 
 number = 1;
 
-sorted = false;
+sorted = true;
 % suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
 
@@ -88,6 +88,14 @@ if motionTrack
     
     % load hand accelerations
     cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_acc')
+        % load hand positions
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'elbow_pos')
+    
+    % load hand velocities
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'elbow_vel')
+    
+    % load hand accelerations
+    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'elbow_acc')
 
 end
 

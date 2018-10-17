@@ -24,6 +24,8 @@ elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
     addpath(genpath('C:\Users\wrest\Documents\Github\KinectTracking\'));
     addpath(genpath('C:\Users\wrest\Documents\Github\proc-raeed\'));
     addpath(genpath('C:\Users\wrest\Documents\MATLAB\MonkeyData\'));
+    addpath(genpath('C:\Users\wrest\Documents\Github\dataczar\'));
+
     disp('Laptop paths loaded')
 
 elseif strcmp(arch, 'glnxa64')
