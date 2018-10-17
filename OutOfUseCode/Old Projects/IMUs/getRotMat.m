@@ -1,0 +1,19 @@
+function [ RotationMat ] = getRotMat( Roll1, Pitch1, Yaw1 )
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+    rotMatX1 = [1, 0,0;...
+                0, cosd(Roll1), -1*sind(Roll1);...
+                0, sind(Roll1), cosd(Roll1)];
+
+    rotMatY1 = [cosd(Pitch1), 0, sind(Pitch1);...
+                0,1,0;...
+                -1*sind(Pitch1), 0, cosd(Pitch1)];
+
+    rotMatZ1 = [cosd(Yaw1), -1*sind(Yaw1), 0;...
+                sind(Yaw1), cosd(Yaw1),0;...
+                0,0,1];
+
+    RotationMat = rotMatZ1*rotMatY1*rotMatX1;
+
+end
+

@@ -92,6 +92,7 @@ function [processedTrial, neuronProcessed1] = compiledRWAnalysis(td, params)
         params.array= arrays{i};
         params.date = td(1).date;
         params.windowAct = windowAct;
+        params.in_signals = 'vel';
         params.out_signals = [params.array, '_spikes'];
         params.distribution = distribution;
         params.out_signal_names =td(1).([params.array, '_unit_guide']); 
