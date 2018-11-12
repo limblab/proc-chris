@@ -4,7 +4,7 @@ function [ fhCell ] = plotRWTD( td, params )
 close all
 yOffset = 32;
 td = removeBadTrials(td);
-    for i = 2
+    for i = 1:1658
         fh{i}= figure;
         subplot(4,3,1:9)
         scatter(td(i).pos(1:td(i).idx_goCueTime), td(i).pos(1:td(i).idx_goCueTime),'r')
@@ -18,7 +18,12 @@ td = removeBadTrials(td);
         rectangle('Position', [td(i).cursor_start,2,2],'FaceColor', 'r')
         ylim([-60,-10])
         xlim([-25, 25])
-        axis equal
+        subplot(4,3,10:12)
+        for i = 1:length(td(1).cuneate_unit_guide(1,:))
+            scatter([td(i).cuneate_ts{i}], i*ones(length(td(i).cuneate_ts{i})));
+        end
+        pause
+%         axis equal
     end
 
 end

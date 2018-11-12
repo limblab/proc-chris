@@ -17,10 +17,11 @@ param.in_signals = {'vel'};
 
 param.windowAct= windowAct;
 param.windowPas =windowPas;
+param.date = '20170917';
 [processedTrialNew, neuronsNew] = compiledCOActPasAnalysis(td20180607, param);
 %%
 %% Load the sensory mapping files, upload into the neuron structure
-param.array = 'LeftS1';
+param.array = 'cuneate';
 getCOActPasStats(td20180607, param);
 %%
 neuronsCO = [neuronsNew];
@@ -40,8 +41,9 @@ neuronsCO.sinTuned= neuronsCO.sinTunedAct | neuronsCO.sinTunedPas;
 
 saveNeurons(neuronsCO,param);
 %% Compute the trial averaged speed of each direction
-params.array = 'LeftS1';
+params.array = 'cuneate';
 params.tuningCondition = {'isSorted', 'sinTuned'};
+params.plotModDepth = false;
 neuronStructPlot(neuronsCO, params);
 %%
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active

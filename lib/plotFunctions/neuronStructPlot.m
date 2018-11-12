@@ -57,12 +57,13 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         xlim(lims)
         ylim(lims)
         set(gca,'TickDir','out', 'box', 'off')
+        title('ModDepths')
     end
     
     if plotActVsPasPD
-        actPDs = mod(rad2deg(neurons.actPD.velPD)+360, 360);
-        actPDsHigh = mod(rad2deg(neurons.actPD.velPDCI(:,2))+360,360);
-        actPDsLow = mod(rad2deg(neurons.actPD.velPDCI(:,1))+360,360);
+        actPDs =rad2deg(neurons.actPD.velPD);
+        actPDsHigh = rad2deg(neurons.actPD.velPDCI(:,2));
+        actPDsLow = rad2deg(neurons.actPD.velPDCI(:,1));
         
         modDepths = max([neurons.modDepthMove, neurons.modDepthBump]');
         if useModDepths
@@ -70,9 +71,9 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
             size1(size1==0) =1;
         end
         
-        pasPDs = mod(rad2deg(neurons.pasPD.velPD)+360, 360);
-        pasPDsHigh = mod(rad2deg(neurons.pasPD.velPDCI(:,2))+360,360);
-        pasPDsLow = mod(rad2deg(neurons.pasPD.velPDCI(:,1))+360, 360);
+        pasPDs = rad2deg(neurons.pasPD.velPD);
+        pasPDsHigh = rad2deg(neurons.pasPD.velPDCI(:,2));
+        pasPDsLow = rad2deg(neurons.pasPD.velPDCI(:,1));
         
         yneg = pasPDs-pasPDsLow;
         ypos = pasPDsHigh -pasPDs;
@@ -88,15 +89,15 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
 %             dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
 %             text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.mapName(i)));
 %         end
-        plot([0, 360], [0, 360], 'r--')
+        plot([-180, 180], [-180, 180], 'r--')
         title(['Act vs. Pas PDs ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
         xlabel('Active PD direction')
         ylabel('Passive PD direction')
-        xlim([0, 360])
-        ylim([0, 360])
+        xlim([-180, 180])
+        ylim([-180, 180])
         set(gca,'TickDir','out', 'box', 'off')
-        xticks([0, 90, 180, 270, 360])
-        yticks([0, 90, 180, 270, 360])
+        xticks([-180, -90,0, 90, 180])
+        yticks([-180, -90,0,90,180])
     end
     
     if plotAvgFiring

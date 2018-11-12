@@ -114,7 +114,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     beforeMove = .3;
     afterMove = .3;
     
-    date1= '03262018';
+    date= [];
     array= 'cuneate';
     monkey1 = td(1).monkey;
     histogramFlag= false;
@@ -132,9 +132,12 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     numBoots = 1000;
     conf = .95;
     sinTuned = ones(length(td(1).([params.array, '_unit_guide'])(:,1)),1);
-
+    
     if nargin > 1, assignParams(who,params); end % overwrite parameters
-%% Computing helpful temp variables
+    if isempty(date)
+        error('Need to input date') 
+    end
+    %% Computing helpful temp variables
     unitLabel = array;
     unitGuide = [unitLabel, '_unit_guide'];
     unitSpikes = [unitLabel, '_spikes'];
@@ -310,8 +313,9 @@ for i = 1:length(shortLeftBumpFiring)
         tuned(i) = sigDifMove(i) & sigDifBump(i) & goodFiring(i)& sinTuned(i) ;%&sinTunedMove(i) & sinTunedBump(i);
 
     end
-    title1 = [getBasicPath(td(1).monkey, dateToLabDate(date1), getGenericTask(td(1).task)),'plotting', filesep,'NeuronPlots',filesep, array,'_',td(1).monkey,'_Electrode_',date1, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
-    title2 = [array,'_',td(1).monkey,'_Electrode_',date1, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
+    mkdir([getBasicPath(td(1).monkey, dateToLabDate(date), getGenericTask(td(1).task)),'plotting', filesep,'NeuronPlots',filesep]);
+    title1 = [getBasicPath(td(1).monkey, dateToLabDate(date), getGenericTask(td(1).task)),'plotting', filesep,'NeuronPlots',filesep, array,'_',td(1).monkey,'_Electrode_',date, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
+    title2 = [array,'_',td(1).monkey,'_Electrode_',date, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
     
     if tuned(i)
         title1 = [title1, '_TUNED'];
@@ -344,7 +348,7 @@ for i = 1:length(shortLeftBumpFiring)
         legend('show')
 
         linkaxes([sp1, sp2]);
-        figTitle = [title1, 'Histogram.png'];
+        figTitle = [title1, 'Histogram.pdf'];
         if(saveFig)
             saveas(f1,strrep(figTitle, ' ', '_'));
         end
@@ -383,7 +387,7 @@ for i = 1:length(shortLeftBumpFiring)
         
         title([strrep(title2, '_', ' '), ' Tuning Curves'])
         legend('show')
-        figTitle = [title1, 'TuningCurve.png'];
+        figTitle = [title1, 'TuningCurve.pdf'];
         if(saveFig)
             saveas(f2, strrep(figTitle, ' ', '_'));
         end
@@ -458,7 +462,7 @@ outStruct(i).firing.move.down.all = shortDownMoveFiring{i};
 
 %%
 outStruct(i).monkey = monkey1;
-outStruct(i).date = date1;
+outStruct(i).date = date;
 outStruct(i).array = array;
 
 
