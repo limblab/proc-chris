@@ -1,13 +1,15 @@
-clear all
+% clear all
 load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_TD.mat')
 td = getMoveOnsetAndPeak(td);
 td = smoothSignals(td, struct('signals', 'cuneate_spikes'));
+td = removeBadNeurons(td);
 
 tdBump = td(~isnan([td.idx_bumpTime]));
 tdMove = td(isnan([td.idx_bumpTime]));
 tdBump = trimTD(tdBump, {'idx_bumpTime', 0}, {'idx_bumpTime', 13});
 tdMove = trimTD(tdMove, {'idx_movement_on', 0}, {'idx_movement_on', 13});
 %%
+
 params = struct('model_name' ,'test', 'in_signals', 'cuneate_spikes', 'out_signals', 'vel');
 [cv1, cv2,~,~,errorMoveMove, errorMoveBump] = fitCVAndTestLinModel(tdMove, tdBump, params);
 [cv3, cv4,~,~,errorBumpBump, errorBumpMove] = fitCVAndTestLinModel(tdBump, tdMove, params);
@@ -15,7 +17,7 @@ params = struct('model_name' ,'test', 'in_signals', 'cuneate_spikes', 'out_signa
 %%
 params.model_type    =  'linmodel';
 params.model_name    =  'movementGLM';
-params.in_signals    =  {'cuneate_spikes'};% {'name',idx; 'name',idx};
+params.in_signals    =  {'cuneate_spikes'}%, find(velMove2BumpPR2>0 & velBump2MovePR2 >0)};% {'name',idx; 'name',idx};
 params.out_signals   =  {'vel'};% {'name',idx};
 params.train_idx     =  1:length(tdBump);
 % GLM-specific parameters

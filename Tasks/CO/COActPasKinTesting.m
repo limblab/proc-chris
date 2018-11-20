@@ -1,21 +1,15 @@
-% clear all
-close all
-% clearvars -except cds
-% load('Lando3202017COactpasCDS.mat')
-plotRasters = 1;
-savePlots = 1;
-params.event_list = {'bumpTime'; 'bumpDir'};
-params.extra_time = [.4,.6];
-params.include_ts = true;
-params.include_start = true;
-params.include_naming = true;
-% td = parseFileByTrial(cds, params);
+%% Load all files for comparison
+clear all
+monkey = 'Butter';
+date = '20180607';
+mappingLog = getSensoryMappings(monkey);
+td =getTD(monkey, date, 'CO');
+
 td = td(~isnan([td.target_direction]));
 params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
 td = getMoveOnsetAndPeak(td, params);
 
-date = 03222018;
 unitNames = 'cuneate';
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
@@ -29,7 +23,7 @@ w = w/sum(w);
 
 
 numCount = 1:length(td(1).(unitSpikes)(1,:));
-td([1,2,12]) = [];
+% td([1,2,12]) = [];
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 

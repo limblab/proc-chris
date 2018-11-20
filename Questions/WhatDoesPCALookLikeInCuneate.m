@@ -1,5 +1,6 @@
 clear all
-load('C:\Users\wrest\Documents\MATLAB\MonkeyData\RW\Butter\20180405\TD\Butter_RW_20180405_TD.mat')
+close all
+% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\RW\Butter\20180405\TD\Butter_RW_20180405_TD.mat')
 load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_TD.mat')
 tdButter= td;
 array ='cuneate';
@@ -7,11 +8,15 @@ array ='cuneate';
 % array = 'LeftS1';
 % tdLando = td;
 td = removeBadTrials(td);
-td = binTD(td, 5);
+% td = binTD(td, 5);
+td = removeBadNeurons(td);
 td = removeBadTrials(td);
+td = smoothSignals(td, struct('signals', 'cuneate_spikes'));
+
 [~, td1] = getTDidx(td, 'result', 'r');
-td = trimTD(td, {'idx_movement_on', 0}, {'idx_movement_on',2});
-tdBump = trimTD(td1, {'idx_bumpTime', 0}, {'idx_bumpTime', 2});
+
+td = trimTD(td, {'idx_movement_on', 0}, {'idx_movement_on',20});
+tdBump = trimTD(td1, {'idx_bumpTime', 0}, {'idx_bumpTime', 20});
 
 
 paramPCA = struct('signals', {{[array,'_spikes'], find(td(1).([array, '_unit_guide'])(:,2) >0)}}, 'do_plot', true);
@@ -55,7 +60,7 @@ cuneatePCAUpBump = cat(1, upBump.([array, '_pca']));
 cuneatePCALeftBump =cat(1,leftBump.([array, '_pca']));
 cuneatePCADownBump = cat(1,downBump.([array, '_pca']));
 colorsBump =linspecer(4);
-
+%%
 figure
 plot3(cuneatePCARightBump(:,1), cuneatePCARightBump(:,2), cuneatePCARightBump(:,3), 'Color', colorsBump(1,:))
 hold on
@@ -64,4 +69,48 @@ plot3(cuneatePCALeftBump(:,1), cuneatePCALeftBump(:,2), cuneatePCALeftBump(:,3),
 plot3(cuneatePCADownBump(:,1), cuneatePCADownBump(:,2), cuneatePCADownBump(:,3),'Color', colorsBump(4,:))
 
 axis equal
+
+%%
+linModelMove = fitcdiscr([cuneatePCARight; cuneatePCAUp; cuneatePCALeft; cuneatePCADown], [string(ones(length(cuneatePCARight),1));string(2*ones(length(cuneatePCAUp),1));string(3*ones(length(cuneatePCALeft),1));string(4*ones(length(cuneatePCADown),1))])   
+
+% tdBumpMove = [tdBump, td];
+% 
+% paramPCA = struct('signals', {{[array,'_spikes'], find(td(1).([array, '_unit_guide'])(:,2) >0)}}, 'do_plot', true);
+% dimsBumpMove= estimateDimensionality(tdBumpMove, paramPCA);
+% [tdBumpMove, info_bumpmove] = dimReduce(tdBumpMove, paramPCA); 
+% tdBumpMove = smoothSignals(tdBumpMove, struct('signals', [array, '_pca']));
+% 
+% [~,rightMove] = getTDidx(tdBumpMove, 'target_direction', dirs(1));
+% [~,upMove] = getTDidx(tdBumpMove, 'target_direction', dirs(2));
+% [~,leftMove] = getTDidx(tdBumpMove, 'target_direction',  dirs(3));
+% [~,downMove] = getTDidx(tdBumpMove, 'target_direction', dirs(4));
+% 
+% [~,rightBump] = getTDidx(tdBumpMove, 'bumpDir', dirsBump(1));
+% [~,upBump] = getTDidx(tdBumpMove, 'bumpDir', dirsBump(2));
+% [~,leftBump] = getTDidx(tdBumpMove, 'bumpDir',  dirsBump(3));
+% [~,downBump] = getTDidx(tdBumpMove, 'bumpDir', dirsBump(4));
+% 
+% cuneatePCARight = cat(1, rightMove.([array, '_pca']));
+% cuneatePCAUp = cat(1, upMove.([array, '_pca']));
+% cuneatePCALeft =cat(1,leftMove.([array, '_pca']));
+% cuneatePCADown = cat(1,downMove.([array, '_pca']));
+% colors =linspecer(8);
+% 
+% figure
+% plot3(cuneatePCARight(:,1), cuneatePCARight(:,2), cuneatePCARight(:,3), 'Color', colors(1,:))
+% hold on
+% plot3(cuneatePCAUp(:,1), cuneatePCAUp(:,2), cuneatePCAUp(:,3),'Color', colors(2,:))
+% plot3(cuneatePCALeft(:,1), cuneatePCALeft(:,2), cuneatePCALeft(:,3),'Color', colors(3,:))
+% plot3(cuneatePCADown(:,1), cuneatePCADown(:,2), cuneatePCADown(:,3),'Color', colors(4,:))
+% 
+% cuneatePCARightBump = cat(1, rightBump.([array, '_pca']));
+% cuneatePCAUpBump = cat(1, upBump.([array, '_pca']));
+% cuneatePCALeftBump =cat(1,leftBump.([array, '_pca']));
+% cuneatePCADownBump = cat(1,downBump.([array, '_pca']));
+% colorsBump =linspecer(4);
+% plot3(cuneatePCARightBump(:,1), cuneatePCARightBump(:,2), cuneatePCARightBump(:,3), 'Color', colors(5,:))
+% hold on
+% plot3(cuneatePCAUpBump(:,1), cuneatePCAUpBump(:,2), cuneatePCAUpBump(:,3),'Color', colors(6,:))
+% plot3(cuneatePCALeftBump(:,1), cuneatePCALeftBump(:,2), cuneatePCALeftBump(:,3),'Color', colors(7,:))
+% plot3(cuneatePCADownBump(:,1), cuneatePCADownBump(:,2), cuneatePCADownBump(:,3),'Color', colors(8,:))
 
