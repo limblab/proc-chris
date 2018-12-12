@@ -103,33 +103,40 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 
 %% Parameter defaults
 
-    includeSpeedTerm = true;
+    includeSpeedTerm = false;
     cutoff = pi/4; %cutoff for significant of sinusoidal tuning
-    arrays= {'cuneate'}; %default arrays to look for
-    windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
-    windowPas ={'idx_bumpTime',0; 'idx_bumpTime',2}; % Default trimming windows passive
+    arrays= {'LeftS1'}; %default arrays to look for
+    windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
+    windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
     distribution = 'poisson'; %what distribution to use in the GLM models
     train_new_model = true; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
     neuronProcessed1 = []; %
     monkey  = td(1).monkey;
     %% Assign params
     if nargin > 1, assignParams(who,params); end % overwrite parameters
+    td = smoothSignals(td,struct('signals', 'cuneate_spikes'));
+    tdAct = td(strcmp({td.result},'R'));
+    tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
+    tdBump = td(~isnan([td.bumpDir])); 
+    tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
+    
 %% td preprocessing
     if(~isfield(td(1), 'idx_movement_on'))
         td = getMoveOnsetAndPeak(td);
     end
-    if(td(1).bin_size == .01)
-        tdBin = binTD(td,5);
+    if(tdAct(1).bin_size == .01)
+        tdAct = binTD(tdAct,5);
     else
         error('This function requires that the input TD be binned at 10 ms');
     end
+    if(tdPas(1).bin_size == .01)
+        tdPas = binTD(tdPas,5);
+    else
+        error('This function requires that the input TD be binned at 10 ms');
+    end
+
     
-    tdAct = tdBin(strcmp({tdBin.result},'R'));
-    tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
     
-    tdBump = tdBin(~isnan([tdBin.bumpDir])); 
-    
-    tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
     %% Start the main processing
     for i=1:length(arrays) % iterate through arrays
         params.monkey = td(1).monkey;

@@ -1,15 +1,27 @@
 % load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat')
 % % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180329\TD\Butter_CO_20180329_4_TD_sorted-resort_resort.mat')
-load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat');
+% load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat');
 % % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180326\TD\Butter_CO_20180326_TD.mat');
-load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_1_TD.mat')
+% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_TD.mat')
 % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180326\TD\Butter_CO_20180326_1_TD__Conservative.mat')
 
 %%
+date = '20181211';
+monkey = 'Butter';
+unitNames = 'cuneate';
+
+mappingLog = getSensoryMappings(monkey);
+
+beforeBump = .3;
+afterBump = .3;
+beforeMove = .3;
+afterMove = .3;
+
+td =getTD(monkey, date, 'CO');
 td20180607 =td;
 
-windowAct= {'idx_movement_on', 0; 'idx_endTime',0}; %Default trimming windows active
-windowPas ={'idx_bumpTime',0; 'idx_bumpTime',2}; % Default trimming windows passive
+windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
+windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
 param.arrays = {'cuneate'};
 param.in_signals = {'vel'};
 param.train_new_model = true;

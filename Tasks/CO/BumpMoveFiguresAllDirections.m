@@ -17,9 +17,11 @@ savePDF = true;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20180607';
+date = '20181211';
 monkey = 'Butter';
 unitNames = 'cuneate';
+
+mappingLog = getSensoryMappings(monkey);
 
 beforeBump = .3;
 afterBump = .3;
@@ -31,7 +33,14 @@ td = removeBadNeurons(td);
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
 savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
-mkdir(savePath);
+mkdir([savePath, 'Cuneate']);
+mkdir([savePath, 'Gracile']);
+
+
+elec2MapName = td(1).cuneate_naming;
+for i = 1:length(td(1).(unitSpikes)(1,:))
+    gracileFlag(i) = getGracile('Butter', elec2MapName(elec2MapName(:,1) == td(1).cuneate_unit_guide(i,1),2));
+end
 
 w = gausswin(5);
 w = w/sum(w);
@@ -78,16 +87,22 @@ for num1 = numCount
 %     meanUpEMG = squeeze(mean(upMoveEMG));
     
     upMoveFiring = zeros(length(upMove), length(speedUpKin));
-    up = figure2();
-    suptitle([title1, ' Up'])
-    subplot(2,2,2);
+    
+    bump = figure2();
+    move = figure2();
+    
+    suptitle([title1, ' Active'])
+    if gracileFlag(num1)
+        suptitle([title1, ' Active GRACILE'])
+    end
+    subplot(4,3,2);
     plot(linspace(-1*beforeMove, afterMove, length(speedUpKin(:,1))), speedUpKin(:,1), 'k')
     hold on
     plot([0,0],[0,paramsBump.yMax], 'b--')
     ylim([0,paramsBump.yMax])
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out','box', 'off') 
-%     set(gca,'xtick',[],'ytick',[])
+    set(gca,'xtick',[],'ytick',[])
 
 
     if plotRasters
@@ -111,8 +126,14 @@ for num1 = numCount
     speedUpKin = sqrt(meanUpKin(:,1).^2 + meanUpKin(:,2).^2); 
 % %     meanupForce = squeeze(mean(upBumpForce));
 %     meanUpEMG = squeeze(mean(upBumpEMG));
-    
-    subplot(2,2,1);
+
+    set(0,'CurrentFigure', bump)
+    suptitle([title1, ' Passive'])
+    if gracileFlag(num1)
+        suptitle([title1, ' Passive GRACILE'])
+    end
+
+    subplot(4,3,2);
     plot(linspace(-1*beforeBump, afterBump, length(speedUpKin(:,1))), speedUpKin(:,1), 'k')
     hold on
     plot([0,0],[0,paramsBump.yMax], 'b--')
@@ -135,7 +156,9 @@ for num1 = numCount
     
     
     % Up Move Firing
-    subplot(2,2,4)
+    set(0,'CurrentFigure', move)
+
+    subplot(4,3,5)
     xlim([-1*beforeMove, afterMove])
     for  i = 1:length(upMove)
         upMoveFiring(i,:) = upMove(i).(unitSpikes)(upMove(i).idx_movement_on-(beforeMove*100):upMove(i).idx_movement_on+(afterMove*100),num1);
@@ -146,7 +169,9 @@ for num1 = numCount
     set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeMove, afterMove])
     %Up Bump Firing
-    subplot(2,2,3)
+    
+    set(0,'CurrentFigure', bump)
+    subplot(4,3,5)
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out')
     upBumpFiring = zeros(length(upBump), length(speedUpKin));
@@ -179,9 +204,9 @@ for num1 = numCount
 %     meandownForce1 = squeeze(mean(downMoveForce));
     
     downMoveFiring = zeros(length(downMove), length(speeddownKin));
-    down = figure2();
-    suptitle([title1, ' down'])
-    subplot(2,2,2);
+    set(0,'CurrentFigure', move)
+    subplot(4,3,8)
+
     plot(linspace(-1*beforeMove, afterMove, length(speeddownKin(:,1))), speeddownKin(:,1), 'k')
     hold on
     plot([0,0],[0,paramsBump.yMax], 'b--')
@@ -210,8 +235,9 @@ for num1 = numCount
 %     hold on
 %     plot(linspace(-1*beforeBump, afterBump, length(meandownForce1(:,1))), meandownForce1(:,1), 'r')
 
-    
-    subplot(2,2,1);
+    set(0,'CurrentFigure', bump)
+
+    subplot(4,3,8);
     plot(linspace(-1*beforeBump, afterBump, length(speeddownKin(:,1))), speeddownKin(:,1), 'k')
     hold on
     plot([0,0],[0,paramsBump.yMax], 'b--')
@@ -232,7 +258,9 @@ for num1 = numCount
 
     
     % down Move Firing
-    subplot(2,2,4)
+    set(0,'CurrentFigure', move)
+    
+    subplot(4,3,11)
     xlim([-1*beforeMove, afterMove])
     for  i = 1:length(downMove)
         downMoveFiring(i,:) = downMove(i).(unitSpikes)(downMove(i).idx_movement_on-(beforeMove*100):downMove(i).idx_movement_on+(afterMove*100),num1);
@@ -240,12 +268,14 @@ for num1 = numCount
     meandownMoveFiring = 100*mean(downMoveFiring);
     bar(linspace(-1*beforeMove, afterMove, length(meandownMoveFiring)), conv(meandownMoveFiring,w, 'same'), 'edgecolor', 'none', 'BarWidth', 1)
     set(gca,'TickDir','out', 'box', 'off')
-    set(gca,'ytick',[])
     xlabel('Time (seconds')
+    ylabel('Firing Rate (Hz)')
+    set(gca, 'TickDir', 'out', 'box', 'off')
     xlim([-1*beforeMove, afterMove])
     
-    %down Bump Firing
-    subplot(2,2,3)
+    %down Bump 
+    set(0,'CurrentFigure', bump)
+    subplot(4,3,11)
     xlim([-1*beforeBump, afterBump])
     set(gca,'TickDir','out')
     downBumpFiring = zeros(length(downBump), length(speeddownKin));
@@ -278,9 +308,8 @@ for num1 = numCount
 %     meanleftForce1 = squeeze(mean(leftMoveForce));
 
     leftMoveFiring = zeros(length(leftMove), length(speedleftKin));
-    left = figure2();
-    suptitle([title1, ' left'])
-    subplot(2,2,2);
+    set(0,'CurrentFigure', move)
+    subplot(4,3,4);
     plot(linspace(-1*beforeMove, afterMove, length(speedleftKin(:,1))), speedleftKin(:,1), 'k')
     hold on
     plot([0,0],[0,paramsBump.yMax], 'b--')
@@ -308,8 +337,8 @@ for num1 = numCount
 %     hold on
 %     plot(linspace(-1*beforeBump, afterBump, length(meanleftForce1(:,1))), meanleftForce1(:,2), 'b')
 
-    
-    subplot(2,2,1);
+    set(0,'CurrentFigure', bump)
+    subplot(4,3,4);
     plot(linspace(-1*beforeBump, afterBump, length(speedleftKin(:,1))), speedleftKin(:,1), 'k')
     hold on
     plot([0,0],[0,paramsBump.yMax], 'b--')
@@ -328,7 +357,9 @@ for num1 = numCount
 %     plot(linspace(-1*beforeBump, afterBump, length(speedleftKin(:,1))), meanleftForce(:,2), 'b')
     
     % left Move Firing
-    subplot(2,2,4)
+    set(0,'CurrentFigure', move)
+
+    subplot(4,3,7)
     xlim([-1*beforeMove, afterMove])
     for  i = 1:length(leftMove)
         leftMoveFiring(i,:) = leftMove(i).(unitSpikes)(leftMove(i).idx_movement_on-(beforeMove*100):leftMove(i).idx_movement_on+(afterMove*100),num1);
@@ -339,7 +370,9 @@ for num1 = numCount
     set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeMove, afterMove])
     %left Bump Firing
-    subplot(2,2,3)
+    set(0,'CurrentFigure', bump)
+
+    subplot(4,3,7)
     xlim([-1*beforeBump, afterBump])
     set(gca,'TickDir','out')
     set(gca,'xtick',[],'ytick',[])
@@ -375,9 +408,9 @@ for num1 = numCount
 %     meanrightForce1= squeeze(mean(rightMoveForce));
 
     rightMoveFiring = zeros(length(rightMove), length(speedrightKin));
-    right = figure2();
-    suptitle([title1, ' right'])
-    subplot(2,2,2);
+    set(0,'CurrentFigure', move)
+
+    subplot(4,3,6);
     plot(linspace(-1*beforeMove, afterMove, length(speedrightKin(:,1))), speedrightKin(:,1), 'k')
     hold on
     plot([0,0],[0,paramsBump.yMax], 'b--')
@@ -403,8 +436,9 @@ for num1 = numCount
 %     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce1(:,1), 'r')
 %     hold on
 %     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), meanrightForce1(:,2), 'b')
-    
-    subplot(2,2,1);
+    set(0,'CurrentFigure', bump)
+
+    subplot(4,3,6);
     plot(linspace(-1*beforeBump, afterBump, length(speedrightKin(:,1))), speedrightKin(:,1), 'k')
     hold on
     plot([0,0],[0,paramsBump.yMax], 'b--')
@@ -424,7 +458,9 @@ for num1 = numCount
 
     
     % right Move Firing
-    subplot(2,2,4)
+    set(0,'CurrentFigure', move)
+
+    subplot(4,3,9)
     xlim([-1*beforeBump, afterBump])
     for  i = 1:length(rightMove)
         rightMoveFiring(i,:) = rightMove(i).(unitSpikes)(rightMove(i).idx_movement_on-(beforeMove*100):rightMove(i).idx_movement_on+(afterMove*100),num1);
@@ -435,7 +471,9 @@ for num1 = numCount
     set(gca,'xtick',[],'ytick',[])
     xlim([-1*beforeMove, afterMove])
     %right Bump Firing
-    subplot(2,2,3)
+    set(0,'CurrentFigure', bump)
+
+    subplot(4,3,9)
     xlim([-1*beforeMove, afterMove])
     set(gca,'TickDir','out')
     set(gca,'xtick',[],'ytick',[])
@@ -457,57 +495,57 @@ for num1 = numCount
     maxFiring = max([conv(meanupMoveFiring, w), conv(meanupFiring, w), conv(meandownMoveFiring,w), conv(meandownFiring,w),...
         conv(meanleftMoveFiring,w), conv(meanleftFiring,w),...
         conv(meanrightMoveFiring,w), conv(meanrightFiring,w)]);
-    set(0,'CurrentFigure', up)
+
+    set(0,'CurrentFigure', bump)
     set(gca,'TickDir','out', 'box', 'off')
     set(gca,'xtick',[],'ytick',[])
-    subplot(2,2,3)
+    subplot(4,3,5)
     ylim([0, max(1,1.1*maxFiring)])
-    subplot(2,2,4)
+    subplot(4,3,7)
     ylim([0, max(1,1.1*maxFiring)])
-    set(0,'CurrentFigure', down)
-    set(gca,'TickDir','out', 'box', 'off')
-    subplot(2,2,3)
+    subplot(4,3,9)
     ylim([0, max(1,1.1*maxFiring)])
-    subplot(2,2,4)
+    subplot(4,3,11)
     ylim([0, max(1,1.1*maxFiring)])
-    set(0,'CurrentFigure', left)
-    set(gca,'TickDir','out', 'box', 'off')
-    set(gca,'xtick',[],'ytick',[])
-    subplot(2,2,3)
-    ylim([0, max(1,1.1*maxFiring)])
-    subplot(2,2,4)
-    ylim([0, max(1,1.1*maxFiring)])
-    set(0,'CurrentFigure', right)
+    
+    set(0,'CurrentFigure', move)
     set(gca,'TickDir','out', 'box', 'off')
     set(gca,'xtick',[],'ytick',[])
-    subplot(2,2,3)
+    subplot(4,3,5)
     ylim([0, max(1,1.1*maxFiring)])
-    subplot(2,2,4)
+    subplot(4,3,7)
     ylim([0, max(1,1.1*maxFiring)])
+    subplot(4,3,9)
+    ylim([0, max(1,1.1*maxFiring)])
+    subplot(4,3,11)
+    ylim([0, max(1,1.1*maxFiring)])
+    
     disp(num1)
     if savePlots
-        if savePDF
-            
-            set(up, 'Renderer', 'Painters');
-            save2pdf([savePath, strrep(title1, ' ', '_'), '_Up_', num2str(date), '.pdf'],up)
-            set(down, 'Renderer', 'Painters');
-            save2pdf([savePath,strrep(title1, ' ', '_'), 'Down', num2str(date), '.pdf'],down)
-            set(left, 'Renderer', 'Painters');
-            save2pdf([savePath,strrep(title1, ' ', '_'), 'Left', num2str(date), '.pdf'],left) 
-            set(right, 'Renderer', 'Painters');
-            save2pdf([savePath,strrep(title1, ' ', '_'),'Right', num2str(date), '.pdf'],right)
-        else
-            saveas(up,[savePath, strrep(title1, ' ', '_'), '_Up_', num2str(date), '.png'])
-            saveas(down,[savePath, strrep(title1, ' ', '_'), '_Down_', num2str(date), '.png'])
-            saveas(left,[savePath, strrep(title1, ' ', '_'), '_Left_', num2str(date), '.png'])
-            saveas(right,[savePath, strrep(title1, ' ', '_'), '_Right_', num2str(date), '.png'])
-        end
+            if gracileFlag(num1)
+                set(bump, 'Renderer', 'Painters');
+                save2pdf([savePath, 'Gracile',filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), 'GRACILE.pdf'],bump)
+                set(move, 'Renderer', 'Painters');
+                save2pdf([savePath, 'Gracile', filesep,strrep(title1, ' ', '_'), 'Move', num2str(date), 'GRACILE.pdf'],move)
+                saveas(bump,[savePath,'Gracile',filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), 'GRACILE.png'])
+                saveas(move,[savePath,'Gracile', filesep, strrep(title1, ' ', '_'), '_Move_', num2str(date), 'GRACILE.png'])
+            else
+                set(bump, 'Renderer', 'Painters');
+                save2pdf([savePath, 'Cuneate',filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), '.pdf'],bump)
+                set(move, 'Renderer', 'Painters');
+                save2pdf([savePath,'Cuneate', filesep,strrep(title1, ' ', '_'), '_Move_', num2str(date), '.pdf'],move)
+                saveas(bump,[savePath, 'Cuneate',filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), '.png'])
+                saveas(move,[savePath, 'Cuneate',filesep, strrep(title1, ' ', '_'), '_Move_', num2str(date), '.png'])
+            end
+
+    end
+
 
         
     end
 
    
-end
+
 
 %% Short time
 

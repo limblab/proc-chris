@@ -3,7 +3,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
 %   Detailed explanation goes here
     array = neuronStruct.array{1};
     monkey = neuronStruct.monkey{1};
-    date = 'all';
+    date = neuronStruct.date{1};
     plotModDepth = true;
     plotActVsPasPD = true;
     plotAvgFiring = true;

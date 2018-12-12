@@ -1,9 +1,9 @@
-monkey = 'Lando';
-date = '20170917';
-% monkey = 'Butter';
-% date = '20180607';
+% monkey = 'Lando';
+% date = '20170917';
+monkey = 'Butter';
+date = '20180607';
 mappingLog = getSensoryMappings(monkey);
-td =getTD(monkey, date, 'COactpas');
+td =getTD(monkey, date, 'CO');
 
 getSensoryMappings(monkey);
 
@@ -36,16 +36,19 @@ for i = 1:length(tdActVel)
 end
 axis equal
 %%
-load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Neurons\Lando_03-20-2017_CObump_NeuronStruct.mat')
-% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Neurons\Butter_06-07-2018_CObump_NeuronStruct.mat')
+% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Neurons\Lando_03-20-2017_CObump_NeuronStruct.mat')
+load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Neurons\Butter_06-07-2018_CObump_NeuronStruct.mat')
 
-params.cutoff = pi/8;
+params.cutoff = pi/4;
 neurons.sinTunedCIMetric = neuronStructIsTuned(neurons, params)';
 
 neuronsTuned = neurons(find(neurons.sinTunedCIMetric & neurons.isSorted), :);
 fh1 = figure;
 
 plotCONeuronsTuningCurve(neuronsTuned,'b', fh1)
+%%
+neuronPD = [neuronsTuned.actPD.velPD];
+[pd, dispersion] = circ_vmpar(neuronPD);
 % plotRWNeuronsTuningCurve(neuronsTuned,'r', fh1)
 
 % plotRWNeuronsModDepth(neurons0703Tuned)

@@ -29,7 +29,8 @@ function [handle, spikingInBounds, varInBounds] = neuralHeatmap(td, params)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % PARAMETER DEFAULTs
     array = 'cuneate';
-    unitsToPlot = 8;
+    varToUse = 'pos';
+    unitsToPlot = 1:length(td(1).([array, '_spikes'])(1,:));
     numBounds = 6;
     xLimits = [-10,10];
     yLimits = [-40, -25];
@@ -37,9 +38,10 @@ function [handle, spikingInBounds, varInBounds] = neuralHeatmap(td, params)
     plotError = false;
     velocityCutoffHigh =  Inf;
     velocityCutoffLow = -Inf;
+    savePlots=true;
     %
     if nargin > 1, assignParams(who,params); end
-    pos = cat(1,td.pos);
+    pos = cat(1,td.(varToUse));
     unitNames = td.([array, '_unit_guide']);
     if useJointPCA
         temp = cat(1, td.opensim_pca);
@@ -65,13 +67,19 @@ function [handle, spikingInBounds, varInBounds] = neuralHeatmap(td, params)
         handle{i} = figure;
         imagesc(spikingInBounds(:,:, i))
         colorbar
-        title(['Mean Firing Rate (Hz) Electrode ', num2str(unitNames(i,1)),' Unit ', num2str(unitNames(i,2)), ' in Workspace Region'])
+        title(['Mean Firing Rate (Hz) Electrode ', num2str(unitNames(unitsToPlot(i),1)),' Unit ', num2str(unitNames(unitsToPlot(i),2)), ' in Workspace Region'])
         if plotError
             figure
-            imagesc(varInBounds(:,:,i));
+            imagesc(varInBounds(:,:,unitsToPlot(i)));
             colorbar
             title(['Firing Variability (std in Hz) unit ', num2str(i), ' in Workspace Region'])
-        end        
+        end
+        path = [getPathFromTD(td), '/plotting/',varToUse, 'Heatmaps/'];
+        mkdir(path)
+        if savePlots
+            saveas(handle{i}, [path, td(1).monkey,'_', td(1).date,'_E',num2str(unitNames(unitsToPlot(i),1)),'U', num2str(unitNames(unitsToPlot(i),2)),'_', varToUse, '_Heatmap.png'])
+        end
     end
+    
 end
 

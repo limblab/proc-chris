@@ -14,7 +14,8 @@ params.doCuneate = true;
 
 mappingLog = getSensoryMappings(monkey);
 tdButter =getTD(monkey, date, task);
-tdButter = smoothSignals(tdButter, struct('signals', 'cuneate_spikes'));
+getGracile
+% tdButter = smoothSignals(tdButter, struct('signals', 'cuneate_spikes'));
 
 %% Preprocess them (binning, trimming etc)
 param.min_fr = 1;
@@ -37,32 +38,33 @@ spikes = [array, '_spikes'];
 params.model_type = 'glm';
 params.num_boots = 1;
 params.eval_metric = 'pr2';
+% params.glm_distribution
 
-params.in_signals= {'pos';'vel';'speed'};
+params.in_signals= {'pos';'vel';'speed';'acc'};
 params.model_name = 'Full';
 params.out_signals = {spikes};
 tdButter= getModel(tdButter, params);
 fullPR2 = squeeze(evalModel(tdButter, params));
 
-params.in_signals= {'vel';'speed'};
+params.in_signals= {'vel';'speed';'acc'};
 params.model_name = 'FullMinusPos';
 params.out_signals = {spikes};
 tdButter= getModel(tdButter, params);
 fullPR2minusPos = squeeze(evalModel(tdButter, params));
 
-params.in_signals= {'pos';'speed'};
+params.in_signals= {'pos';'speed';'acc'};
 params.model_name = 'FullMinusVel';
 params.out_signals = {spikes};
 tdButter= getModel(tdButter, params);
 fullPR2minusVel = squeeze(evalModel(tdButter, params));
 
-params.in_signals= {'pos';'vel';'speed'};
+params.in_signals= {'pos';'vel';'speed';'acc'};
 params.model_name = 'FullMinusForce';
 params.out_signals = {spikes};
 tdButter= getModel(tdButter, params);
 fullPR2minusForce = squeeze(evalModel(tdButter, params));
 
-params.in_signals= {'pos';'vel'};
+params.in_signals= {'pos';'vel';'acc'};
 params.model_name = 'FullMinusSpeed';
 params.out_signals = {spikes};
 tdButter= getModel(tdButter, params);
@@ -92,6 +94,12 @@ params.in_signals= {'speed', 'vel'};
 params.model_name = 'VelSpeed';
 tdButter= getModel(tdButter, params);
 velSpeedPR2 = squeeze(evalModel(tdButter, params));
+
+params.in_signals ={'acc';'pos'};
+params.model_name = 'Acc';
+tdButter= getModel(tdButter,params);
+accPR2 = squeeze(evalModel(tdButter, params));
+
 %%
 Full = squeeze(fullPR2(sortedFlag & cunFlag))';
 FullMinusPos = fullPR2minusPos(sortedFlag& cunFlag);
@@ -103,6 +111,7 @@ Pos = posPR2(sortedFlag& cunFlag)';
 % Force = forcePR2(sortedFlag& cunFlag)';
 Speed = speedPR2(sortedFlag& cunFlag)';
 VelSpeed = velSpeedPR2(sortedFlag& cunFlag)';
+Acc = accPR2(sortedFlag&cunFlag)';
 
 %% Compute the relative R2 between the combined speed velocity model and the model with just one or the other.
 % the removal which causes the model to suffer 
@@ -117,7 +126,7 @@ title([monkey, ' ', array, ' Relative R2 gained by adding other model parameter'
 % This plot shows that the Vel model gains more from the addition of speed
 % than the speed model does from the addition of velocity.
 %% Plotting R2s to inspect how they look
-butterR2table = table(Full, Pos, Vel, Speed, VelSpeed);
+butterR2table = table(Full, Pos, Vel, Speed, VelSpeed, Acc);
 
 figure
 scatter(butterR2table.Speed, butterR2table.Vel)
@@ -131,7 +140,7 @@ set(gca,'TickDir','out', 'box', 'off')
 
 %%
 figure
-subplot(5,1,1)
+subplot(6,1,1)
 histogram(Full,0:.05:1.0)
 meanFull = sum(Full)/length(Full);
 hold on
@@ -141,7 +150,7 @@ ylim([0,30])
 set(gca,'TickDir','out', 'box', 'off', 'xtick', [])
 scatter(meanFull, 20, '*r')
 
-subplot(5,1,2)
+subplot(6,1,2)
 histogram(Pos,0:.05:1.0)
 meanPos = mean(Pos);
 hold on
@@ -152,7 +161,7 @@ ylim([0,30])
 scatter(meanPos, 20, '*r')
 
 
-subplot(5,1,3)
+subplot(6,1,3)
 histogram(Vel,0:.05:1.0)
 meanVel = mean(Vel);
 hold on
@@ -162,7 +171,7 @@ xlim([0, 1])
 ylim([0,30])
 scatter(meanVel, 20, '*r')
 
-subplot(5,1,4)
+subplot(6,1,4)
 histogram(Speed,0:.05:1.0)
 meanSpeed = mean(Speed);
 hold on
@@ -172,7 +181,7 @@ xlim([0, 1])
 ylim([0,30])
 scatter(meanSpeed, 20, '*r')
 
-subplot(5,1,5)
+subplot(6,1,5)
 histogram(VelSpeed,0:.05:1.0)
 meanVelSpeed = mean(VelSpeed);
 hold on
@@ -184,6 +193,21 @@ ylabel('# of neurons')
 xlim([0, 1])
 ylim([0,30])
 scatter(meanVelSpeed, 20, '*r')
+
+
+subplot(6,1,6)
+histogram(Acc,0:.05:1.0)
+meanAcc = mean(Acc);
+hold on
+title('Accel')
+set(gca,'TickDir','out', 'box', 'off')
+suptitle('R2 of Encoding Models')
+xlabel('Pseudo R2')
+ylabel('# of neurons')
+xlim([0, 1])
+ylim([0,30])
+scatter(meanAcc, 20, '*r')
+
 
 %%
 % close all
