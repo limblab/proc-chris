@@ -1,12 +1,14 @@
 % load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat')
 % % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180329\TD\Butter_CO_20180329_4_TD_sorted-resort_resort.mat')
 % load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat');
-% % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180326\TD\Butter_CO_20180326_TD.mat');
+% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180326\TD\Butter_CO_20180326_TD.mat');
 % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_TD.mat')
 % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180326\TD\Butter_CO_20180326_1_TD__Conservative.mat')
 
 %%
-date = '20181211';
+clear all 
+close all
+date = '20181214';
 monkey = 'Butter';
 unitNames = 'cuneate';
 
@@ -29,6 +31,8 @@ param.train_new_model = true;
 param.windowAct= windowAct;
 param.windowPas =windowPas;
 param.date = td(1).date;
+% neuronsToInclude =  [2,4,60,98,172,12,19,23,25,27,29,91,175];
+% td20180607 = subsetNeurons(td20180607, struct('indices', neuronsToInclude));
 %%
 [processedTrialNew, neuronsNew] = compiledCOActPasAnalysis(td20180607, param);
 %%
@@ -37,8 +41,8 @@ param.array = 'cuneate';
 param.sinTuned= neuronsNew.sinTunedAct | neuronsNew.sinTunedPas;
 getCOActPasStats(td20180607, param);
 neuronsCO = [neuronsNew];
-neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
-saveNeurons(neuronsCO,param);
+neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingLog);
+saveNeurons(neuronsCO,'MappedNeurons');
 
 %% Compute the trial averaged speed of each direction
 params.tuningCondition = {'isCuneate','isSorted', 'isSpindle', 'sameDayMap'};

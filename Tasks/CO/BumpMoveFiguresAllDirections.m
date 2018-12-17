@@ -17,7 +17,7 @@ savePDF = true;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20181211';
+date = '20181213';
 monkey = 'Butter';
 unitNames = 'cuneate';
 

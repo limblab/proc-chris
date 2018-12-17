@@ -131,8 +131,13 @@ hold on
 plot(r2_glm_bumpWMove(:,1))
 plot(r2_glm_move(:,1))
 plot(r2_glm_moveWBump(:,1))
-legend('Bump to Bump', 'Move to Bump', 'Move to Move', ' Bump to Move')
+ylabel('R2 of velocity prediction')
+
+yyaxis right
+plot(11:length(sortedRelPR2),sortedRelPR2(11:end))
+ylim([-1, 1])
+ylabel('Cross prediction Pseudo R2 of neuron dropped') 
+legend('Bump to Bump', 'Move to Bump', 'Move to Move', ' Bump to Move', 'Cross encoding accuracy')
 title('Effect of dropping low generalizing units from Decoding')
 xlabel('# of neurons dropped')
-ylabel('R2 of velocity prediction')
 set(gca,'TickDir','out', 'box', 'off')

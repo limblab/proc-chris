@@ -1,6 +1,7 @@
-function saveNeurons(neurons,params)
+function saveNeurons(neurons,suffix)
+    if nargin ==1;suffix='';end
     path = getNeuronsPath(neurons);
-    fileName = getNeuronsFilename(neurons);
+    fileName = getNeuronsFilename(neurons, suffix);
     mkdir(path);
     save([path, fileName]);
     

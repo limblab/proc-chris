@@ -12,7 +12,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     savePlots = true;
     useModDepths = true;
     size1 = 18;
-    tuningCondition = {'sinTunedAct','isSorted'};
+    tuningCondition = {'sinTunedAct','sinTunedPas','isSorted'};
     fh1 = [];
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     if iscell(tuningCondition)
