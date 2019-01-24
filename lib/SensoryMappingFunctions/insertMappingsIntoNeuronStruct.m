@@ -10,11 +10,14 @@ function [neuronStruct1 ] = insertMappingsIntoNeuronStruct( neuronStruct, mappin
 %   it is from a identified muscle spindle. I also plug in the descriptions
 %   of the mappings into the structure
 neuronStruct1 =[];
+if ~isempty(mappingFile)
     for i = 1:height(neuronStruct)
         neuron = insertMappingIntoNeuron(neuronStruct(i,:), mappingFile);
         neuronStruct1 = [neuronStruct1;neuron];
     end
-
+else
+    neuronStruct1 = neuronStruct;
+    warning('No mappings input into the structure');
 
 end
 

@@ -5,7 +5,7 @@ close all
 yOffset = 32;
 td = removeBadTrials(td);
     for i = 1:1658
-        fh{i}= figure;
+        fh{i}= figure2();
         subplot(4,3,1:9)
         scatter(td(i).pos(1:td(i).idx_goCueTime), td(i).pos(1:td(i).idx_goCueTime),'r')
         hold on
@@ -19,8 +19,9 @@ td = removeBadTrials(td);
         ylim([-60,-10])
         xlim([-25, 25])
         subplot(4,3,10:12)
-        for i = 1:length(td(1).cuneate_unit_guide(1,:))
-            scatter([td(i).cuneate_ts{i}], i*ones(length(td(i).cuneate_ts{i})));
+        hold on
+        for j = 1:length(td(1).cuneate_unit_guide(:,1))
+            scatter([td(i).cuneate_ts{j}], j*ones(length(td(i).cuneate_ts{j}),1),4, 'k', '.');
         end
         pause
 %         axis equal

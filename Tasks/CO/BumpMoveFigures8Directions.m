@@ -17,9 +17,9 @@ savePDF = true;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20181214';
-monkey = 'Butter';
-unitNames = 'cuneate';
+date = '20170913';
+monkey = 'Chips';
+unitNames = 'LeftS1Area2';
 
 mappingLog = getSensoryMappings(monkey);
 
@@ -29,19 +29,25 @@ beforeMove = .3;
 afterMove = .3;
 
 td =getTD(monkey, date, 'CO');
+if td(1).bin_size ==.001
+    td = binTD(td, 10);
+end
 td = removeBadNeurons(td);
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
 savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
-mkdir([savePath, 'Cuneate']);
-mkdir([savePath, 'Gracile']);
+if contains(unitNames, 'cuneate')
+    mkdir([savePath, 'Cuneate']);
+    mkdir([savePath, 'Gracile']);
 
 
-elec2MapName = td(1).cuneate_naming;
-for i = 1:length(td(1).(unitSpikes)(1,:))
-    gracileFlag(i) = getGracile('Butter', elec2MapName(elec2MapName(:,1) == td(1).cuneate_unit_guide(i,1),2));
+    elec2MapName = td(1).cuneate_naming;
+    for i = 1:length(td(1).(unitSpikes)(1,:))
+        gracileFlag(i) = getGracile('Butter', elec2MapName(elec2MapName(:,1) == td(1).cuneate_unit_guide(i,1),2));
+    end
+else 
+    gracileFlag = zeros(length(td(1).(unitSpikes)(1,:)),1);
 end
-
 w = gausswin(5);
 w = w/sum(w);
 
@@ -64,6 +70,48 @@ for i = 1:length(dirsBump)
     tdBump{i}= td([td.bumpDir] == dirsBump(i));
 end
 
+%%
+
+    preMove = trimTD(td, {'idx_movement_on', -10}, {'idx_movement_on', 5});
+    postMove = trimTD(td, {'idx_movement_on', 0}, {'idx_movement_on',13});
+    preMoveFiring = cat(3, preMove.(unitSpikes)).*100;
+    
+    preMoveStat.meanCI(:,1) = squeeze(mean(mean(preMoveFiring, 3),1))';
+    preMoveStat.meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(preMoveFiring))')';
+
+    
+    for i = 1:length(dirsM)
+        postMoveDir{i} = postMove([postMove.target_direction] == dirsM(i));
+        postMoveFiring{i} = cat(3, postMoveDir{i}.(unitSpikes))*100;
+        postMoveStat(i).meanCI(:,1) = squeeze(mean(mean(postMoveFiring{i}, 3),1))';
+        postMoveStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postMoveFiring{i}))')';
+
+    end
+    
+    tdTemp = td(~isnan([td.bumpDir]));
+    dirsBump = unique([td.bumpDir]);
+    dirsBump = dirsBump(~isnan(dirsBump));
+    preBump = trimTD(tdTemp, {'idx_bumpTime', -10}, {'idx_bumpTime', 5});
+
+    postBump = trimTD(tdTemp, {'idx_bumpTime', 0}, {'idx_bumpTime', 13});
+    for i = 1:length(dirsBump)
+        postBumpDir{i}= postBump([postBump.bumpDir] == dirsBump(i));
+        postBumpFiring{i} = cat(3, postBumpDir{i}.(unitSpikes)).*100;
+        postBumpStat(i).meanCI(:,1) = squeeze(mean(mean(postBumpFiring{i}, 3),1))';
+        postBumpStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postBumpFiring{i}))')';
+
+    end
+    preBumpFiring = cat(3, preBump.(unitSpikes)).*100;
+    
+    preBumpStat.meanCI(:,1) = squeeze(mean(mean(preBumpFiring, 3),1))';
+    preBumpStat.meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(preBumpFiring))')';
+
+    t = cat(3, postMoveStat.meanCI);
+    bumpTot = cat(3, postBumpStat.meanCI);
+    moveTot = cat(3, postMoveStat.meanCI);
+    bumpPre = cat(2, preBumpStat.meanCI);
+    movePre = cat(2, preMoveStat.meanCI);
+    theta = linspace(0, 7*pi/4, length(dirsM));
 %% 
 maxSpeed = 60;
 
@@ -81,6 +129,15 @@ close all
 for num1 = numCount
     close all
     params.neuron = num1;
+    bumpX = sum(squeeze(cos(theta)'.*squeeze(bumpTot(num1,1,:)))');
+    bumpY = sum(squeeze(sin(theta)'.*squeeze(bumpTot(num1,1,:)))');
+
+    moveX = sum(squeeze(cos(theta)'.*squeeze(moveTot(num1,1,:)))');
+    moveY = sum(squeeze(sin(theta)'.*squeeze(moveTot(num1,1,:)))');
+    
+    angMove(num1) = atan2(moveY, moveX);
+    angBump(num1) = atan2(bumpY, bumpX);
+    
     title1 = [monkey, ' ', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
     maxFiring =0;
     for bumpMove = 1:2
@@ -93,6 +150,9 @@ for num1 = numCount
             params.neuron = num1;
             tdPlot = tdDir;
             dirs = dirsM;
+            
+           
+            
         elseif bumpMove == 2
             bump = figure2();
             before = beforeBump;
@@ -102,6 +162,8 @@ for num1 = numCount
             params.neuron = num1;
             tdPlot = tdBump;
             dirs = dirsBump;
+            
+           
         end
         for i = 1:length(dirs)
             switch dirs(i)
@@ -199,11 +261,46 @@ for num1 = numCount
             ylim([0, max(1,1.1*maxFiring)])
         end
         if bumpMove == 1
+            bumpHigh =squeeze(bumpTot(num1, 3, :));
+            bumpMean = squeeze(bumpTot(num1,1,:));
+            bumpLow = squeeze(bumpTot(num1,2,:));
+
+            moveHigh = squeeze(moveTot(num1,3,:));
+            moveMean = squeeze(moveTot(num1,1,:));
+            moveLow  = squeeze(moveTot(num1,2,:));
+
+            thetaPlot = [theta,theta(1)];
+            
+            subplot('Position',[.385,.365,.25,.25])
+
+            polarplot(thetaPlot, [moveHigh;moveHigh(1)], 'Color', [.4,.4,1], 'LineWidth', 2)
+            hold on
+            polarplot(thetaPlot, [moveMean;moveMean(1)], 'Color', [0,0,1], 'LineWidth', 2)
+            polarplot(thetaPlot, [moveLow; moveLow(1)], 'Color', [.4,.4,1], 'LineWidth', 2)
+
+            polarplot([angMove(num1), angMove(num1)], [0, max([bumpHigh])], 'Color', [0,0,1],'LineWidth',2);
+            set(gca,'TickDir','out', 'box', 'off')
+            set(gca,'thetatick',[],'rtick',[])
             suptitle([title1, ' Active'])
             if gracileFlag(num1)
             suptitle([title1, ' Active GRACILE'])
             end
         else
+            bumpHigh =squeeze(bumpTot(num1, 3, :));
+            bumpMean = squeeze(bumpTot(num1,1,:));
+            bumpLow = squeeze(bumpTot(num1,2,:));
+
+            thetaPlot = [theta,theta(1)];
+
+            subplot('Position',[.385,.365,.25,.25])
+            polarplot(thetaPlot, [bumpHigh; bumpHigh(1)], 'Color', [1,.4,.4], 'LineWidth', 2)
+            hold on 
+            polarplot(thetaPlot, [bumpMean;bumpMean(1)], 'Color', [1,0,0], 'LineWidth', 2)
+            polarplot(thetaPlot, [bumpLow;bumpLow(1)], 'Color', [1,.4,.4], 'LineWidth', 2)
+
+            polarplot([angBump(num1), angBump(num1)], [0, max([moveHigh])],'Color', [1,0,0], 'LineWidth', 2);
+            set(gca,'TickDir','out', 'box', 'off')
+            set(gca,'thetatick',[],'rtick',[])
             suptitle([title1, 'passive'])
             if gracileFlag(num1)
             suptitle([title1, ' Passive GRACILE'])
@@ -221,11 +318,11 @@ for num1 = numCount
                 saveas(move,[savePath,'Gracile', filesep, strrep(title1, ' ', '_'), '_Move_', num2str(date), 'GRACILE.png'])
             else
                 set(bump, 'Renderer', 'Painters');
-                save2pdf([savePath, 'Cuneate',filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), '.pdf'],bump)
+                save2pdf([savePath, unitNames,filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), '.pdf'],bump)
                 set(move, 'Renderer', 'Painters');
-                save2pdf([savePath,'Cuneate', filesep,strrep(title1, ' ', '_'), '_Move_', num2str(date), '.pdf'],move)
-                saveas(bump,[savePath, 'Cuneate',filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), '.png'])
-                saveas(move,[savePath, 'Cuneate',filesep, strrep(title1, ' ', '_'), '_Move_', num2str(date), '.png'])
+                save2pdf([savePath,unitNames, filesep,strrep(title1, ' ', '_'), '_Move_', num2str(date), '.pdf'],move)
+                saveas(bump,[savePath, unitNames,filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), '.png'])
+                saveas(move,[savePath, unitNames,filesep, strrep(title1, ' ', '_'), '_Move_', num2str(date), '.png'])
             end
 
     end

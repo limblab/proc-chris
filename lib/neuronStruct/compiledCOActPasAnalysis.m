@@ -105,7 +105,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 
     includeSpeedTerm = false;
     cutoff = pi/4; %cutoff for significant of sinusoidal tuning
-    arrays= {'LeftS1'}; %default arrays to look for
+    arrays= {'cuneate'}; %default arrays to look for
     windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
     windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
     distribution = 'poisson'; %what distribution to use in the GLM models
@@ -114,7 +114,6 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     monkey  = td(1).monkey;
     %% Assign params
     if nargin > 1, assignParams(who,params); end % overwrite parameters
-    td = smoothSignals(td,struct('signals', 'cuneate_spikes'));
     tdAct = td(strcmp({td.result},'R'));
     tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
     tdBump = td(~isnan([td.bumpDir])); 
@@ -173,7 +172,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         end
 %         save('tablePDs', 'tablePDsPas', 'tablePDsAct')
         params.sinTuned = sinTunedAct | sinTunedPas;
-        [fh, outStruct] = getCOActPasStats(td, params);
+        [fh, outStruct] = getCOActPasStatsArbDir(td, params);
 %         
         processedTrial(i).array = params.array;
         processedTrial(i).date= params.date;

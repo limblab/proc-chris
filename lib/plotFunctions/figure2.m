@@ -12,7 +12,7 @@ else                 % Multiple monitors
     paramVisible = get(0, 'DefaultFigureVisible');
   end
   %
-  Shift    = MP(3, 1:2);
+  Shift    = MP(2, 1:2);
   FigH     = figure(varargin{:}, 'Visible', 'off');
   set(FigH, 'Units', 'pixels');
   pos      = get(FigH, 'Position');

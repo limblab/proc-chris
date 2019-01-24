@@ -17,9 +17,9 @@ savePDF = true;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20181213';
-monkey = 'Butter';
-unitNames = 'cuneate';
+date = '20170913';
+monkey = 'Chips';
+unitNames = 'S1';
 
 mappingLog = getSensoryMappings(monkey);
 

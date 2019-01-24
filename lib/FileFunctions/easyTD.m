@@ -17,7 +17,7 @@ function td = easyTD(path, monkey, task, date)
         td = getMoveOnsetAndPeak(td, params);
     elseif strcmp(getGenericTask(task), 'RW')
         td = parseFileByTrial(cds, params);
-        td = getRWMovements(td, params);
+%         td = getRWMovements(td, params);
         params.min_ds = 1.9;
         params.s_thresh = 10;
         td = getMoveOnsetAndPeak(td,params);
@@ -32,6 +32,14 @@ function td = easyTD(path, monkey, task, date)
         idxkeep = cat(1,trial_data.spaceNum) == 1 | cat(1,trial_data.spaceNum) == 2;
         td = trial_data(idxkeep);
         td = parseFileByTrial(cds, params);
+    elseif strcmp(getGenericTask(task), 'OOR')
+        params.event_list = {'startTargOnTime';'startTargHold';'goCueTime';'endTargHoldTime';'tgtDir';'forceDir'};
+
+        td_meta = struct('task',task);
+        params.meta = td_meta;
+        td = parseFileByTrial(cds, params);
+        td = getMoveOnsetAndPeak(td,params);
+
         
     end
     save([getBasePath(), getGenericTask(task), filesep, monkey, filesep, date, filesep, 'TD', filesep, monkey, '_', task, '_', date, '_TD.mat'], 'td');

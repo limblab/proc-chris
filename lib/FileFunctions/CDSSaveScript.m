@@ -18,13 +18,14 @@
 % correct folders with the correct names:
 % The filename of the .nev should be monkey_date_task_array_number
 %% All of the loading variables
-
-date = '20181214';
-task = 'CO';
+clear all
+close all
+date = '20190117';
+task = 'OOR';
 monkey = 'Butter';
 array = 'cuneate';
 
-number = 1;
+number = 3;
 
 sorted = true;
 % suffix = 'resort';
@@ -107,5 +108,5 @@ save(cdsPath, 'cds', '-v7.3');
 %%
 td = easyTD(cdsPath, monkey, task, date);
 tdPath = getTDSavePath(monkey, date, getGenericTask(task));
-save([tdPath,monkey, '_', task, '_', date,'_',num2str(number), '_TD_.mat'], 'td');
+save([tdPath,monkey, '_', task, '_', date,'_TD_',sprintf('%03d',number),'.mat'], 'td','-v7.3');
 disp('Done creating cds and saving TD');

@@ -60,7 +60,7 @@ function [ cds ] = easyCDS( monkey, task, date,  arrays, numbers, areSorted)
             cds.file2cds([rawPath,nevName],labCDS,arrayCDS,monkeyCDS,taskCDS,ranBy,mapPath,'ignoreJumps')
         end
     else
-        error('Doesnt make a cds')
+        error('Does not make a cds')
     end
 
 end

@@ -148,7 +148,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     params.start_idx =  'idx_goCueTime';
     params.end_idx = 'idx_endTime';
     td = getMoveOnsetAndPeak(td, params);
-
+    
     bumpTrials = td(~isnan([td.bumpDir])); 
     upMove = td([td.target_direction] == pi/2 & isnan([td.bumpDir]));
     leftMove = td([td.target_direction] ==pi& isnan([td.bumpDir]));

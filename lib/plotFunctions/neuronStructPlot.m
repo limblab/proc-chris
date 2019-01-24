@@ -4,6 +4,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     array = neuronStruct.array{1};
     monkey = neuronStruct.monkey{1};
     date = neuronStruct.date{1};
+    task = neuronStruct.task{1};
     plotModDepth = true;
     plotActVsPasPD = true;
     plotAvgFiring = true;
@@ -33,13 +34,12 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
    else 
        neuronStruct = neuronStruct(find(strcmp(date, [neuronStruct.date])),:);
    end
-    
     cuneateNeurons = neuronStruct(~strcmp('LeftS1',[neuronStruct.array]) & ~strcmp('area2',[neuronStruct.array]),:);
-    s1Neurons = neuronStruct(strcmp('LeftS1',[neuronStruct.array]) | strcmp('area2',[neuronStruct.array]),:);
+    s1Neurons = neuronStruct(strcmp('LeftS1',[neuronStruct.array]) |strcmp('LeftS1Area2', [neuronStruct.array]) | strcmp('area2',[neuronStruct.array]),:);
     
     if strcmp(array, 'cuneate') | strcmp(array, 'RightCuneate')
         neurons = cuneateNeurons;
-    elseif strcmp(array, 'area2') | strcmp(array,'LeftS1')
+    elseif strcmp(array, 'area2') | strcmp(array,'LeftS1') | strcmp(array, 'LeftS1Area2')
         neurons = s1Neurons;
     elseif strcmp(array, 'all')
         neurons = [cuneateNeurons; s1Neurons];
@@ -149,22 +149,24 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     end
     
     if (savePlots)
+        savePath = [getBasicPath(monkey, dateToLabDate(date), getGenericTask(task)), 'plotting', filesep ,'neuronStructPlots',filesep];
+        mkdir(savePath)
         title1 = string([monkey, '_',array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
         if plotPDDists
-            saveas(fh5, char(strjoin(string([title1, 'PDDistributionsActive.pdf']), '')));
-            saveas(fh6, char(strjoin(string([title1, 'PDDistributionsPassive.pdf']), '')));
+            saveas(fh5, [savePath,char(strjoin(string([title1, 'PDDistributionsActive.pdf']), ''))]);
+            saveas(fh6, [savePath,char(strjoin(string([title1, 'PDDistributionsPassive.pdf']), ''))]);
         end
         if plotAngleDif 
-            saveas(fh4, char(strjoin(string([title1, 'DiffPDAngs.png']),'')))
+            saveas(fh4, [savePath,char(strjoin(string([title1, 'DiffPDAngs.png']),''))])
         end
         if plotAvgFiring
-            saveas(fh3, char(strjoin(string([title1, 'DCAvgFiring.png']),'')))
+            saveas(fh3, [savePath,char(strjoin(string([title1, 'DCAvgFiring.png']),''))])
         end
         if plotActVsPasPD
-            saveas(fh2, char(strjoin(string([title1, 'ActVsPasPD.pdf']),'')));
+            saveas(fh2, [savePath,char(strjoin(string([title1, 'ActVsPasPD.pdf']),''))]);
         end
         if plotModDepth
-            saveas(fh1, char(strjoin(string([title1, 'ActPasModDepth.png']),'')));
+            saveas(fh1, [savePath,char(strjoin(string([title1, 'ActPasModDepth.png']),''))]);
         end
     end
 end

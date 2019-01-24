@@ -28,9 +28,9 @@ savepath =[getBasicPath(monkey1, dateToLabDate(date1), 'CO'), 'plotting/'];
 
 f3 = figure;
 angBumpTunedTemp= [angBump{tuned}];
-angBumpTuned = [angBumpTunedTemp.mean];
+angBumpTuned = [angBumpTunedTemp];
 angMoveTunedTemp = [angMove{tuned}];
-angMoveTuned = [angMoveTunedTemp.mean];
+angMoveTuned = [angMoveTunedTemp];
 scatter(rad2deg(angBumpTuned), rad2deg(angMoveTuned))
 hold on
 plot([-180, 180], [-180, 180])

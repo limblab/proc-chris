@@ -5,8 +5,8 @@ function fn =  getNeuronsFilename(neurons, suffix)
     task = neurons.task{1};
     if strcmp(task(1:2), 'CO')
         window = {neurons.actWindow{1}{:,1},neurons.pasWindow{1}{:,1}}; 
-        fn = [strjoin({monkey, date, task, array,  strjoin(window, '_')}, '_'), '_NeuronStruct_', suffix, '.mat'];
+        fn = [strjoin({monkey, date, task, array, strjoin(window, '_')}, '_'), '_NeuronStruct_', suffix, '.mat'];
     else
-        fn = [strjoin({monkey, date, task,array }, '_'), '_NeuronStruct.mat'];
+        fn = [strjoin({monkey, date, task, array}, '_'), '_NeuronStruct_', suffix,'.mat'];
     end
 end

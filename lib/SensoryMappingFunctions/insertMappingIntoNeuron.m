@@ -3,8 +3,14 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
 %   Detailed explanation goes here
     date= neuron.date;
     monkey = neuron.monkey;
-    elec = neuron.chan;
-    unit = neuron.unitNum;
+    if isfield(neuron, 'chan')
+        elec = neuron.chan;
+        unit = neuron.unitNum;
+    else
+        elec = neuron.signalID(1,1);
+        unit = neuron.signalID(1,2);
+    end
+    
     mapName = neuron.mapName;
     neuron.isCuneate = ~getGracile(monkey, mapName);
     neuron.isGracile =  getGracile(monkey, mapName);
