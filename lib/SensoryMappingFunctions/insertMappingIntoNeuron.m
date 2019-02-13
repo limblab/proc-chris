@@ -3,7 +3,8 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
 %   Detailed explanation goes here
     date= neuron.date;
     monkey = neuron.monkey;
-    if isfield(neuron, 'chan')
+    isTableCol = @(t, thisCol) ismember(thisCol, t.Properties.VariableNames);
+    if isTableCol(neuron, 'chan')
         elec = neuron.chan;
         unit = neuron.unitNum;
     else

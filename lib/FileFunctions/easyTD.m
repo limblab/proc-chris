@@ -10,17 +10,20 @@ function td = easyTD(path, monkey, task, date)
     params.trial_results = {'R', 'A'};
     if strcmp(getGenericTask(task), 'CO')
         params.event_list = {'bumpTime'; 'bumpDir'};
-        params.min_ds = 1.9;
-        params.s_thresh = 10;
+        params.min_ds = 2.5;
+        params.s_thresh = 20;
         td= parseFileByTrial(cds,params);
         td = td(~isnan([td.idx_goCueTime]));
+%         if td(1).bin_size == .001
+%             td = binTD(td, 10);
+%         end
         td = getMoveOnsetAndPeak(td, params);
     elseif strcmp(getGenericTask(task), 'RW')
         td = parseFileByTrial(cds, params);
 %         td = getRWMovements(td, params);
         params.min_ds = 1.9;
         params.s_thresh = 10;
-        td = getMoveOnsetAndPeak(td,params);
+%         td = getMoveOnsetAndPeak(td,params);
     elseif strcmp(getGenericTask(task),'TRT')
         params.array_alias = {'LeftS1Area2','S1';'RightCuneate','CN'};
         params.event_list = {'bumpTime';'bumpDir';'ctHoldTime';'otHoldTime';'spaceNum';'targetStartTime'};

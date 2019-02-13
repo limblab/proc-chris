@@ -166,6 +166,8 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     tdBump = td(~isnan([td.bumpDir]));
     dirsBump = unique([td.bumpDir]);
     dirsBump = dirsBump(~isnan(dirsBump));
+    
+    dirsBump = dirsBump(abs(dirsBump)<361);
     preBump = trimTD(tdBump, {'idx_bumpTime', -10}, {'idx_bumpTime', 5});
 
     postBump = trimTD(tdBump, {'idx_bumpTime', beforeBump}, {'idx_bumpTime', afterBump});

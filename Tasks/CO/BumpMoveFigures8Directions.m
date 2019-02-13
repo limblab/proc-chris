@@ -1,25 +1,17 @@
 % clear all
 close all
 clear all
-% clearvars -except cds
-% load('Lando3202017COactpasCDS.mat')
 plotRasters = 1;
 savePlots = 1;
 savePDF = true;
-% params.event_list = {'bumpTime'; 'bumpDir'};
-% params.extra_time = [.4,.6];
-% params.include_ts = true;
-% params.include_start = true;
-% params.include_naming = true;
-% td = parseFileByTrial(cds, params);
-% td = td(~isnan([td.target_direction]));
-% params.start_idx =  'idx_goCueTime';
-% params.end_idx = 'idx_endTime';
-% td = getMoveOnsetAndPeak(td, params);
+% 
+% date = '20190129';
+% monkey = 'Butter';
+% unitNames = 'cuneate';
 
-date = '20170913';
-monkey = 'Chips';
-unitNames = 'LeftS1Area2';
+date = '20171116';
+monkey = 'Han';
+unitNames= 'S1';
 
 mappingLog = getSensoryMappings(monkey);
 
@@ -29,6 +21,15 @@ beforeMove = .3;
 afterMove = .3;
 
 td =getTD(monkey, date, 'CO');
+target_direction = 'target_direction';
+if length(td) == 1
+    disp('Splitting')
+    td = splitTD(td, struct('split_idx_name', 'idx_startTime', 'linked_fields', {{'bumpDir', 'ctrHold', 'ctrHoldBump', 'result', 'tgtDir', 'trialID'}} ));
+    target_direction = 'tgtDir';
+    td = getMoveOnsetAndPeak(td);
+    td = removeBadTrials(td);
+end
+
 if td(1).bin_size ==.001
     td = binTD(td, 10);
 end
@@ -55,16 +56,18 @@ w = w/sum(w);
 numCount = 1:length(td(1).(unitSpikes)(1,:));
 %% Data Preparation and sorting out trials
 
-dirsM = unique([td.target_direction]);
+dirsM = unique([td.(target_direction)]);
 dirsM = dirsM(~isnan(dirsM));
 
 
 for i = 1:length(dirsM)
-    tdDir{i} = td([td.target_direction] == dirsM(i));
+    tdDir{i} = td([td.(target_direction)] == dirsM(i));
 end
 bumpTrials = td(~isnan([td.bumpDir])); 
 dirsBump = unique([td.bumpDir]);
+dirsBump = dirsBump(abs(dirsBump)<361);
 dirsBump = dirsBump(~isnan(dirsBump));
+
 
 for i = 1:length(dirsBump)
     tdBump{i}= td([td.bumpDir] == dirsBump(i));
@@ -81,7 +84,7 @@ end
 
     
     for i = 1:length(dirsM)
-        postMoveDir{i} = postMove([postMove.target_direction] == dirsM(i));
+        postMoveDir{i} = postMove([postMove.(target_direction)] == dirsM(i));
         postMoveFiring{i} = cat(3, postMoveDir{i}.(unitSpikes))*100;
         postMoveStat(i).meanCI(:,1) = squeeze(mean(mean(postMoveFiring{i}, 3),1))';
         postMoveStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postMoveFiring{i}))')';
@@ -89,8 +92,6 @@ end
     end
     
     tdTemp = td(~isnan([td.bumpDir]));
-    dirsBump = unique([td.bumpDir]);
-    dirsBump = dirsBump(~isnan(dirsBump));
     preBump = trimTD(tdTemp, {'idx_bumpTime', -10}, {'idx_bumpTime', 5});
 
     postBump = trimTD(tdTemp, {'idx_bumpTime', 0}, {'idx_bumpTime', 13});

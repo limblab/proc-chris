@@ -5,7 +5,7 @@ function [tuningVecAct, tuningVecPas] = checkIsTuned(neurons, cutoff)
     tuningVecPas = zeros(height(neurons), 1);
     for i = 1:height(neurons)
         pd = neurons(i,:).PD;
-%         tuningVecAct(i) = logical(isTuned(pd.velPD, pd.velPDCI, cutoff));
+        tuningVecAct(i) = logical(isTuned(pd.velPD, pd.velPDCI, cutoff));
 %         pdPas = neurons(i,:).pasPD;
 %         tuningVecPas(i) = logical(isTuned(pdPas.velPD, pdPas.velPDCI, cutoff));
     end

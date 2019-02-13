@@ -1,0 +1,21 @@
+renamefields: Rename some field names in a struct
+
+Changes struct field names from cell array list of old names to 
+  names in list of new names. Optional fourth argument suppresses 
+  error message if struct does not contain an old name.
+
+
+Examples
+struct2=renamefields(struct1,{list old names},{list new names})
+Changes the names given in "list old names" to those given
+  in "list new names"
+
+struct2=renamefields(struct1,{list old names},{list new names},true)
+Changes those names from old names, if present in struct1 to names
+  from new names
+
+Can also swap names e.g.
+struct2=renamefields(struct('a',1,'b',2,'c',3),{'a','b'},{'b','a'})
+
+See doc renamefields
+

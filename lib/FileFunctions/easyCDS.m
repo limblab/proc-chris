@@ -39,8 +39,11 @@ function [ cds ] = easyCDS( monkey, task, date,  arrays, numbers, areSorted)
         labCDS = 6;
         %% Get the cds
         cds = commonDataStructure();
-        cds.file2cds([rawPath,nevName],labCDS,arrayCDS,monkeyCDS,taskCDS,ranBy,mapPath,'ignoreJumps')
-    
+        if ~strcmp(taskCDS, 'taskUnknown')
+            cds.file2cds([rawPath,nevName],labCDS,arrayCDS,monkeyCDS,taskCDS,ranBy,mapPath,'ignoreJumps')
+        else
+            cds.file2cds([rawPath,nevName],labCDS,arrayCDS,monkeyCDS,taskCDS,ranBy,mapPath,'ignoreJumps', 'unsanitizedTimes')
+        end
     elseif iscell(arrays) % if you have more than one array
         %% Preprocessing
         rawPath = getRawPath(monkey, date, getGenericTask(task));

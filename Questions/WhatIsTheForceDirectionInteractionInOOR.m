@@ -2,16 +2,23 @@
 close all
 clear all
 
-plotTrajectories = false;
-plotForceReach = false;
+plotTrajectories = true;
+plotForceReach = true;
 
-monkey = 'Butter';
-date = '20190117';
+monkey = 'Han';
+date = '20170203';
 mappingLog = getSensoryMappings(monkey);
-td1 =getTD(monkey, date, 'OOR',1);
-td3 = getTD(monkey, date, 'OOR',3);
-td = [td1, td3];
+if strcmp(monkey, 'Butter')
+    td1 =getTD(monkey, date, 'OOR',1);
+    td3 = getTD(monkey, date, 'OOR',3);
+    td = [td1, td3];
+    
+    td = removeGracileTD(td);
+else
+    td = getTD(monkey, date, 'OOR');
+    td = splitTD(td, struct('split_idx_name', 'idx_startTime', 'linked_fields', {{'trialID','result', 'tgtDir', 'forceDir', 'idx_startTargHoldTime', 'idx_goCueTime', 'idx_endTime', 'idx_endTargHoldTime'}}));
 
+end
 td(mod([td.tgtDir], 45)~=0) = [];
 array = getTDfields(td, 'arrays');
 array_spikes = [array{1}, '_spikes'];
@@ -24,9 +31,12 @@ mkdir(savePath);
 %% Preprocess the TD
 td = removeBadTrials(td);
 td = removeBadNeurons(td);
-td = removeGracileTD(td);
-td = smoothSignals(td, struct('signals', 'cuneate_spikes'));
+td = smoothSignals(td, struct('signals', array_spikes));
+td = smoothSignals(td, struct('signals', 'force'));
 td = binTD(td, 5);
+if ~isfield(td(1), 'idx_movement_on')
+    td = getMoveOnsetAndPeak(td, struct('start_idx', 'idx_goCueTime', 'end_idx', 'idx_endTime'));
+end
 for i = 1:length(td)
     if td(i).forceDir == 360
         td(i).forceDir = 0;
@@ -49,6 +59,7 @@ for i = 1:length(dirsAct)
        meanFiring(:,i,j) = mean(cell2mat(cellfun(@mean, {tdReachForce{i,j}.(array_spikes)}, 'UniformOutput', false)'))./tdReach(1).bin_size;
    end
 end
+
 %%
 close all
 if plotTrajectories
@@ -65,9 +76,18 @@ for i = 1:length(dirsAct)
        end
    end
 end
+figure2();
+hold on
+for i =1:length(dirsForce)
+    for j = 1:length(dirsAct)
+        trials = tdReachForce{j,i};
+        force = cat(1, trials.force);
+        scatter(force(:,1), force(:,2),36,colors(i, :),  'filled') 
+    end
+end
+legend('0', '45', '90', '135', '180', '225', '270', '315')
 end
 %%
-[fr,thv,thf]= obs_window_pds(tdReach);
 %%
 savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'ForceReachPlots',filesep];
 mkdir(savePath);
@@ -94,7 +114,7 @@ end
 pdVel = getTDPDs(tdReach, struct('out_signals', array_spikes,'in_signals', 'vel','out_signal_names',tdReach(1).(array_unit_guide), 'num_boots', 1000));
 pdForce = getTDPDs(tdReach, struct('out_signals', array_spikes, 'in_signals','force','out_signal_names',tdReach(1).(array_unit_guide), 'num_boots', 1000));
 %%
-mapping = tdReach(1).cuneate_naming;
+% mapping = tdReach(1).cuneate_naming;
 for j = 1:num_units
     pdVel.chan(j,1) = pdVel.signalID(j,1);
     pdForce.chan(j,1) = pdForce.signalID(j,1);
@@ -113,7 +133,6 @@ neuronStructForce= makeNeuronStructFromPDTable(forceNeurons, 'cuneate');
 neuronStruct = innerjoin(neuronStructVel, neuronStructForce);
 saveNeurons(neuronStruct, 'ForcePDs')
 %%
-neuronStruct = neurons;
 figure2();
 histogram(neuronStruct.velPD, 15)
 hold on 
@@ -140,7 +159,7 @@ saveas(gca, [savePath, 'MappedSpindleForceVelPDs.png'])
 figure2();
 histogram(angleDiff(neuronStruct.velPD(logical(neuronStruct.sameDayMap) & neuronStruct.isSpindle),neuronStruct.forcePD(logical(neuronStruct.sameDayMap) & neuronStruct.isSpindle), true, false), 10)
 title('Difference between force and vel PDs of Mapped Spindles')
-xlabel('Preferred Direction (rads)')
+xlabel('Change in Preferred Direction (rads)')
 ylabel('# of tuned units')
 set(gca,'TickDir','out', 'box', 'off')
 saveas(gca, [savePath, 'MappedSpindleForceVelPDDiff.png'])
@@ -215,5 +234,6 @@ for unit = 1:num_units
         set(gca,'TickDir','out', 'box', 'off')
 
     end
+    suptitle(['Average Firing: ForceDir/ReachDir E', num2str(guide(unit,1)), 'U', num2str(guide(unit,2))]);
     pause
 end

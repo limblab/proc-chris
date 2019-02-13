@@ -14,7 +14,7 @@ params.doCuneate = true;
 
 mappingLog = getSensoryMappings(monkey);
 tdButter =getTD(monkey, date, task);
-getGracile
+% getGracile
 % tdButter = smoothSignals(tdButter, struct('signals', 'cuneate_spikes'));
 
 %% Preprocess them (binning, trimming etc)
@@ -23,7 +23,8 @@ tdButter= removeBadNeurons(tdButter, param);
 tdButter = tdButter(getTDidx(tdButter, 'result','R'));   
 % tdButter = getRWMovements(tdButter);
 
-tdButter = getSpeed(tdButter);
+tdButter = getNorm(tdButter,struct('signals','vel','norm_name','speed'));
+
 % tdButter= removeBadTrials(tdButter);
 tdButter = trimTD(tdButter, 'idx_movement_on', 'idx_endTime');
 tdButter= binTD(tdButter, 5);
@@ -33,6 +34,7 @@ tdButter([tdButter.idx_endTime] ==1) = [];
 butterNaming = tdButter.([array, '_unit_guide']);
 sortedFlag = butterNaming(:,2) ~= 0;
 [tdButter, cunFlag] = getTDCuneate(tdButter, params);
+tdButter = rectifyTDSignal(tdButter, struct('signals_to_rectify', {{'acc'}}));
 %% Compute the full models, and the pieces of the models
 spikes = [array, '_spikes'];
 params.model_type = 'glm';
@@ -95,7 +97,7 @@ params.model_name = 'VelSpeed';
 tdButter= getModel(tdButter, params);
 velSpeedPR2 = squeeze(evalModel(tdButter, params));
 
-params.in_signals ={'acc';'pos'};
+params.in_signals ={'acc'};
 params.model_name = 'Acc';
 tdButter= getModel(tdButter,params);
 accPR2 = squeeze(evalModel(tdButter, params));

@@ -8,9 +8,9 @@
 %%
 clear all 
 close all
-date = '20170913';
-monkey = 'Chips';
-unitNames = 'LeftS1Area2';
+date = '20190129';
+monkey = 'Butter';
+unitNames = 'cuneate';
 
 mappingLog = getSensoryMappings(monkey);
 
@@ -19,11 +19,11 @@ afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
 
-td =getTD(monkey, date, 'CO');
+td =getTD(monkey, date, 'CO',2);
 
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
-param.arrays = {'LeftS1Area2'};
+param.arrays = {'cuneate'};
 param.in_signals = {'vel'};
 param.train_new_model = true;
 
@@ -39,7 +39,7 @@ end
 [processedTrialNew, neuronsNew] = compiledCOActPasAnalysis(td, param);
 %%
 %% Load the sensory mapping files, upload into the neuron structure
-param.array = 'LeftS1Area2';
+param.array = 'cuneate';
 param.sinTuned= neuronsNew.sinTunedAct | neuronsNew.sinTunedPas;
 getCOActPasStatsArbDir(td, param);
 neuronsCO = [neuronsNew];
@@ -47,7 +47,7 @@ neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingLog);
 saveNeurons(neuronsCO,'MappedNeurons');
 
 %% Compute the trial averaged speed of each direction
-params.tuningCondition = {'isSorted'};
+params.tuningCondition = {'isSorted', 'sinTunedAct', 'sinTunedPas'};
 neuronStructPlot(neuronsCO, params);
 %%
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active

@@ -3,10 +3,11 @@ function [td] = removeGracileTD(td,params)
 %   Detailed explanation goes here
     % now remove the bad cells
     array = 'cuneate';
-    
+    removeUnsorted= true;
     if nargin > 1, assignParams(who,params); end % overwrite defaults
     [~, bad_units] = getTDCuneate(td);
     bad_units = ~bad_units;
+    bad_units = bad_units | td(1).([array, '_unit_guide'])(:,2) == 0;
     if sum(bad_units) > 0
         for trial = 1:length(td)
             temp = td(trial).([array '_spikes']);

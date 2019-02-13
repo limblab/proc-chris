@@ -1,6 +1,6 @@
 clear all
 monkey = 'Butter';
-date = '20181218';
+date = '20190129';
 actWindow = {{'idx_movement_on', -5}, {'idx_movement_on', 13}};
 pasWindow = {{'idx_bumpTime', -5}, {'idx_bumpTime', 13}};
 preWindow = {{'idx_goCueTime',-5}, {'idx_goCueTime',0}};

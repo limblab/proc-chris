@@ -17,6 +17,8 @@ function [ cdsTask ] = getGenericTask( inTask )
 %         cdsTask = 'Vibration';
     elseif strcmp(inTask(1:3), 'TRT')
         cdsTask = 'TRT';
+    elseif strcmp(inTask, 'SensoryMappings')
+        cdsTask = 'Unknown';
     else
         cdsTask = 'Unknown';
     end

@@ -71,9 +71,9 @@ function [processedTrial, neuronProcessed1] = compiledRWAnalysis(td, params)
     %% Assign params
     if nargin > 1, assignParams(who,params); end % overwrite parameters
 %% td preprocessing
-    if(~isfield(td(1), 'idx_movement_on'))
-        td = getMoveOnsetAndPeak(td);
-    end
+%     if(~isfield(td(1), 'idx_movement_on'))
+%         td = getMoveOnsetAndPeak(td);
+%     end
     if(td(1).bin_size == .01)
         tdBin = binTD(td,5);
     else
