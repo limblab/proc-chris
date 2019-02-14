@@ -10,7 +10,7 @@
 %
 %   number: the file # of the array 001, 002 etc.
 %
-%   date : in string format
+%   date : in string format (yyyyMMdd)
 %
 % This function will save a cds with the appropriate name on the correct
 % folder in your filepath
@@ -20,12 +20,12 @@
 %% All of the loading variables
 clear all
 close all
-date = '20190212';
+date = '20190213';
 task = 'CO';
 monkey = 'Crackle';
 array = 'cuneate';
 
-number = 2;
+number = 1;
 
 sorted = true;
 % suffix = 'resort';

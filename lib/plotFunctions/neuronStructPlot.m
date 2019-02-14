@@ -163,7 +163,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
             saveas(fh3, [savePath,char(strjoin(string([title1, 'DCAvgFiring.png']),''))])
         end
         if plotActVsPasPD
-            saveas(fh2, [savePath,char(strjoin(string([title1, 'ActVsPasPD.pdf']),''))]);
+            saveas(fh2, [savePath,char(strjoin(string([title1, 'ActVsPasPD.png']),''))]);
         end
         if plotModDepth
             saveas(fh1, [savePath,char(strjoin(string([title1, 'ActPasModDepth.png']),''))]);

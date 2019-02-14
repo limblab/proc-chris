@@ -9,9 +9,9 @@ savePDF = true;
 % monkey = 'Butter';
 % unitNames = 'cuneate';
 
-date = '20171116';
-monkey = 'Han';
-unitNames= 'S1';
+date = '20190213';
+monkey = 'Crackle';
+unitNames= 'cuneate';
 
 mappingLog = getSensoryMappings(monkey);
 
@@ -33,6 +33,7 @@ end
 if td(1).bin_size ==.001
     td = binTD(td, 10);
 end
+td = td(~isnan([td.idx_movement_on]));
 td = removeBadNeurons(td);
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
@@ -44,7 +45,7 @@ if contains(unitNames, 'cuneate')
 
     elec2MapName = td(1).cuneate_naming;
     for i = 1:length(td(1).(unitSpikes)(1,:))
-        gracileFlag(i) = getGracile('Butter', elec2MapName(elec2MapName(:,1) == td(1).cuneate_unit_guide(i,1),2));
+        gracileFlag(i) = getGracile(monkey, elec2MapName(elec2MapName(:,1) == td(1).cuneate_unit_guide(i,1),2));
     end
 else 
     gracileFlag = zeros(length(td(1).(unitSpikes)(1,:)),1);
@@ -75,7 +76,7 @@ end
 
 %%
 
-    preMove = trimTD(td, {'idx_movement_on', -10}, {'idx_movement_on', 5});
+    preMove = trimTD(td, {'idx_movement_on', -10}, {'idx_movement_on', -5});
     postMove = trimTD(td, {'idx_movement_on', 0}, {'idx_movement_on',13});
     preMoveFiring = cat(3, preMove.(unitSpikes)).*100;
     

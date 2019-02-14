@@ -17,20 +17,28 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
     neuron.isGracile =  getGracile(monkey, mapName);
     closestMap = getClosestMap(neuron, mappingFile);
     if ~ischar(closestMap)
-        daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'yyyyMMdd'), datetime(date, 'InputFormat', 'MM-dd-yyyy'));
+        daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'MM/dd/yyyy'), datetime(date, 'InputFormat', 'MM-dd-yyyy'));
         if daysDiff < Inf
             neuron.sameDayMap = daysDiff == 0;
             neuron.daysDiff = daysDiff;
             neuron.isProprioceptive = strcmp(closestMap.pc, 'p');
             neuron.isSpindle = closestMap.spindle;
-            neuron.desc = closestMap.desc;
+            neuron.desc = {closestMap.desc};
+            neuron.proximal = closestMap.proximal;
+            neuron.midArm = closestMap.midArm;
+            neuron.distal = closestMap.distal;
+            neuron.handUnit = closestMap.handUnit;
         end
     else
         neuron.sameDayMap = false;
         neuron.daysDiff = Inf;
         neuron.isProprioceptive = false;
         neuron.isSpindle = false;
-        neuron.desc = 'Not Mapped';
+        neuron.proximal = false;
+        neuron.midArm = false;
+        neuron.distal = false;
+        neuron.handUnit = false;
+        neuron.desc = {'Not Mapped'};
     end
 end
 

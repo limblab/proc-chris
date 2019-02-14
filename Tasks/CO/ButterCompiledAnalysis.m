@@ -8,18 +8,22 @@
 %%
 clear all 
 close all
-date = '20190129';
-monkey = 'Butter';
+date = '20190213';
+monkey = 'Crackle';
 unitNames = 'cuneate';
 
-mappingLog = getSensoryMappings(monkey);
+mappingFile = getSensoryMappings(monkey);
+mappingFile = findDistalArm(mappingFile);
+mappingFile = findHandCutaneousUnits(mappingFile);
+mappingFile = findProximalArm(mappingFile);
+mappingFile = findMiddleArm(mappingFile);
 
 beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
 
-td =getTD(monkey, date, 'CO',2);
+td =getTD(monkey, date, 'CO');
 
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
@@ -32,6 +36,7 @@ param.windowPas =windowPas;
 param.date = td(1).date;
 if td(1).bin_size == .001
     td=binTD(td, 10);
+    td = td(~isnan([td.idx_movement_on]));
 end
 % neuronsToInclude =  [2,4,60,98,172,12,19,23,25,27,29,91,175];
 % td20180607 = subsetNeurons(td20180607, struct('indices', neuronsToInclude));
@@ -43,7 +48,8 @@ param.array = 'cuneate';
 param.sinTuned= neuronsNew.sinTunedAct | neuronsNew.sinTunedPas;
 getCOActPasStatsArbDir(td, param);
 neuronsCO = [neuronsNew];
-neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingLog);
+
+neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
 saveNeurons(neuronsCO,'MappedNeurons');
 
 %% Compute the trial averaged speed of each direction
