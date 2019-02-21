@@ -6,8 +6,8 @@ clear
 % task = 'RW';
 % params.doCuneate = false;
 % 
-monkey = 'Butter';
-date = '20180607';
+monkey = 'Crackle';
+date = '20190213';
 array = 'cuneate';
 task = 'CO';
 params.doCuneate = true;
@@ -26,8 +26,10 @@ tdButter = tdButter(getTDidx(tdButter, 'result','R'));
 tdButter = getNorm(tdButter,struct('signals','vel','norm_name','speed'));
 
 % tdButter= removeBadTrials(tdButter);
+tdButter = tdButter(~isnan([tdButter.idx_movement_on]));
+
 tdButter = trimTD(tdButter, 'idx_movement_on', 'idx_endTime');
-tdButter= binTD(tdButter, 5);
+tdButter= tdToBinSize(tdButter,50);
 % tdButter= removeBadTrials(tdButter);
 tdButter(isnan([tdButter.idx_endTime])) =[];
 tdButter([tdButter.idx_endTime] ==1) = [];

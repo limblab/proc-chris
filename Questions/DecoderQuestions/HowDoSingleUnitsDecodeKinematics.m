@@ -1,7 +1,7 @@
 clear all
 close all
-monkey = 'Butter';
-date = '20180607';
+monkey = 'Crackle';
+date = '20190213';
 array = 'cuneate';
 task = 'CO';
 params.doCuneate = true;

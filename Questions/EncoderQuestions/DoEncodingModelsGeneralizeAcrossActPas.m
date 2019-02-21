@@ -7,8 +7,8 @@ close all
 % task = 'RW';
 % params.doCuneate = false;
 % 
-monkey = 'Butter';
-date = '20180607';
+monkey = 'Crackle';
+date = '20190213';
 array = 'cuneate';
 task = 'CO';
 params.doCuneate = true;
@@ -21,11 +21,12 @@ tdButter =getTD(monkey, date, task);
 param.min_fr = 1;
 tdButter= removeBadNeurons(tdButter, param);
 tdButter = tdButter(getTDidx(tdButter, 'result','R'));   
-% tdButter = getRWMovements(tdButter);
+tdButter = getNorm(tdButter,struct('signals','vel','norm_name','speed'));
+tdButter = tdButter(~isnan([tdButter.idx_movement_on]));
 
-tdButter = getSpeed(tdButter);
-% tdButter= removeBadTrials(tdButter);
 tdBump = tdButter(~isnan([tdButter.bumpDir]));
+tdButter = tdToBinSize(tdButter, 10);
+tdBump = tdToBinSize(tdBump, 10);
 tdBump = trimTD(tdBump, 'idx_bumpTime', {'idx_bumpTime', 13});
 % tdBump = binTD(tdBump, 5);
 
@@ -38,8 +39,8 @@ tdButter = trimTD(tdButter, 'idx_movement_on', {'idx_movement_on',13});
 butterNaming = tdButter.([array, '_unit_guide']);
 sortedFlag = butterNaming(:,2) ~= 0;
 [tdButter, cunFlag] = getTDCuneate(tdButter, params);
-tdButter = binTD(tdButter, 5);
-tdBump = binTD(tdBump,5);
+tdButter = tdToBinSize(tdButter, 50);
+tdBump = tdToBinSize(tdBump, 50);
 %% Compute the full models, and the pieces of the models
 spikes = [array, '_spikes'];
 params.model_type = 'glm';

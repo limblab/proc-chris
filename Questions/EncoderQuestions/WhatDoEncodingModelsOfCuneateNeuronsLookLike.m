@@ -1,16 +1,16 @@
 %% Load all files for comparison
 clear all
-monkey = 'Butter';
-date = '20180405';
+monkey = 'Crackle';
+date = '20190213';
 mappingLog = getSensoryMappings(monkey);
-tdButter =getTD(monkey, date, 'RW');
+tdButter =getTD(monkey, date, 'CO');
+
+
 %% Preprocess them (binning, trimming etc)
-tdButter = getRWMovements(tdButter);
+% tdButter = getRWMovements(tdButter);
 tdButter= removeBadTrials(tdButter);
 tdButter = trimTD(tdButter, {'idx_movement_on'}, 'idx_endTime');
-tdButter= binTD(tdButter, 5);
-
-
+tdButter= tdToBinSize(tdButter, 50);
 
 butterNaming = tdButter.cuneate_unit_guide;
 

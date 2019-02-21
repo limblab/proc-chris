@@ -4,27 +4,32 @@ close all
 
 butterArray = 'cuneate';
 landoArray = 'LeftS1';
+crackleArray = 'cuneate';
 
 monkeyButter = 'Butter';
 monkeyLando = 'Lando';
+monkeyCrackle = 'Crackle';
 
 dateButter = '20180326';
 dateLando = '20170320';
+dateCrackle = '20190213';
 mappingLog = getSensoryMappings(monkeyButter);
 
-tdButter =getTD(monkeyButter, dateButter, 'CO');
+tdButter =getTD(monkeyCrackle, dateCrackle, 'CO');
 tdLando = getTD(monkeyLando, dateLando, 'COactpas');
+tdCrackle = getTD(monkeyCrackle, dateCrackle, 'CO');
 %% Preprocess them (binning, trimming etc)
 % tdButter = getRWMovements(tdButter);
 [~, tdButter]= getTDidx(tdButter,'result', 'r');
 [~, tdLando] = getTDidx(tdLando, 'result','r');
-tdButter= removeBadTrials(tdButter);
-tdButter= getMoveOnsetAndPeak(tdButter);
+% tdButter= removeBadTrials(tdButter);
+% tdButter= getMoveOnsetAndPeak(tdButter);
+tdButter= tdButter(~isnan([tdButter.idx_movement_on]));
 tdButter = trimTD(tdButter, {'idx_movement_on'}, 'idx_endTime');
 tdLando = removeBadTrials(tdLando);
 tdLando = trimTD(tdLando, {'idx_movement_on'}, 'idx_endTime');
-tdButter= binTD(tdButter, 5);
-tdLando = binTD(tdLando, 5);
+tdButter= tdToBinSize(tdButter, 50);
+tdLando = tdToBinSize(tdLando, 50);
 
 %% Decoding accuracy:
 butterNaming = tdButter.([butterArray, '_unit_guide']);
