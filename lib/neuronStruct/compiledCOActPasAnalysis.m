@@ -115,6 +115,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     %% Assign params
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     tdAct = td(strcmp({td.result},'R'));
+    tdAct = tdAct(~isnan([tdAct.idx_movement_on]));
     tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
     tdBump = td(~isnan([td.bumpDir])); 
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));

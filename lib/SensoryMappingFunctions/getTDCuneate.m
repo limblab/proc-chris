@@ -1,9 +1,14 @@
-function [td, cunFlag] = getTDCuneate(td, params)
+function [td, cunFlag] = getTDCuneate(td)
     doCuneate = true;
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     monkey = td(1).monkey;
     arrays = getTDfields(td, 'arrays');
-    if ~(strcmp(arrays{1}, 'cuneate') | strcmp(arrays{1},'RightCuneate'))
+    Event = arrays;
+    Check = {'cuneate'}';  
+    l = cellfun(@(c)strcmp(c,Event),Check,'UniformOutput',false);
+    ind = find(l{1});
+    if ind == 0
+        warning('No cuneate found, returning all units');
         doCuneate = false;
     end
     if doCuneate

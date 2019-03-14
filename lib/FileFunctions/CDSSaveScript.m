@@ -20,12 +20,12 @@
 %% All of the loading variables
 clear all
 close all
-date = '20190214';
+date = '20190313';
 task = 'CO';
 monkey = 'Crackle';
 array = 'cuneate';
 
-number = 1;
+number = 2;
 
 sorted = true;
 % suffix = 'resort';
@@ -55,13 +55,13 @@ opensimFilename = ['opensim_',monkey '_' date,'_',task, '.trc'];
 
 %%
 if motionTrack
-    cds = easyCDS(monkey, task, date, array, number, sorted);
+%     cds = easyCDS(monkey, task, date, array, number, sorted);
 
     first_time = true;
     motionTrackPath = [getBasicPath(monkey, date, getGenericTask(task)), 'MotionTracking', filesep];
     motionTrackName = getMotionTrackName(monkey, date, task, number);
     load([motionTrackPath, motionTrackName])
-%     color_tracker_4colors_script;
+    color_tracker_4colors_script;
     affine_xform = cds.loadRawMarkerData(fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep,markersFilename));
     writeTRCfromCDS(cds,fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep, opensimFilename));
     writeHandleForceFromCDS(cds,fullfile('OpenSim',[monkey '_' date '_TRT_handleForce.mot']))

@@ -147,6 +147,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     
     dirsM = unique([td.target_direction]);
     dirsM = dirsM(~isnan(dirsM));
+    td = td(~isnan([td.idx_movement_on]));
     preMove = trimTD(td, {'idx_movement_on', -10}, {'idx_movement_on', 5});
     postMove = trimTD(td, {'idx_movement_on', beforeMove}, {'idx_movement_on',afterMove});
     preMoveFiring = cat(3, preMove.(spikeLabel)).*100;

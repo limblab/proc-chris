@@ -26,5 +26,8 @@ function mapping =  sensoryMappingFromExcel(path, array)
             
         end
     end
-        
+    mapping = findHandCutaneousUnits(mapping);
+    mapping = findProximalArm(mapping);
+    mapping = findMiddleArm(mapping);
+    mapping = findDistalArm(mapping);
 end

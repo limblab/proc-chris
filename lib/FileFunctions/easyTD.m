@@ -10,8 +10,8 @@ function td = easyTD(path, monkey, task, date)
     params.trial_results = {'R', 'A'};
     if strcmp(getGenericTask(task), 'CO')
         params.event_list = {'bumpTime'; 'bumpDir'};
-        params.min_ds = 2.5;
-        params.s_thresh = 20;
+%         params.min_ds = 2.5;
+%         params.s_thresh = 40;
         td= parseFileByTrial(cds,params);
         td = td(~isnan([td.idx_goCueTime]));
 %         if td(1).bin_size == .001

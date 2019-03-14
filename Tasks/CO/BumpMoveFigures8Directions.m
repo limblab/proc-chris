@@ -9,7 +9,7 @@ savePDF = true;
 % monkey = 'Butter';
 % unitNames = 'cuneate';
 
-date = '20190213';
+date = '20190312';
 monkey = 'Crackle';
 unitNames= 'cuneate';
 
@@ -28,7 +28,13 @@ if length(td) == 1
     target_direction = 'tgtDir';
     td = getMoveOnsetAndPeak(td);
     td = removeBadTrials(td);
+else
 end
+params.start_idx =  'idx_goCueTime';
+params.end_idx = 'idx_endTime';
+params.min_ds = 1;
+params.s_thresh = 8;
+td = getMoveOnsetAndPeak(td,params);
 
 if td(1).bin_size ==.001
     td = binTD(td, 10);
@@ -63,6 +69,7 @@ dirsM = dirsM(~isnan(dirsM));
 
 for i = 1:length(dirsM)
     tdDir{i} = td([td.(target_direction)] == dirsM(i));
+    tdDir{i} = tdDir{i}(isnan([tdDir{i}.bumpDir]));
 end
 bumpTrials = td(~isnan([td.bumpDir])); 
 dirsBump = unique([td.bumpDir]);
@@ -78,6 +85,7 @@ end
 
     preMove = trimTD(td, {'idx_movement_on', -10}, {'idx_movement_on', -5});
     postMove = trimTD(td, {'idx_movement_on', 0}, {'idx_movement_on',13});
+    postMove = postMove(isnan([postMove.bumpDir]));
     preMoveFiring = cat(3, preMove.(unitSpikes)).*100;
     
     preMoveStat.meanCI(:,1) = squeeze(mean(mean(preMoveFiring, 3),1))';

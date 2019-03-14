@@ -1,0 +1,8 @@
+%% General workflow:
+%% Load file into CDS
+%% Load file into TD
+%% Compute PDs with getTDPDs
+%% Compute tuning curves with getTuningCurves
+%% Compile daily sensory mappings
+%% Insert mappings into neuronStruct with insertMappingsIntoNeuronStruct
+%% 

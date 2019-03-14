@@ -4,6 +4,8 @@ function fh = plotSomatotopy(mappingFile, monkey)
     midMap = zeros(size(mapShape));
     distMap = zeros(size(mapShape));
     handMap = zeros(size(mapShape));
+    mappingFile= mappingFile([mappingFile.id] >0);
+    
     for i = 1:length(mappingFile)
         if mappingFile(i).handUnit
             handMap(mappingFile(i).row, mappingFile(i).col) = 1;

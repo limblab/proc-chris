@@ -6,30 +6,33 @@ clear all
 % monkey = 'Butter';
 % unitNames = 'cuneate';
 
-date = '20190213';
+date = '20190214';
 monkey = 'Crackle';
 unitNames= 'cuneate';
 
 % td1 =getTD(monkey, date, 'RW',1);
-td2 =getTD(monkey, date, 'CO', 2);
+td2 =getTD(monkey, date, 'CO', 1);
 td = [td2];
-td = trimTD(td, {'idx_endTime',-500}, {'idx_endTime' ,500});
-td = binTD(td, 10);
-[processedTrial, neurons] = compiledRWAnalysis(td);
+params.start_idx =  'idx_goCueTime';
+params.end_idx = 'idx_endTime';
+td = getMoveOnsetAndPeak(td,params);
+% td = trimTD(td, {'idx_endTime',-500}, {'idx_endTime' ,500});
+% td = binTD(td, 10);
+[processedTrial, neurons] = compiledCOActPasAnalysis(td);
 mappingFile = getSensoryMappings(monkey);
 %%
 neuronsRW = neurons;
 neurons = insertMappingsIntoNeuronStruct(neurons, mappingFile);
 %%
-tunedNeurons = neurons(logical([neurons.PD.sinTuned]),:);
-pds = tunedNeurons.PD.velPD;
+tunedNeurons = neurons(logical([neurons.actPD.sinTuned]),:);
+pds = tunedNeurons.actPD.velPD;
 proxNeurons = tunedNeurons(logical(tunedNeurons.proximal),:);
 midNeurons = tunedNeurons(logical(tunedNeurons.midArm), :);
 distNeurons = tunedNeurons(logical(tunedNeurons.distal),:);
 
-proxPDs = proxNeurons.PD.velPD;
-midPDs = midNeurons.PD.velPD;
-distPDs = distNeurons.PD.velPD;
+proxPDs = proxNeurons.actPD.velPD;
+midPDs = midNeurons.actPD.velPD;
+distPDs = distNeurons.actPD.velPD;
 
 figure2();
 subplot(2,2,1)
