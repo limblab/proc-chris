@@ -20,9 +20,9 @@
 %% All of the loading variables
 clear all
 close all
-date = '20170917';
-task = 'CO';
-monkey = 'Lando';
+date = '20190322';
+task = 'WFH';
+monkey = 'Butter';
 array = 'cuneate';
 
 number = 1;

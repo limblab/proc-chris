@@ -19,6 +19,8 @@ function [ cdsTask ] = getGenericTask( inTask )
         cdsTask = 'TRT';
     elseif strcmp(inTask, 'SensoryMappings')
         cdsTask = 'Unknown';
+    elseif strcmp(inTask, 'WFH')
+        cdsTask = 'WFH';
     else
         cdsTask = 'Unknown';
     end
