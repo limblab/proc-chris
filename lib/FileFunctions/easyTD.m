@@ -17,7 +17,7 @@ function td = easyTD(path, monkey, task, date)
 %         if td(1).bin_size == .001
 %             td = binTD(td, 10);
 %         end
-        td = getMoveOnsetAndPeak(td, params);
+%         td = getMoveOnsetAndPeak(td, params);
     elseif strcmp(getGenericTask(task), 'RW')
         td = parseFileByTrial(cds, params);
 %         td = getRWMovements(td, params);
@@ -42,8 +42,13 @@ function td = easyTD(path, monkey, task, date)
         params.meta = td_meta;
         td = parseFileByTrial(cds, params);
         td = getMoveOnsetAndPeak(td,params);
+    elseif strcmp(getGenericTask(task), 'WFH')
+        params.event_list = {'tgtOn';'goCue';'startTime';'endTime';'tgtDir'};
+        td= parseFileByTrial(cds,params);
 
         
     end
+    
+        
     save([getBasePath(), getGenericTask(task), filesep, monkey, filesep, date, filesep, 'TD', filesep, monkey, '_', task, '_', date, '_TD.mat'], 'td');
 end
