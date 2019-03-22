@@ -104,7 +104,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 %% Parameter defaults
 
     includeSpeedTerm = false;
-    cutoff = pi/4; %cutoff for significant of sinusoidal tuning
+    cutoff = pi/3; %cutoff for significant of sinusoidal tuning
     arrays= {'cuneate'}; %default arrays to look for
     windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
     windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
@@ -141,7 +141,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     for i=1:length(arrays) % iterate through arrays
         params.monkey = td(1).monkey;
         params.array= arrays{i};
-        params.date = td(1).date;
+        params.date = params.date;
         params.windowAct = windowAct;
         params.windowPas = windowPas;
         params.out_signals = [params.array, '_spikes'];
@@ -194,7 +194,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         processedTrial(i).actPasStats = outStruct;
         processedTrial(i).tuningCurveAct= getTuningCurves(tdAct, params);
         processedTrial(i).tuningCurvePas = getTuningCurves(tdPas,params);
-        mapping = td(1).([params.array,'_naming']);
+%         mapping = td(1).([params.array,'_naming']);
         clear neuronProcessed;
         neuronProcessed.chan = params.out_signal_names(:,1);
         neuronProcessed.ID = params.out_signal_names(:,2);
@@ -203,9 +203,9 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         % column corresponds to the channel # (what is in the cds) while
         % the second column is what I see when I do the sensory mapping.
         % The neuronProcessed.chan
-        for j = 1:length(neuronProcessed.chan)
-            neuronProcessed.mapName(j, 1) = mapping(find(mapping(:,1) == neuronProcessed.chan(j)), 2);
-        end
+%         for j = 1:length(neuronProcessed.chan)
+%             neuronProcessed.mapName(j, 1) = mapping(find(mapping(:,1) == neuronProcessed.chan(j)), 2);
+%         end
         neuronProcessed.actWindow = repmat({windowAct}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.pasWindow = repmat({windowPas}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.unitNum = params.out_signal_names(:,2);
@@ -239,5 +239,8 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         neuronProcessed = [struct2table(arrName), neuronProcessed];
         neuronProcessed1 = [neuronProcessed1; neuronProcessed];
     end
+    [sinTunedAct, sinTunedPas] = checkIsTuned(neuronProcessed1, cutoff);
+    neuronProcessed1.sinTunedAct = sinTunedAct;
+    neuronProcessed1.sinTunedPas = sinTunedPas;
 end
 

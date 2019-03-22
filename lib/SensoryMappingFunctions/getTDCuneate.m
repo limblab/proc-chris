@@ -1,13 +1,12 @@
 function [td, cunFlag] = getTDCuneate(td)
     doCuneate = true;
-    if nargin > 1, assignParams(who,params); end % overwrite parameters
     monkey = td(1).monkey;
     arrays = getTDfields(td, 'arrays');
     Event = arrays;
     Check = {'cuneate'}';  
     l = cellfun(@(c)strcmp(c,Event),Check,'UniformOutput',false);
     ind = find(l{1});
-    if ind == 0
+    if isempty(ind)
         warning('No cuneate found, returning all units');
         doCuneate = false;
     end

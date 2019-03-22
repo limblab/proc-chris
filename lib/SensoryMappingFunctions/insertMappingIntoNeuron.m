@@ -17,7 +17,15 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
     neuron.isGracile =  getGracile(monkey, mapName);
     closestMap = getClosestMap(neuron, mappingFile);
     if ~ischar(closestMap)
-        daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'MM/dd/yyyy'), datetime(date, 'InputFormat', 'MM-dd-yyyy'));
+        if contains(date, '-')
+            if contains(closestMap.date, '/')
+                daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'MM/dd/yyyy'), datetime(date, 'InputFormat', 'MM-dd-yyyy'));
+            else
+                daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'yyyyMMdd'), datetime(date, 'InputFormat', 'MM-dd-yyyy'));
+            end
+            else
+            daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'MM/dd/yyyy'), datetime(date, 'InputFormat', 'yyyyMMdd'));
+        end
         if daysDiff < Inf
             neuron.sameDayMap = daysDiff == 0;
             neuron.daysDiff = daysDiff;

@@ -12,7 +12,18 @@ function [ closeMap ] = getClosestMap( neuron, mapping )
     
     for i = 1:length(mapping)
         if(mapping(i).chan == mapName)
-            daysTemp = abs(daysdif(datetime(date, 'InputFormat', 'MM-dd-yyyy'), datetime(mapping(i).date,'InputFormat',  'MM/dd/yyyy')));
+            if contains(date, '-')
+                if contains(mapping(i).date, '/')
+                    daysTemp = daysdif(datetime(date, 'InputFormat', 'MM-dd-yyyy'), datetime(mapping(i).date, 'InputFormat', 'MM/dd/yyyy'));
+                else
+                    daysTemp = daysdif(datetime(date, 'InputFormat', 'MM-dd-yyyy'), datetime(mapping(i).date, 'InputFormat', 'yyyyMMdd'));
+                end
+            else
+                if contains(mapping(i).date, '/')    
+                    daysTemp = daysdif(datetime(date, 'InputFormat', 'MM/dd/yyyy'), datetime(mapping(i).date, 'InputFormat', 'MM/dd/yyyy'));
+                else
+                end
+            end
             if  daysTemp < daysApart
                 daysApart = daysTemp;
                 bestRow = i;

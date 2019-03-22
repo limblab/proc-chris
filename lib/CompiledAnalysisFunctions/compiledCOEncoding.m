@@ -1,8 +1,9 @@
 function results = compiledCOEncoding(td, params)
 array= 'cuneate';
+doCuneate= true;
 if nargin > 1, assignParams(who,params); end % overwrite parameters
 td = getNorm(td,struct('signals','vel','norm_name','speed'));
-td = smoothSignals(td, struct('signals', 'cuneate_spikes'));
+td = smoothSignals(td, struct('signals', [array, '_spikes']));
 
 % tdButter= removeBadTrials(tdButter);
 td = td(~isnan([td.idx_movement_on]));
@@ -14,6 +15,7 @@ td(isnan([td.idx_endTime])) =[];
 td([td.idx_endTime] ==1) = [];
 Naming = td.([array, '_unit_guide']);
 sortedFlag = Naming(:,2) ~= 0;
+params.doCuneate = doCuneate;
 [td, cunFlag] = getTDCuneate(td);
 % td = rectifyTDSignal(td, struct('signals_to_rectify', {{'acc'}}));
 %% Compute the full models, and the pieces of the models

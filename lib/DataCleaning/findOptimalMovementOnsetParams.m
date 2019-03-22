@@ -10,14 +10,16 @@
 % td = td(~isnan([td.idx_goCueTime]));
 %%
 close all
-dsVec = 1;
-sVec = .5:.5:4;
+dsVec = 1:.1:2;
+sVec = 10;
 fig = figure();
 % params.useForce = true;
 % params.which_field = 'force';
 params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
-
+if td(1).bin_size ==.001
+    td = binTD(td, 10);
+end
 for i = 1:length(dsVec)
     for j = 1:length(sVec)
         cla

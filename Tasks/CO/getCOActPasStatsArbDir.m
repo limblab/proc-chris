@@ -114,7 +114,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     beforeMove = 0;
     afterMove = 13;
     
-    date= td(1).date;
+    date= params.date;
     array= getTDfields(td, 'arrays');
     array = array{1};
     monkey1 = td(1).monkey;

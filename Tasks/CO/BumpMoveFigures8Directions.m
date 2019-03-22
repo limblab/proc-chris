@@ -9,8 +9,8 @@ savePDF = true;
 % monkey = 'Butter';
 % unitNames = 'cuneate';
 
-date = '20190312';
-monkey = 'Crackle';
+date = '20180326';
+monkey = 'Butter';
 unitNames= 'cuneate';
 
 mappingLog = getSensoryMappings(monkey);
@@ -26,14 +26,15 @@ if length(td) == 1
     disp('Splitting')
     td = splitTD(td, struct('split_idx_name', 'idx_startTime', 'linked_fields', {{'bumpDir', 'ctrHold', 'ctrHoldBump', 'result', 'tgtDir', 'trialID'}} ));
     target_direction = 'tgtDir';
-    td = getMoveOnsetAndPeak(td);
+    params.start_idx =  'idx_goCueTime';
+    params.end_idx = 'idx_endTime';
+    [~, td] = getTDidx(td, 'result' ,'R');
+    td = getMoveOnsetAndPeak(td, params);
     td = removeBadTrials(td);
 else
 end
 params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
-params.min_ds = 1;
-params.s_thresh = 8;
 td = getMoveOnsetAndPeak(td,params);
 
 if td(1).bin_size ==.001
@@ -70,6 +71,7 @@ dirsM = dirsM(~isnan(dirsM));
 for i = 1:length(dirsM)
     tdDir{i} = td([td.(target_direction)] == dirsM(i));
     tdDir{i} = tdDir{i}(isnan([tdDir{i}.bumpDir]));
+    tdDir{i} = tdDir{i}([tdDir{i}.idx_endTime] - [tdDir{i}.idx_goCueTime] < 1/tdDir{i}(1).bin_size);
 end
 bumpTrials = td(~isnan([td.bumpDir])); 
 dirsBump = unique([td.bumpDir]);
@@ -121,7 +123,7 @@ end
     moveTot = cat(3, postMoveStat.meanCI);
     bumpPre = cat(2, preBumpStat.meanCI);
     movePre = cat(2, preMoveStat.meanCI);
-    theta = linspace(0, 7*pi/4, length(dirsM));
+    theta = linspace(0, max(dirsM), length(dirsM));
 %% 
 maxSpeed = 60;
 
@@ -221,6 +223,7 @@ for num1 = numCount
             plot(linspace(-1*before, after, length(speedKin(:,1))), speedKin(:,1), 'k')
             ylim([0, maxSpeed])
             if plotRasters
+                params.xBound = [-1*before*(1/tdPlot{i}(1).bin_size), after*(1/tdPlot{i}(1).bin_size)];
                 unitRaster(tdPlot{i}, params);
             end
             switch dirs(i)

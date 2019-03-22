@@ -1,7 +1,7 @@
 function results = compiledCODecoding(td, params)
     Array= 'cuneate';
     if nargin > 1, assignParams(who,params); end % overwrite parameters
-    td = smoothSignals(td, struct('signals', 'cuneate_spikes'));
+    td = smoothSignals(td, struct('signals', [Array, '_spikes']));
     td = removeBadNeurons(td);
     [~, td]= getTDidx(td,'result', 'r');
     % td= removeBadTrials(td);

@@ -20,12 +20,12 @@
 %% All of the loading variables
 clear all
 close all
-date = '20190313';
+date = '20170917';
 task = 'CO';
-monkey = 'Crackle';
+monkey = 'Lando';
 array = 'cuneate';
 
-number = 2;
+number = 1;
 
 sorted = true;
 % suffix = 'resort';

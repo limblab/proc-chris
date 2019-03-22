@@ -8,10 +8,10 @@
 %%
 clear all 
 close all
-date = '20190213';
+date = '20190320';
 monkey = 'Crackle';
 unitNames = 'cuneate';
-
+% 
 mappingFile = getSensoryMappings(monkey);
 mappingFile = findDistalArm(mappingFile);
 mappingFile = findHandCutaneousUnits(mappingFile);
@@ -24,6 +24,11 @@ beforeMove = .3;
 afterMove = .3;
 
 td =getTD(monkey, date, 'CO');
+if ~isfield(td, 'idx_movement_on')
+    params.start_idx =  'idx_goCueTime';
+    params.end_idx = 'idx_endTime';
+    td = getMoveOnsetAndPeak(td, params);
+end
 
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
@@ -31,12 +36,16 @@ param.arrays = {'cuneate'};
 param.in_signals = {'vel'};
 param.train_new_model = true;
 
+params.start_idx =  'idx_goCueTime';
+params.end_idx = 'idx_endTime';
 param.windowAct= windowAct;
 param.windowPas =windowPas;
-param.date = td(1).date;
+param.date = date;
 if td(1).bin_size == .001
     td=binTD(td, 10);
+    td = getMoveOnsetAndPeak(td,params);
     td = td(~isnan([td.idx_movement_on]));
+
 end
 % neuronsToInclude =  [2,4,60,98,172,12,19,23,25,27,29,91,175];
 % td20180607 = subsetNeurons(td20180607, struct('indices', neuronsToInclude));
@@ -53,12 +62,13 @@ neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
 saveNeurons(neuronsCO,'MappedNeurons');
 
 %% Compute the trial averaged speed of each direction
-params.tuningCondition = {'isSorted', 'sinTunedAct', 'sinTunedPas'};
+params.tuningCondition = {'sinTunedPas','sinTunedAct','isSorted'};
 neuronStructPlot(neuronsCO, params);
 %%
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',5}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',1};
 tdBin = binTD(td,5);
+
 tdPas = tdBin(~isnan([tdBin.idx_bumpTime]));
 tdAct = trimTD(tdBin, windowAct(1,:), windowAct(2,:));
 tdPas = trimTD(tdPas, windowPas(1,:), windowPas(2,:));

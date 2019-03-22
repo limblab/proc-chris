@@ -2,7 +2,9 @@ clear all
 close all
 load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_TD.mat')
 numPCs = 5;
-td = getMoveOnsetAndPeak(td);
+params.start_idx =  'idx_goCueTime';
+params.end_idx = 'idx_endTime';
+td = getMoveOnsetAndPeak(td, params);
 startTime = -150;
 endTime = 150;
 numCVFolds = 10;
@@ -16,7 +18,7 @@ td = binTD(td,5);
 binWidth = td(1).bin_size*1000;
 tdBump = td(~isnan([td.idx_bumpTime]));
 tdMove = td(isnan([td.idx_bumpTime]));
-tdBump = trimTD(tdBump, {'idx_bump_on', floor(startTime/binWidth)}, {'idx_bump_on', floor(endTime/binWidth)});
+tdBump = trimTD(tdBump, {'idx_bumpTime', floor(startTime/binWidth)}, {'idx_bumpTime', floor(endTime/binWidth)});
 tdMove = trimTD(tdMove, {'idx_movement_on', floor(startTime/binWidth)}, {'idx_movement_on', floor(endTime/binWidth)});
 % tdMove = trimTD(tdMove, {'idx_tgtOnTime', floor(startTime/10)}, {'idx_tgtOnTime', floor(endTime/10)});
 

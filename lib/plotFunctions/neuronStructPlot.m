@@ -4,7 +4,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     array = neuronStruct.array{1};
     monkey = neuronStruct.monkey{1};
     date = neuronStruct.date{1};
-    task = neuronStruct.task{1};
+%     task = neuronStruct.task{1};
     plotModDepth = true;
     plotActVsPasPD = true;
     plotAvgFiring = true;
@@ -12,6 +12,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     plotPDDists= true;
     savePlots = true;
     useModDepths = true;
+    rosePlot = true;
     size1 = 18;
     tuningCondition = {'sinTunedAct','sinTunedPas','isSorted'};
     fh1 = [];
@@ -35,11 +36,11 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
        neuronStruct = neuronStruct(find(strcmp(date, [neuronStruct.date])),:);
    end
     cuneateNeurons = neuronStruct(~strcmp('LeftS1',[neuronStruct.array]) & ~strcmp('area2',[neuronStruct.array]),:);
-    s1Neurons = neuronStruct(strcmp('LeftS1',[neuronStruct.array]) |strcmp('LeftS1Area2', [neuronStruct.array]) | strcmp('area2',[neuronStruct.array]),:);
+    s1Neurons = neuronStruct(strcmp('S1',[neuronStruct.array]) |strcmp('LeftS1Area2', [neuronStruct.array]) | strcmp('area2',[neuronStruct.array]),:);
     
     if strcmp(array, 'cuneate') | strcmp(array, 'RightCuneate')
         neurons = cuneateNeurons;
-    elseif strcmp(array, 'area2') | strcmp(array,'LeftS1') | strcmp(array, 'LeftS1Area2')
+    elseif strcmp(array, 'area2') | strcmp(array,'LeftS1') | strcmp(array, 'LeftS1Area2')| strcmp(array, 'S1')
         neurons = s1Neurons;
     elseif strcmp(array, 'all')
         neurons = [cuneateNeurons; s1Neurons];
@@ -50,14 +51,16 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
 
     if plotModDepth
         fh1 = figure;
-        scatter(neurons.modDepthMove, neurons.modDepthBump,'k', 'filled')
-        lims = [min([neurons.modDepthMove; neurons.modDepthBump])-5, max([neurons.modDepthMove; neurons.modDepthBump])+5];
+        scatter(neurons.actPD.velModdepth*20, neurons.pasPD.velModdepth*20,'k', 'filled')
+        lims = [0, max([neurons.actPD.velModdepth; neurons.pasPD.velModdepth])*20+.2];
         hold on
         plot([lims(1), lims(2)], [lims(1), lims(2)], 'r--')
         xlim(lims)
         ylim(lims)
+        xlabel('Active Modulation Depth (spikes/s / (cm/s))')
+        ylabel('Passive Modulation Depth (spikes/s / (cm/s))')
         set(gca,'TickDir','out', 'box', 'off')
-        title('ModDepths')
+        title('GLM PD fits Modulation Depths in Active and Passive')
     end
     
     if plotActVsPasPD
@@ -132,6 +135,8 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         actPDs = neurons.actPD.velPD;
         pasPDs = neurons.pasPD.velPD;
         
+        if ~rosePlot
+        
         fh5= figure;
         histogram(rad2deg(actPDs), rad2deg(-pi:pi/6:pi));
         title('Distribution of PDs in Active')
@@ -145,28 +150,47 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         xlabel('Angle')
         ylabel('# of units')
         set(gca,'TickDir','out', 'box', 'off')
+        else
+            fh5= figure;
+            rose(actPDs, 18);
 
+            title('Distribution of PDs in Active')
+
+            fh6 = figure;
+            rose(pasPDs, 18);
+            
+            title('Distribution of PDs in Passive')
+        end
     end
     
     if (savePlots)
-        savePath = [getBasicPath(monkey, dateToLabDate(date), getGenericTask(task)), 'plotting', filesep ,'neuronStructPlots',filesep];
+        savePath = [getBasicPath(monkey, dateToLabDate(date), getGenericTask('CO')), 'plotting', filesep ,'neuronStructPlots',filesep];
         mkdir(savePath)
         title1 = string([monkey, '_',array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
         if plotPDDists
             saveas(fh5, [savePath,char(strjoin(string([title1, 'PDDistributionsActive.pdf']), ''))]);
+            saveas(fh5, [savePath,char(strjoin(string([title1, 'PDDistributionsActive.png']), ''))]);
+
             saveas(fh6, [savePath,char(strjoin(string([title1, 'PDDistributionsPassive.pdf']), ''))]);
+            saveas(fh6, [savePath,char(strjoin(string([title1, 'PDDistributionsPassive.png']), ''))]);
+            
         end
         if plotAngleDif 
             saveas(fh4, [savePath,char(strjoin(string([title1, 'DiffPDAngs.png']),''))])
+            
+            saveas(fh4, [savePath,char(strjoin(string([title1, 'DiffPDAngs.pdf']),''))])
         end
         if plotAvgFiring
             saveas(fh3, [savePath,char(strjoin(string([title1, 'DCAvgFiring.png']),''))])
+            saveas(fh3, [savePath,char(strjoin(string([title1, 'DCAvgFiring.pdf']),''))])
         end
         if plotActVsPasPD
             saveas(fh2, [savePath,char(strjoin(string([title1, 'ActVsPasPD.png']),''))]);
+            saveas(fh2, [savePath,char(strjoin(string([title1, 'ActVsPasPD.pdf']),''))]);
         end
         if plotModDepth
             saveas(fh1, [savePath,char(strjoin(string([title1, 'ActPasModDepth.png']),''))]);
+            saveas(fh1, [savePath,char(strjoin(string([title1, 'ActPasModDepth.pdf']),''))]);
         end
     end
 end
