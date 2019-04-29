@@ -11,6 +11,10 @@ function [ cdsTask ] = getGenericTask( inTask )
         cdsTask = 'CO';
     elseif strcmp(inTask(1:2),'RW')
         cdsTask = 'RW';
+    elseif strcmp(inTask, 'WF')
+        cdsTask = 'WFH';
+    elseif strcmp(inTask, 'WFH')
+        cdsTask = 'WFH';
     elseif strcmp(inTask(1:3), 'OOR')
         cdsTask = 'OOR';
 %     elseif strcmp(inTask(1:9), 'vibration')
@@ -19,8 +23,7 @@ function [ cdsTask ] = getGenericTask( inTask )
         cdsTask = 'TRT';
     elseif strcmp(inTask, 'SensoryMappings')
         cdsTask = 'Unknown';
-    elseif strcmp(inTask, 'WFH')
-        cdsTask = 'WFH';
+
     else
         cdsTask = 'Unknown';
     end

@@ -7,7 +7,7 @@ plotForceReach = false;
 
 monkey = 'Butter';
 date = '20190129';
-mappingLog = getSensoryMappings(monkey);
+% mappingLog = getSensoryMappings(monkey);
 td =getTD(monkey, date, 'CO',2);
 
 td(mod([td.bumpDir], 45)~=0) = [];
@@ -52,7 +52,7 @@ for i = 1:length(dirsAct)
 % 
 %    pause
 end
-
+%%
 f1;
 legend('0','45', '90', '135', '180', '225', '270', '315')
 title('Vel')

@@ -16,15 +16,15 @@ monkeyCrackle = 'Crackle';
 monkeyChips = 'Chips';
 monkeyHan = 'Han';
 
-monkeyBLC = {'Butter', 'Lando', 'Crackle', monkeyChips, monkeyHan};
+monkeyBLC = {monkeyButter, monkeyLando, monkeyCrackle, monkeyChips, monkeyHan};
 
 dateButter = '20190129';
 dateLando = '20170917';
-dateCrackle = '20190315';
+dateCrackle = '20190329';
 dateChips = '20170913';
 dateHan= '20171116';
 
-dateBLC = {'20190129','20170917', '20190315', dateChips, dateHan};
+dateBLC = {dateButter,dateLando, dateCrackle, dateChips, dateHan};
 
 mappingLogB = getSensoryMappings(monkeyButter);
 mappingLogL = getSensoryMappings(monkeyLando);
@@ -38,7 +38,7 @@ for i = 1:5
         case 1
             td = getTD(monkeyButter,dateButter, 'CO',2);
         case 2
-            td = getTD(monkeyLando, dateLando, 'COactpas');
+            td = getTD(monkeyLando, dateLando, 'CO');
         case 3
             td = getTD(monkeyCrackle, dateCrackle, 'CO',1);
         case 4

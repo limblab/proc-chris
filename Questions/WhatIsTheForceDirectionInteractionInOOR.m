@@ -5,8 +5,8 @@ clear all
 plotTrajectories = true;
 plotForceReach = true;
 
-monkey = 'Han';
-date = '20170203';
+monkey = 'Butter';
+date = '20190117';
 mappingLog = getSensoryMappings(monkey);
 if strcmp(monkey, 'Butter')
     td1 =getTD(monkey, date, 'OOR',1);
@@ -15,8 +15,8 @@ if strcmp(monkey, 'Butter')
     
     td = removeGracileTD(td);
 else
-    td = getTD(monkey, date, 'OOR');
-    td = splitTD(td, struct('split_idx_name', 'idx_startTime', 'linked_fields', {{'trialID','result', 'tgtDir', 'forceDir', 'idx_startTargHoldTime', 'idx_goCueTime', 'idx_endTime', 'idx_endTargHoldTime'}}));
+    td = getTD(monkey, date, 'OOR',1);
+%     td = splitTD(td, struct('split_idx_name', 'idx_startTime', 'linked_fields', {{'trialID','result', 'tgtDir', 'forceDir', 'idx_startTargHoldTime', 'idx_goCueTime', 'idx_endTime', 'idx_endTargHoldTime'}}));
 
 end
 td(mod([td.tgtDir], 45)~=0) = [];
@@ -30,10 +30,10 @@ savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,file
 mkdir(savePath);
 %% Preprocess the TD
 td = removeBadTrials(td);
-td = removeBadNeurons(td);
+td = removeBadNeurons(td, struct('remove_unsorted', true));
 td = smoothSignals(td, struct('signals', array_spikes));
 td = smoothSignals(td, struct('signals', 'force'));
-td = binTD(td, 5);
+td = tdToBinSize(td, 50);
 if ~isfield(td(1), 'idx_movement_on')
     td = getMoveOnsetAndPeak(td, struct('start_idx', 'idx_goCueTime', 'end_idx', 'idx_endTime'));
 end
@@ -52,7 +52,7 @@ dirsForce = unique([tdReach.forceDir]);
 
 dirsAct = dirsAct(~isnan(dirsAct));
 dirsForce= dirsForce(~isnan(dirsForce));
-
+%%
 for i = 1:length(dirsAct)
    for j = 1:length(dirsForce)
        tdReachForce{i,j} = tdReach([tdReach.forceDir] == dirsForce(j) & [tdReach.tgtDir] == dirsAct(i));
@@ -114,7 +114,7 @@ end
 pdVel = getTDPDs(tdReach, struct('out_signals', array_spikes,'in_signals', 'vel','out_signal_names',tdReach(1).(array_unit_guide), 'num_boots', 1000));
 pdForce = getTDPDs(tdReach, struct('out_signals', array_spikes, 'in_signals','force','out_signal_names',tdReach(1).(array_unit_guide), 'num_boots', 1000));
 %%
-% mapping = tdReach(1).cuneate_naming;
+mapping = tdReach(1).cuneate_naming;
 for j = 1:num_units
     pdVel.chan(j,1) = pdVel.signalID(j,1);
     pdForce.chan(j,1) = pdForce.signalID(j,1);
@@ -130,7 +130,7 @@ pdVelTuned = velNeurons(logical(velNeurons.velTuned),:);
 pdForceTuned= forceNeurons(logical(forceNeurons.forceTuned),:);
 neuronStructVel = makeNeuronStructFromPDTable(velNeurons, 'cuneate');
 neuronStructForce= makeNeuronStructFromPDTable(forceNeurons, 'cuneate');
-neuronStruct = innerjoin(neuronStructVel, neuronStructForce);
+neuronStruct = innerjoin(neuronStructVel, neuronStructForce, 'Keys', {'monkey', 'date', 'array', 'signalID', 'chan', 'unitNum','mapName', 'isCuneate', 'isGracile', 'sameDayMap', 'daysDiff', 'isProprioceptive', 'isSpindle', 'proximal', 'midArm', 'distal', 'handUnit', 'cutaneous', 'proprio', 'task'});
 saveNeurons(neuronStruct, 'ForcePDs')
 %%
 figure2();

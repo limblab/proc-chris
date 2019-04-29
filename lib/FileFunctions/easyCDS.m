@@ -36,7 +36,11 @@ function [ cds ] = easyCDS( monkey, task, date,  arrays, numbers, areSorted)
         monkeyCDS =['monkey',monkey];
         ranBy = ['ranByChris'];
         arrayCDS = ['array',arrays];
-        labCDS = 6;
+        if strcmp(taskCDS, 'taskWF')
+            labCDS = 1;
+        else
+            labCDS = 6;
+        end
         %% Get the cds
         cds = commonDataStructure();
         if ~strcmp(taskCDS, 'taskUnknown')
@@ -58,7 +62,11 @@ function [ cds ] = easyCDS( monkey, task, date,  arrays, numbers, areSorted)
             monkeyCDS =['monkey',monkey];
             ranBy = ['ranByChris'];
             arrayCDS = ['array',arrays{arrayNum}];
-            labCDS = 6;
+            if strcmp(taskCDS, 'taskWFH') | strcmp(taskCDS, 'taskWF')
+                labCDS = 1;
+            else
+                labCDS = 6;
+            end
             %% Get the cds (or add next array)
             cds.file2cds([rawPath,nevName],labCDS,arrayCDS,monkeyCDS,taskCDS,ranBy,mapPath,'ignoreJumps')
         end

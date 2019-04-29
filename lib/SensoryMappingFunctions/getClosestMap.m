@@ -14,14 +14,21 @@ function [ closeMap ] = getClosestMap( neuron, mapping )
         if(mapping(i).chan == mapName)
             if contains(date, '-')
                 if contains(mapping(i).date, '/')
-                    daysTemp = daysdif(datetime(date, 'InputFormat', 'MM-dd-yyyy'), datetime(mapping(i).date, 'InputFormat', 'MM/dd/yyyy'));
+                    daysTemp = abs(daysdif(datetime(date, 'InputFormat', 'MM-dd-yyyy'), datetime(mapping(i).date, 'InputFormat', 'MM/dd/yyyy')));
                 else
-                    daysTemp = daysdif(datetime(date, 'InputFormat', 'MM-dd-yyyy'), datetime(mapping(i).date, 'InputFormat', 'yyyyMMdd'));
+                    daysTemp = abs(daysdif(datetime(date, 'InputFormat', 'MM-dd-yyyy'), datetime(mapping(i).date, 'InputFormat', 'yyyyMMdd')));
                 end
-            else
+            elseif contains(date, '/')
                 if contains(mapping(i).date, '/')    
-                    daysTemp = daysdif(datetime(date, 'InputFormat', 'MM/dd/yyyy'), datetime(mapping(i).date, 'InputFormat', 'MM/dd/yyyy'));
+                    daysTemp = abs(daysdif(datetime(date, 'InputFormat', 'MM/dd/yyyy'), datetime(mapping(i).date, 'InputFormat', 'MM/dd/yyyy')));
                 else
+                end
+                
+            else
+                if contains(mapping(i).date, '/')
+                    daysTemp = abs(daysdif(datetime(date, 'InputFormat', 'yyyyMMdd'), datetime(mapping(i).date, 'InputFormat', 'MM/dd/yyyy')));
+                else
+                    daysTemp = abs(daysdif(datetime(date, 'InputFormat', 'yyyyMMdd'), datetime(mapping(i).date, 'InputFormat', 'yyyyMMdd')));
                 end
             end
             if  daysTemp < daysApart

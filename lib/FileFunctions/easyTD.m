@@ -12,6 +12,12 @@ function td = easyTD(path, monkey, task, date)
         params.event_list = {'bumpTime'; 'bumpDir'};
 %         params.min_ds = 2.5;
 %         params.s_thresh = 40;
+        if any(contains(fieldnames(cds.trials), 'vibOnTime'))
+            params.event_list{end+1} = 'vibOnTime';
+            params.event_list{end+1} = 'vibOffTime';
+            params.event_list{end+1} = 'vibOnNum';
+            params.event_list{end+1} = 'vibOffNum';
+        end
         td= parseFileByTrial(cds,params);
         td = td(~isnan([td.idx_goCueTime]));
 %         if td(1).bin_size == .001

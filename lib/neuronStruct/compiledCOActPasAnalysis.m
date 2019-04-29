@@ -194,7 +194,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         processedTrial(i).actPasStats = outStruct;
         processedTrial(i).tuningCurveAct= getTuningCurves(tdAct, params);
         processedTrial(i).tuningCurvePas = getTuningCurves(tdPas,params);
-%         mapping = td(1).([params.array,'_naming']);
+        mapping = td(1).([params.array,'_naming']);
         clear neuronProcessed;
         neuronProcessed.chan = params.out_signal_names(:,1);
         neuronProcessed.ID = params.out_signal_names(:,2);
@@ -203,9 +203,9 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         % column corresponds to the channel # (what is in the cds) while
         % the second column is what I see when I do the sensory mapping.
         % The neuronProcessed.chan
-%         for j = 1:length(neuronProcessed.chan)
-%             neuronProcessed.mapName(j, 1) = mapping(find(mapping(:,1) == neuronProcessed.chan(j)), 2);
-%         end
+        for j = 1:length(neuronProcessed.chan)
+            neuronProcessed.mapName(j, 1) = mapping(find(mapping(:,1) == neuronProcessed.chan(j)), 2);
+        end
         neuronProcessed.actWindow = repmat({windowAct}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.pasWindow = repmat({windowPas}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.unitNum = params.out_signal_names(:,2);

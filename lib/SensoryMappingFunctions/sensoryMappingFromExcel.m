@@ -43,5 +43,6 @@ function mapping =  sensoryMappingFromExcel(path, array, monkey)
     mappingNew = findProximalArm(mappingNew);
     mappingNew = findMiddleArm(mappingNew);
     mappingNew = findDistalArm(mappingNew);
+    mappingNew = findCutaneous(mappingNew);
     mapping = [mapping; mappingNew];
 end

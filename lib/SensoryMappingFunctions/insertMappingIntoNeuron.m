@@ -36,6 +36,8 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
             neuron.midArm = closestMap.midArm;
             neuron.distal = closestMap.distal;
             neuron.handUnit = closestMap.handUnit;
+            neuron.cutaneous = closestMap.cutaneous;
+            neuron.proprio = closestMap.proprio;
         end
     else
         neuron.sameDayMap = false;
@@ -46,6 +48,8 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
         neuron.midArm = false;
         neuron.distal = false;
         neuron.handUnit = false;
+        neuron.cutaneous = false;
+        neuron.proprio = false;
         neuron.desc = {'Not Mapped'};
     end
 end

@@ -9,8 +9,8 @@ savePDF = true;
 % monkey = 'Butter';
 % unitNames = 'cuneate';
 
-date = '20180326';
-monkey = 'Butter';
+date = '20190418';
+monkey = 'Crackle';
 unitNames= 'cuneate';
 
 mappingLog = getSensoryMappings(monkey);
@@ -20,7 +20,7 @@ afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
 
-td =getTD(monkey, date, 'CO');
+td =getTD(monkey, date, 'CO',1);
 target_direction = 'target_direction';
 if length(td) == 1
     disp('Splitting')
@@ -70,8 +70,8 @@ dirsM = dirsM(~isnan(dirsM));
 
 for i = 1:length(dirsM)
     tdDir{i} = td([td.(target_direction)] == dirsM(i));
-    tdDir{i} = tdDir{i}(isnan([tdDir{i}.bumpDir]));
-    tdDir{i} = tdDir{i}([tdDir{i}.idx_endTime] - [tdDir{i}.idx_goCueTime] < 1/tdDir{i}(1).bin_size);
+%     tdDir{i} = tdDir{i}(isnan([tdDir{i}.bumpDir]));
+%     tdDir{i} = tdDir{i}([tdDir{i}.idx_endTime] - [tdDir{i}.idx_goCueTime] < 1/tdDir{i}(1).bin_size);
 end
 bumpTrials = td(~isnan([td.bumpDir])); 
 dirsBump = unique([td.bumpDir]);
