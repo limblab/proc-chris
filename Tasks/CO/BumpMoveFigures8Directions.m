@@ -9,7 +9,7 @@ savePDF = true;
 % monkey = 'Butter';
 % unitNames = 'cuneate';
 
-date = '20190418';
+date = '20190507';
 monkey = 'Crackle';
 unitNames= 'cuneate';
 
@@ -41,7 +41,7 @@ if td(1).bin_size ==.001
     td = binTD(td, 10);
 end
 td = td(~isnan([td.idx_movement_on]));
-td = removeBadNeurons(td);
+td = removeBadNeurons(td, struct('remove_unsorted', true));
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
 savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
@@ -49,10 +49,13 @@ if contains(unitNames, 'cuneate')
     mkdir([savePath, 'Cuneate']);
     mkdir([savePath, 'Gracile']);
 
-
+    if isfield(td(1),'cuneate_naming')
     elec2MapName = td(1).cuneate_naming;
     for i = 1:length(td(1).(unitSpikes)(1,:))
         gracileFlag(i) = getGracile(monkey, elec2MapName(elec2MapName(:,1) == td(1).cuneate_unit_guide(i,1),2));
+    end
+    else
+        gracileFlag = zeros(length(td(1).(unitSpikes)(1,:)),1);
     end
 else 
     gracileFlag = zeros(length(td(1).(unitSpikes)(1,:)),1);

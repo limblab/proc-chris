@@ -1,7 +1,7 @@
 close all
 clear all
 monkey = 'Crackle';
-date = '20190426';
+date = '20190502';
 td = getTD(monkey, date, 'CO', 1);
 [~, td] =getTDidx(td, 'result','R');
 
@@ -15,7 +15,7 @@ mapping = td(1).cuneate_naming;
 unitGuide = td(1).cuneate_unit_guide;
 
 %%
-plotVibd = true;
+plotVibd = false;
 vibrationChans = [0,9,13,3,25,14];
 
 tdVibAll = td(~isnan([td.idx_vibOnTime]));

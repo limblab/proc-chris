@@ -20,7 +20,7 @@
 %% All of the loading variables
 clear all
 close all
-date = '20190426';
+date = '20190503';
 task = 'CO';
 monkey = 'Crackle';
 array = 'cuneate';
