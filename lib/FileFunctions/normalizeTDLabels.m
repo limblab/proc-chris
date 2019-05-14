@@ -1,5 +1,5 @@
 function td = normalizeTDLabels(td)
-    fields = fieldnames(td);
+fields = fieldnames(td);
     for i = 1:length(fields)
         field = fields{i};
         switch field
@@ -13,13 +13,13 @@ function td = normalizeTDLabels(td)
                 newField{i} = 'cuneate_ts';
             case 'RightCuneate_naming'
                 newField{i} = 'cuneate_naming';
-            case 'target_direction'
-                newField{i} = 'tgtDir';
+            case 'tgtDir'
+                newField{i} = 'target_direction';
             case 'bump_direction'
                 newField{i} = 'bumpDir';
             otherwise
                 newField{i} = field;
         end
     end
-    cell2struct(struct2cell(td), newField)
+    td = cell2struct(struct2cell(td), newField)
 end

@@ -20,10 +20,10 @@
 %% All of the loading variables
 clear all
 close all
-date = '20190503';
-task = 'CO';
-monkey = 'Crackle';
-array = 'cuneate';
+date = '20171122';
+task = 'COactpas';
+monkey = 'Han';
+array = 'S1';
 
 number = 1;
 
@@ -102,7 +102,7 @@ end
 
 
 % compose the filename
-cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS_.mat'];
+cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS.mat'];
 %save the cds to the folder
 save(cdsPath, 'cds', '-v7.3');
 %%

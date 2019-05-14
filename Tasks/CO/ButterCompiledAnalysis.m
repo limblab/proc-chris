@@ -8,23 +8,27 @@
 %%
 clear all 
 close all
-date = '20190329';
-monkey = 'Crackle';
-unitNames = 'cuneate';
-% 
-mappingFile = getSensoryMappings(monkey);
-mappingFile = findDistalArm(mappingFile);
-mappingFile = findHandCutaneousUnits(mappingFile);
-mappingFile = findProximalArm(mappingFile);
-mappingFile = findMiddleArm(mappingFile);
-mappingFile = findCutaneous(mappingFile);
+date = '20170913';
+monkey = 'Chips';
+array = 'LeftS1Area2';
+useMapping = false;
 
+if useMapping
+    mappingFile = getSensoryMappings(monkey);
+    mappingFile = findDistalArm(mappingFile);
+    mappingFile = findHandCutaneousUnits(mappingFile);
+    mappingFile = findProximalArm(mappingFile);
+    mappingFile = findMiddleArm(mappingFile);
+    mappingFile = findCutaneous(mappingFile);
+end
 beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
 
-td =getTD(monkey, date, 'CO',1);
+td =getTD(monkey, date, 'CO');
+td = normalizeTDLabels(td);
+%%
 if ~isfield(td, 'idx_movement_on')
     params.start_idx =  'idx_goCueTime';
     params.end_idx = 'idx_endTime';
@@ -33,7 +37,7 @@ end
 
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
-param.arrays = {'cuneate'};
+param.arrays = {array};
 param.in_signals = {'vel'};
 param.train_new_model = true;
 
@@ -52,15 +56,17 @@ end
 [processedTrialNew, neuronsNew] = compiledCOActPasAnalysis(td, param);
 %%
 %% Load the sensory mapping files, upload into the neuron structure
-param.array = 'cuneate';
+param.array = array;
 param.sinTuned= neuronsNew.sinTunedAct | neuronsNew.sinTunedPas;
 getCOActPasStatsArbDir(td, param);
 neuronsCO = [neuronsNew];
 %%
-neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
+if useMapping
+    neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
+end
 saveNeurons(neuronsCO,'MappedNeurons');
 
 %% Compute the trial averaged speed of each direction
-params.tuningCondition = {'sinTunedPas','sinTunedAct','isSorted'};
-neuronStructPlot(neuronsCO, params);
+params.tuningCondition = {'isSorted'};
+neuronStructPlot(neurons, params);
 %%

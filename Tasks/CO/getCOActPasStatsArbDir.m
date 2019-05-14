@@ -148,7 +148,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     dirsM = unique([td.target_direction]);
     dirsM = dirsM(~isnan(dirsM));
     td = td(~isnan([td.idx_movement_on]));
-    preMove = trimTD(td, {'idx_movement_on', -10}, {'idx_movement_on', 5});
+    preMove = trimTD(td, {'idx_movement_on', -10}, {'idx_movement_on', -5});
     postMove = trimTD(td, {'idx_movement_on', beforeMove}, {'idx_movement_on',afterMove});
     preMoveFiring = cat(3, preMove.(spikeLabel)).*100;
     
@@ -169,7 +169,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     dirsBump = dirsBump(~isnan(dirsBump));
     
     dirsBump = dirsBump(abs(dirsBump)<361);
-    preBump = trimTD(tdBump, {'idx_bumpTime', -10}, {'idx_bumpTime', 5});
+    preBump = trimTD(tdBump, {'idx_bumpTime', -10}, {'idx_bumpTime', -5});
 
     postBump = trimTD(tdBump, {'idx_bumpTime', beforeBump}, {'idx_bumpTime', afterBump});
     for i = 1:length(dirsBump)
@@ -192,7 +192,10 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     moveTot = cat(3, postMoveStat.meanCI);
     bumpPre = cat(2, preBumpStat.meanCI);
     movePre = cat(2, preMoveStat.meanCI);
-    theta = linspace(0, 7*pi/4, length(dirsM));
+    theta = linspace(0, max(dirsM), length(dirsM));
+    if max(dirsM)>2*pi
+        theta = deg2rad(theta);
+    end
 
    for i = 1:length(td(1).(spikeLabel)(1,:))
     

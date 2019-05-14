@@ -6,7 +6,7 @@ function mapping = getSensoryMappings(monkey)
         load([getBasePath(), 'SensoryMappings', filesep, 'LandoCompiledSensoryMappings.mat'])
         mapping = mappingFile;
     elseif strcmp(monkey, 'Crackle')
-        load([getBasePath(), 'SensoryMappings', filesep, 'CrackleMapping20190322.mat'])
+        load([getBasePath(), 'SensoryMappings', filesep, 'CrackleMapping20190509.mat'])
         mapping = mappingFile;
     end
 end

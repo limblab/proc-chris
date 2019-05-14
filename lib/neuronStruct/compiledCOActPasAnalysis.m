@@ -104,7 +104,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 %% Parameter defaults
 
     includeSpeedTerm = false;
-    cutoff = pi/3; %cutoff for significant of sinusoidal tuning
+    cutoff = pi/2; %cutoff for significant of sinusoidal tuning
     arrays= {'cuneate'}; %default arrays to look for
     windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
     windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
@@ -117,7 +117,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     tdAct = td(strcmp({td.result},'R'));
     tdAct = tdAct(~isnan([tdAct.idx_movement_on]));
     tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
-    tdBump = td(~isnan([td.bumpDir])); 
+    tdBump = td(~isnan([td.bumpDir]) & abs([td.bumpDir]) <361); 
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
     
 %% td preprocessing
@@ -147,7 +147,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         params.out_signals = [params.array, '_spikes'];
         params.distribution = distribution;
         params.out_signal_names =td(1).([params.array, '_unit_guide']); 
-        params.num_bins = 4;
+        params.num_bins = 8;
         params.window = windowAct;
         %% To train new GLM
         if train_new_model
@@ -192,20 +192,26 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         end
         %% Set all fields properly (probably a better way to do this)
         processedTrial(i).actPasStats = outStruct;
+        params.num_bins = sum(~isnan(unique([tdAct.target_direction])));
         processedTrial(i).tuningCurveAct= getTuningCurves(tdAct, params);
+        params.num_bins = sum(~isnan(unique([tdPas.bumpDir])));
         processedTrial(i).tuningCurvePas = getTuningCurves(tdPas,params);
-        mapping = td(1).([params.array,'_naming']);
         clear neuronProcessed;
+        
         neuronProcessed.chan = params.out_signal_names(:,1);
+        if any(contains(fieldnames(td),[params.array, '_naming']))
+            mapping = td(1).([params.array,'_naming']);
+            for j = 1:length(neuronProcessed.chan)
+                neuronProcessed.mapName(j, 1) = mapping(find(mapping(:,1) == neuronProcessed.chan(j)), 2);
+            end
+        end
         neuronProcessed.ID = params.out_signal_names(:,2);
         %% Iterate through the channels (channel #) and assign electrode # (corresponding to sensory mapping)
         % mapping is an nx2 matrix where n = number of units; the first
         % column corresponds to the channel # (what is in the cds) while
         % the second column is what I see when I do the sensory mapping.
         % The neuronProcessed.chan
-        for j = 1:length(neuronProcessed.chan)
-            neuronProcessed.mapName(j, 1) = mapping(find(mapping(:,1) == neuronProcessed.chan(j)), 2);
-        end
+
         neuronProcessed.actWindow = repmat({windowAct}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.pasWindow = repmat({windowPas}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.unitNum = params.out_signal_names(:,2);

@@ -23,8 +23,12 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
             else
                 daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'yyyyMMdd'), datetime(date, 'InputFormat', 'MM-dd-yyyy'));
             end
+        else
+            if contains(closestMap.date, '/')
+                daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'MM/dd/yyyy'), datetime(date, 'InputFormat', 'yyyyMMdd'));
             else
-            daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'MM/dd/yyyy'), datetime(date, 'InputFormat', 'yyyyMMdd'));
+                daysDiff = daysdif(datetime(closestMap.date, 'InputFormat', 'yyyyMMdd'), datetime(date, 'InputFormat', 'yyyyMMdd'));
+            end
         end
         if daysDiff < Inf
             neuron.sameDayMap = daysDiff == 0;

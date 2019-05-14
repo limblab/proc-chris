@@ -20,7 +20,7 @@ monkeyBLC = {monkeyButter, monkeyLando, monkeyCrackle, monkeyChips, monkeyHan};
 
 dateButter = '20190129';
 dateLando = '20170917';
-dateCrackle = '20190329';
+dateCrackle = '20190327';
 dateChips = '20170913';
 dateHan= '20171116';
 
@@ -145,31 +145,31 @@ xlim([0,1])
 
 figure2();
 subplot(5, 1,1)
-histogram(statTab(1).VelEnc,0:.05:1.0)
+histogram(statTab(1).SpeedEnc,0:.05:1.0)
 set(gca,'TickDir','out', 'box', 'off')
 title('Butter')
 xlim([0,1])
 
 subplot(5, 1,2)
-histogram(statTab(2).VelEnc,0:.05:1.0)
+histogram(statTab(2).SpeedEnc,0:.05:1.0)
 set(gca,'TickDir','out', 'box', 'off')
 title('Lando')
 xlim([0,1])
 
 subplot(5, 1,3)
-histogram(statTab(3).VelEnc,0:.05:1.0)
+histogram(statTab(3).SpeedEnc,0:.05:1.0)
 set(gca,'TickDir','out', 'box', 'off')
 title('Crackle')
 xlim([0,1])
 
 subplot(5, 1,4)
-histogram(statTab(4).VelEnc,0:.05:1.00)
+histogram(statTab(4).SpeedEnc,0:.05:1.00)
 set(gca,'TickDir','out', 'box', 'off')
 title('Chips (area 2)')
 xlim([0,1])
 
 subplot(5, 1,5)
-histogram(statTab(5).VelEnc,0:.05:1.0)
+histogram(statTab(5).SpeedEnc,0:.05:1.0)
 set(gca,'TickDir','out', 'box', 'off')
 title('Han (area 2)')
 suptitle('Encoding performance with Vel model')

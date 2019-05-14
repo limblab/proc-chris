@@ -4,6 +4,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     array = neuronStruct.array{1};
     monkey = neuronStruct.monkey{1};
     date = neuronStruct.date{1};
+    
 %     task = neuronStruct.task{1};
     plotModDepth = true;
     plotActVsPasPD = true;
@@ -13,6 +14,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     savePlots = true;
     useModDepths = true;
     rosePlot = true;
+    plotModDepthClassic = true;
     size1 = 18;
     tuningCondition = {'sinTunedAct','sinTunedPas','isSorted'};
     fh1 = [];
@@ -47,7 +49,14 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     else
         error('bad string')
     end
-    
+    actWindow = neurons.actWindow{1}';
+    actWindow = actWindow(:);
+    pasWindow = neurons.pasWindow{1}';
+    pasWindow = pasWindow(:);
+    pasWindow = cellfun(@num2str, pasWindow, 'un', 0);
+    actWindow = cellfun(@num2str, actWindow, 'un', 0);
+    pasWindow = strjoin(pasWindow, '_');
+    actWindow = strjoin(actWindow, '_');
 
     if plotModDepth
         fh1 = figure;
@@ -62,7 +71,27 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         set(gca,'TickDir','out', 'box', 'off')
         title('GLM PD fits Modulation Depths in Active and Passive')
     end
-    
+    if plotModDepthClassic
+        fh7 = figure;
+        hold on
+        actFiring = neurons.actTuningCurve.velCurve;
+        pasFiring = neurons.pasTuningCurve.velCurve;
+        for i =1:length(actFiring(:,1,1))
+            uActFiring = sort(actFiring(i,:));
+            uPasFiring = sort(pasFiring(i,:));
+            actMod(i) = uActFiring(end) - uActFiring(1);
+            pasMod(i) = uPasFiring(end) - uPasFiring(1);
+        end
+        maxActPas = max([actMod, pasMod]);
+        xlim([0, maxActPas])
+        ylim([0, maxActPas])
+        plot([0, maxActPas], [0, maxActPas], 'r--')
+        scatter(actMod, pasMod,'k', 'filled')
+        xlabel('Active Modulation Depth Classic (Hz)')
+        ylabel('Passive Modulation Depth Classic (Hz)')
+        set(gca,'TickDir','out', 'box', 'off')
+        title('Tuning Curve Modulation Depths in Active and Passive')
+    end
     if plotActVsPasPD
         actPDs =rad2deg(neurons.actPD.velPD);
         actPDsHigh = rad2deg(neurons.actPD.velPDCI(:,2));
@@ -164,7 +193,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     end
     
     if (savePlots)
-        savePath = [getBasicPath(monkey, dateToLabDate(date), getGenericTask('CO')), 'plotting', filesep ,'neuronStructPlots',filesep];
+        savePath = [getBasicPath(monkey, dateToLabDate(date), getGenericTask('CO')), 'plotting', filesep,'NeuronStructPlots', filesep, actWindow, '_', pasWindow, filesep];
         mkdir(savePath)
         title1 = string([monkey, '_',array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
         if plotPDDists
@@ -191,6 +220,9 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         if plotModDepth
             saveas(fh1, [savePath,char(strjoin(string([title1, 'ActPasModDepth.png']),''))]);
             saveas(fh1, [savePath,char(strjoin(string([title1, 'ActPasModDepth.pdf']),''))]);
+        end
+        if plotModDepthClassic
+            saveas(fh7, [savePath, char(strjoin(string([title1, 'ActPasModDepthClassic.png']),''))]);
         end
     end
 end

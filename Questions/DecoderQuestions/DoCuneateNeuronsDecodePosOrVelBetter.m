@@ -12,18 +12,18 @@ monkeyCrackle = 'Crackle';
 
 dateButter = '20180326';
 dateLando = '20170320';
-dateCrackle = '20190213';
+dateCrackle = '20190327';
 mappingLog = getSensoryMappings(monkeyButter);
 
-tdButter =getTD(monkeyCrackle, dateCrackle, 'CO');
+tdButter =getTD(monkeyCrackle, dateCrackle, 'CO',1);
 tdLando = getTD(monkeyLando, dateLando, 'COactpas');
-tdCrackle = getTD(monkeyCrackle, dateCrackle, 'CO');
+tdCrackle = getTD(monkeyCrackle, dateCrackle, 'CO',1);
 %% Preprocess them (binning, trimming etc)
 % tdButter = getRWMovements(tdButter);
 [~, tdButter]= getTDidx(tdButter,'result', 'r');
 [~, tdLando] = getTDidx(tdLando, 'result','r');
 % tdButter= removeBadTrials(tdButter);
-% tdButter= getMoveOnsetAndPeak(tdButter);
+tdButter= getMoveOnsetAndPeak(tdButter);
 tdButter= tdButter(~isnan([tdButter.idx_movement_on]));
 tdButter = trimTD(tdButter, {'idx_movement_on'}, 'idx_endTime');
 tdLando = removeBadTrials(tdLando);

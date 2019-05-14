@@ -9,19 +9,19 @@ savePDF = true;
 % monkey = 'Butter';
 % unitNames = 'cuneate';
 
-date = '20190507';
-monkey = 'Crackle';
-unitNames= 'cuneate';
+date = '20171116';
+monkey = 'Han';
+unitNames= 'S1';
 
-mappingLog = getSensoryMappings(monkey);
+% mappingLog = getSensoryMappings(monkey);
 
 beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
 
-td =getTD(monkey, date, 'CO',1);
-target_direction = 'target_direction';
+td =getTD(monkey, date, 'CO');
+target_direction = 'tgtDir';
 if length(td) == 1
     disp('Splitting')
     td = splitTD(td, struct('split_idx_name', 'idx_startTime', 'linked_fields', {{'bumpDir', 'ctrHold', 'ctrHoldBump', 'result', 'tgtDir', 'trialID'}} ));

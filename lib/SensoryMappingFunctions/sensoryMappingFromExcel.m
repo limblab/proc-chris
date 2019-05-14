@@ -44,5 +44,6 @@ function mapping =  sensoryMappingFromExcel(path, array, monkey)
     mappingNew = findMiddleArm(mappingNew);
     mappingNew = findDistalArm(mappingNew);
     mappingNew = findCutaneous(mappingNew);
+    mappingNew = addArrayDimsToSensoryMapping(mappingNew, td(1).cuneate_naming, 'Crackle');
     mapping = [mapping; mappingNew];
 end
