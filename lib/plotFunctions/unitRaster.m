@@ -4,7 +4,7 @@ function fh1 = unitRaster(trialData, params)
     xBound = [-.3, .3];
     yMax = 40;
     array ='cuneate';
-    align= 'movement_on';
+    align= 'bumpTime';
     neuron =2;
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     count=0;

@@ -15,8 +15,11 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     useModDepths = true;
     rosePlot = true;
     plotModDepthClassic = true;
+    plotSinusoidalFit = true;
+    colorRow = [];
     size1 = 18;
-    tuningCondition = {'sinTunedAct','sinTunedPas','isSorted'};
+    suffix = [];
+    tuningCondition = {'isSorted'};
     fh1 = [];
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     if iscell(tuningCondition)
@@ -44,10 +47,8 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         neurons = cuneateNeurons;
     elseif strcmp(array, 'area2') | strcmp(array,'LeftS1') | strcmp(array, 'LeftS1Area2')| strcmp(array, 'S1')
         neurons = s1Neurons;
-    elseif strcmp(array, 'all')
-        neurons = [cuneateNeurons; s1Neurons];
     else
-        error('bad string')
+        neurons = neuronStruct;
     end
     actWindow = neurons.actWindow{1}';
     actWindow = actWindow(:);
@@ -71,11 +72,33 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         set(gca,'TickDir','out', 'box', 'off')
         title('GLM PD fits Modulation Depths in Active and Passive')
     end
+    if plotSinusoidalFit
+        for i = 1:height(neurons)
+            bins = neurons.actTuningCurve.bins(i,:);
+            actCurve = neurons.actTuningCurve.velCurve(i,:);
+            pasCurve = neurons.pasTuningCurve.velCurve(i,:);
+            cosBins = [cos(bins); sin(bins)]';
+            lmAct = fitlm(cosBins, actCurve);
+            sinFitAct(i) = lmAct.Rsquared.Ordinary;
+            lmPas = fitlm(cosBins, pasCurve);
+            sinFitPas(i) = lmPas.Rsquared.Ordinary;
+            
+        end
+        fh8 = figure;
+        hold on
+        scatter(sinFitAct, sinFitPas,16, 'k', 'filled')
+        plot([0, 1], [0, 1], 'r--')
+
+        xlabel('Active Sinusoidal R2')
+        ylabel('Passive Sinusoidal R2')
+        set(gca,'TickDir','out', 'box', 'off')
+        title('Effectiveness of Sinusoidal fits in active and passive')
+    end
     if plotModDepthClassic
         fh7 = figure;
         hold on
-        actFiring = neurons.actTuningCurve.velCurve;
-        pasFiring = neurons.pasTuningCurve.velCurve;
+        actFiring = neurons.actTuningCurve.velCurve.*20;
+        pasFiring = neurons.pasTuningCurve.velCurve.*20;
         for i =1:length(actFiring(:,1,1))
             uActFiring = sort(actFiring(i,:));
             uPasFiring = sort(pasFiring(i,:));
@@ -117,10 +140,10 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         scatter(actPDs, pasPDs, size1*2,'k', 'filled')
         hold on
         errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'k.')
-%         for i = 1:length(actPDs)
-%             dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
-%             text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.mapName(i)));
-%         end
+        for i = 1:length(actPDs)
+            dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
+            text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.chan(i)));
+        end
         plot([-180, 180], [-180, 180], 'r--')
         title(['Act vs. Pas PDs ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
         xlabel('Active PD direction')
@@ -195,7 +218,11 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     if (savePlots)
         savePath = [getBasicPath(monkey, dateToLabDate(date), getGenericTask('CO')), 'plotting', filesep,'NeuronStructPlots', filesep, actWindow, '_', pasWindow, filesep];
         mkdir(savePath)
-        title1 = string([monkey, '_',array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
+        if ~isempty(suffix)
+            title1 = string([monkey, '_',array, '_', date, '_', strjoin(tuningCondition, '_'), '_', suffix, '_']);
+        else
+            title1 = string([monkey, '_',array, '_', date, '_', strjoin(tuningCondition, '_'), '_']);
+        end
         if plotPDDists
             saveas(fh5, [savePath,char(strjoin(string([title1, 'PDDistributionsActive.pdf']), ''))]);
             saveas(fh5, [savePath,char(strjoin(string([title1, 'PDDistributionsActive.png']), ''))]);
@@ -223,6 +250,13 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         end
         if plotModDepthClassic
             saveas(fh7, [savePath, char(strjoin(string([title1, 'ActPasModDepthClassic.png']),''))]);
+            saveas(fh7, [savePath, char(strjoin(string([title1, 'ActPasModDepthClassic.pdf']),''))]);
+
+        end
+        if plotSinusoidalFit
+            saveas(fh8, [savePath, char(strjoin(string([title1, 'SinusoidalR2.png']),''))]);
+            saveas(fh8, [savePath, char(strjoin(string([title1, 'SinusoidalR2.pdf']),''))]);
+
         end
     end
 end

@@ -20,14 +20,14 @@
 %% All of the loading variables
 clear all
 close all
-date = '20171122';
-task = 'COactpas';
-monkey = 'Han';
-array = 'S1';
+date = '20190215';
+task = 'CO';
+monkey = 'Butter';
+array = 'cuneate';
 
-number = 1;
+number = 2;
 
-sorted = true;
+sorted = false;
 % suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
 
@@ -54,6 +54,7 @@ opensimFilename = ['opensim_',monkey '_' date,'_',task, '.trc'];
 %%
 
 %%
+close all
 if motionTrack
 %     cds = easyCDS(monkey, task, date, array, number, sorted);
 
@@ -61,10 +62,10 @@ if motionTrack
     motionTrackPath = [getBasicPath(monkey, date, getGenericTask(task)), 'MotionTracking', filesep];
     motionTrackName = getMotionTrackName(monkey, date, task, number);
     load([motionTrackPath, motionTrackName])
-    color_tracker_4colors_script;
-    affine_xform = cds.loadRawMarkerData(fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep,markersFilename));
-    writeTRCfromCDS(cds,fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep, opensimFilename));
-    writeHandleForceFromCDS(cds,fullfile('OpenSim',[monkey '_' date '_TRT_handleForce.mot']))
+%     color_tracker_4colors_script;
+%     affine_xform = cds.loadRawMarkerData(fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep,markersFilename));
+%     writeTRCfromCDS(cds,fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep, opensimFilename));
+%     writeHandleForceFromCDS(cds,fullfile('OpenSim',[monkey '_' date '_TRT_handleForce.mot']))
 
     % load joint information
     cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_ang')

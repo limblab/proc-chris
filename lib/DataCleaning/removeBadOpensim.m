@@ -1,8 +1,20 @@
-function td = removeBadOpensim(td, params)
+function tdOut = removeBadOpensim(td, params)
+    bin_size = td(1).bin_size;
+    zeroParam = 1e-10;
+    if nargin > 1, assignParams(who,params); end % overwrite defaults
+    
+    removeTrials =[];
+    
     for i = 1:length(td)
         trial = td(i);
-        opensim = trial.opensim;
-        plot(.05:.05:.05*length(opensim(:,4)), opensim(:,4))
-        pause
+        opensim = trial.opensim(:,15:end);
+        dOpensim = diff(opensim);
+        mDOpensim = mean(dOpensim,2);
+        if any(abs(dOpensim(:,1)) < zeroParam)
+            removeTrials = [removeTrials,i];
+        end
     end
+    disp(['Removing ', num2str(length(removeTrials)), ' trials due to bad opensim'])
+    tdOut = td;
+    tdOut(removeTrials) = [];
 end

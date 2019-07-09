@@ -108,6 +108,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     arrays= {'cuneate'}; %default arrays to look for
     windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
     windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
+    windowEncPSTH = {'idx_movement_on', -30;'idx_movement_on', 60};
     distribution = 'poisson'; %what distribution to use in the GLM models
     train_new_model = true; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
     neuronProcessed1 = []; %
@@ -116,6 +117,9 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     tdAct = td(strcmp({td.result},'R'));
     tdAct = tdAct(~isnan([tdAct.idx_movement_on]));
+    
+    tdPSTH = trimTD(tdAct, windowEncPSTH(1,:), windowEncPSTH(2,:));
+    
     tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
     tdBump = td(~isnan([td.bumpDir]) & abs([td.bumpDir]) <361); 
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
@@ -146,7 +150,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         params.windowPas = windowPas;
         params.out_signals = [params.array, '_spikes'];
         params.distribution = distribution;
-        params.out_signal_names =td(1).([params.array, '_unit_guide']); 
+        params.out_signal_names =td(1).(['cuneate_unit_guide']); 
         params.num_bins = 8;
         params.window = windowAct;
         %% To train new GLM

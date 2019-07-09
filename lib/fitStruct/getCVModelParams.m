@@ -77,7 +77,8 @@ if isempty(b)  % fit a new model
                     else
                         s{i}(iVar) = s_temp;
                     end
-                    yPred{i} = glmval(b(:,iVar), xTest, glm_distribution); 
+                    yPred{i} = glmval(b{i}(:,iVar), xTest, 'log'); 
+                    cv(i,iVar) = get_metric(yTest(:,iVar), yPred{i}, 'pr2', 1);
                 end
             case 'linmodel'
                 for iVar = 1:size(y,2) % loop along outputs to predict

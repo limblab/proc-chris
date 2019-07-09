@@ -1,4 +1,4 @@
-function results = compiledCOEncoding(td, params)
+function [results,td] = compiledCOEncoding(td, params)
 array= 'cuneate';
 doCuneate= true;
 if nargin > 1, assignParams(who,params); end % overwrite parameters
@@ -11,7 +11,7 @@ td = td(~isnan([td.idx_movement_on]));
 td = trimTD(td, 'idx_movement_on', 'idx_endTime');
 td= tdToBinSize(td,50);
 % tdButter= removeBadTrials(tdButter);
-td(isnan([td.idx_endTime])) =[];
+% td(isnan([td.idx_endTime])) =[];
 td([td.idx_endTime] ==1) = [];
 Naming = td.([array, '_unit_guide']);
 sortedFlag = Naming(:,2) ~= 0;
@@ -28,61 +28,61 @@ params.eval_metric = 'pr2';
 params.in_signals= {'pos';'vel';'speed';'acc';'force'};
 params.model_name = 'Full';
 params.out_signals = {spikes};
-td= getModel(td, params);
+[td, modelFull]= getModel(td, params);
 fullPR2 = squeeze(evalModel(td, params));
 
 params.in_signals= {'vel';'speed';'acc';'force'};
 params.model_name = 'FullMinusPos';
 params.out_signals = {spikes};
-td= getModel(td, params);
+[td, modelFullMinusPos]= getModel(td, params);
 fullPR2minusPos = squeeze(evalModel(td, params));
 
 params.in_signals= {'pos';'speed';'acc';'force'};
 params.model_name = 'FullMinusVel';
 params.out_signals = {spikes};
-td= getModel(td, params);
+[td, modelFullMinusVel]= getModel(td, params);
 fullPR2minusVel = squeeze(evalModel(td, params));
 
 params.in_signals= {'pos';'vel';'speed';'acc'};
 params.model_name = 'FullMinusForce';
 params.out_signals = {spikes};
-td= getModel(td, params);
+[td, modelFullMinusForce]= getModel(td, params);
 fullPR2minusForce = squeeze(evalModel(td, params));
 
 params.in_signals= {'pos';'vel';'acc';'force'};
 params.model_name = 'FullMinusSpeed';
 params.out_signals = {spikes};
-td= getModel(td, params);
+[td, modelFullMinusSpeed]= getModel(td, params);
 fullPR2minusSpeed = squeeze(evalModel(td, params));
 
 params.in_signals= {'pos'};
 params.model_name = 'Pos';
-td= getModel(td, params);
+[td, modelPos]= getModel(td, params);
 posPR2 = squeeze(evalModel(td, params));
 
 params.in_signals= {'vel'};
 params.model_name = 'Vel';
-td= getModel(td, params);
+[td, modelVel]= getModel(td, params);
 velPR2 = squeeze(evalModel(td, params));
 
 params.in_signals= {'force'};
 params.model_name = 'Force';
-td= getModel(td, params);
+[td, modelForce]= getModel(td, params);
 forcePR2 = squeeze(evalModel(td, params));
 
 params.in_signals= {'speed'};
 params.model_name = 'Speed';
-td= getModel(td, params);
+[td, modelSpeed]= getModel(td, params);
 speedPR2 = squeeze(evalModel(td, params));
 
 params.in_signals= {'speed', 'vel'};
 params.model_name = 'VelSpeed';
-td= getModel(td, params);
+[td, modelVelSpeed]= getModel(td, params);
 velSpeedPR2 = squeeze(evalModel(td, params));
 
 params.in_signals ={'acc'};
 params.model_name = 'Acc';
-td= getModel(td,params);
+[td, modelAcc]= getModel(td,params);
 accPR2 = squeeze(evalModel(td, params));
 
 %%
@@ -108,5 +108,15 @@ results.PosEnc = Pos;
 results.SpeedEnc = Speed;
 results.VelSpeedEnc = VelSpeed;
 results.AccEnc = Acc;
+results.modelFull = modelFull;
+results.modelFullMinusPos =modelFullMinusPos;
+results.modelFullMinusVel = modelFullMinusVel;
+results.modelFullMinusForce =modelFullMinusForce;
+results.modelFullMinusSpeed =modelFullMinusSpeed;
+results.modelPos =modelPos;
+results.modelVel =modelVel;
+results.modelForce=modelForce;
+results.modelVelSpeed =modelVelSpeed;
+results.modelAcc =modelAcc;
 
 end

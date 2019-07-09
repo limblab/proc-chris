@@ -39,6 +39,7 @@ function [ closeMap ] = getClosestMap( neuron, mapping )
     end
     if bestRow ~= -1
         closeMap = mapping(bestRow);
+        closeMap.daysDif = daysApart;
     else
         closeMap = 'No mapping';
 end

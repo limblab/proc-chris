@@ -1,17 +1,11 @@
-% load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat')
-% % load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180329\TD\Butter_CO_20180329_4_TD_sorted-resort_resort.mat')
-% load('C:\Users\wrest\Documents\MATLAB\SensoryMappings\Butter\ButterMapping20180611.mat');
-% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180326\TD\Butter_CO_20180326_TD.mat');
-% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180607\TD\Butter_CO_20180607_TD.mat')
-% load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Butter\20180326\TD\Butter_CO_20180326_1_TD__Conservative.mat')
 
 %%
 clear all 
 close all
-date = '20170913';
-monkey = 'Chips';
-array = 'LeftS1Area2';
-useMapping = false;
+date = '20180607';
+monkey = 'Butter';
+array = 'cuneate';
+useMapping = true;
 
 if useMapping
     mappingFile = getSensoryMappings(monkey);
@@ -26,8 +20,10 @@ afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
 
-td =getTD(monkey, date, 'CO');
+td =getTD(monkey, date, 'CO',1);
 td = normalizeTDLabels(td);
+td = getNorm(td,struct('signals','vel','field_extra','speed'));
+
 %%
 if ~isfield(td, 'idx_movement_on')
     params.start_idx =  'idx_goCueTime';
@@ -54,11 +50,12 @@ if td(1).bin_size == .001
 end
 %%
 [processedTrialNew, neuronsNew] = compiledCOActPasAnalysis(td, param);
+neuronsNew = fitCOBumpPSTH(td, neuronsNew, params);
+% [processedTrialNew, neuronsNew] = compiledCOMoveAnalysis(td, param);
 %%
 %% Load the sensory mapping files, upload into the neuron structure
 param.array = array;
 param.sinTuned= neuronsNew.sinTunedAct | neuronsNew.sinTunedPas;
-getCOActPasStatsArbDir(td, param);
 neuronsCO = [neuronsNew];
 %%
 if useMapping
@@ -67,6 +64,8 @@ end
 saveNeurons(neuronsCO,'MappedNeurons');
 
 %% Compute the trial averaged speed of each direction
-params.tuningCondition = {'isSorted'};
-neuronStructPlot(neurons, params);
+close all
+params.tuningCondition = {'isCuneate', 'isSorted', 'sinTunedAct','sinTunedPas'};
+% params.suffix = 'Windowed';
+neuronStructPlot(neuronsCO, params);
 %%

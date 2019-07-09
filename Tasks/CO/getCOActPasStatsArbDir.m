@@ -1,4 +1,4 @@
-function [fh, outStruct, neurons] = getCOActPasStats(td,params)
+function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
   % getCOActPasStats
 %   This function is a compiled analysis pipeline for all days which use
 %   the CObump paradigm in an attempt to disentangle the active/passive
@@ -141,7 +141,7 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     end
     %% Computing helpful temp variables
     unitLabel = array;
-    unitGuide = [unitLabel, '_unit_guide'];
+    unitGuide = ['cuneate_unit_guide'];
     spikeLabel = [unitLabel, '_spikes'];
     
     
@@ -150,18 +150,18 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     td = td(~isnan([td.idx_movement_on]));
     preMove = trimTD(td, {'idx_movement_on', -10}, {'idx_movement_on', -5});
     postMove = trimTD(td, {'idx_movement_on', beforeMove}, {'idx_movement_on',afterMove});
-    preMoveFiring = cat(3, preMove.(spikeLabel)).*100;
-    
+    preMoveFiring = cat(3, preMove.(spikeLabel))/td(1).bin_size;
+    preMoveFiring(preMoveFiring == Inf |  preMoveFiring >1000) = 0;
     preMoveStat.meanCI(:,1) = squeeze(mean(mean(preMoveFiring, 3),1))';
     preMoveStat.meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(preMoveFiring))')';
 
     
     for i = 1:length(dirsM)
         postMoveDir{i} = postMove([postMove.target_direction] == dirsM(i));
-        postMoveFiring{i} = cat(3, postMoveDir{i}.(spikeLabel))*100;
+        postMoveFiring{i} = cat(3, postMoveDir{i}.(spikeLabel))/td(1).bin_size;
+        postMoveFiring{i}(postMoveFiring{i} == Inf |  postMoveFiring{i} >1000) = 0;
         postMoveStat(i).meanCI(:,1) = squeeze(mean(mean(postMoveFiring{i}, 3),1))';
         postMoveStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postMoveFiring{i}))')';
-
     end
     
     tdBump = td(~isnan([td.bumpDir]));
@@ -175,12 +175,15 @@ function [fh, outStruct, neurons] = getCOActPasStats(td,params)
     for i = 1:length(dirsBump)
         postBumpDir{i}= postBump([postBump.bumpDir] == dirsBump(i));
         postBumpFiring{i} = cat(3, postBumpDir{i}.(spikeLabel)).*100;
+        postBumpFiring{i}(postBumpFiring{i} == Inf |  postBumpFiring{i} >1000) = 0;
+
         postBumpStat(i).meanCI(:,1) = squeeze(mean(mean(postBumpFiring{i}, 3),1))';
         postBumpStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postBumpFiring{i}))')';
 
     end
     preBumpFiring = cat(3, preBump.(spikeLabel)).*100;
-    
+    preBumpFiring(preBumpFiring == Inf |  preBumpFiring >1000) = 0;
+
     preBumpStat.meanCI(:,1) = squeeze(mean(mean(preBumpFiring, 3),1))';
     preBumpStat.meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(preBumpFiring))')';
 

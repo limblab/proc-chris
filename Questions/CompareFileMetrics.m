@@ -84,17 +84,18 @@ for i = 1:5
     statTab(i,1).SpeedMeanLowR2Decoding = results.SpeedLow;
     statTab(i,1).SpeedMeanHighR2Decoding = results.SpeedHigh; 
     params.doCuneate = strcmp(array, 'cuneate');
-    results = compiledCOEncoding(td, params);
-    statTab(i,1).FullEnc = results.FullEnc;
-    statTab(i,1).FullNoPosEnc = results.FullNoPosEnc;
-    statTab(i,1).FullNoVelEnc = results.FullNoVelEnc;
-    statTab(i,1).FullNoForceEnc= results.FullNoForceEnc;
-    statTab(i,1).FullNoSpeedEnc = results.FullNoSpeedEnc;
-    statTab(i,1).VelEnc = results.VelEnc;
-    statTab(i,1).PosEnc = results.PosEnc;
-    statTab(i,1).SpeedEnc = results.SpeedEnc;
-    statTab(i,1).VelSpeedEnc = results.VelSpeedEnc;
-    statTab(i,1).AccEnc = results.AccEnc;
+    resultsEnc = compiledCOEncoding(td, params);
+    statTab(i,1).FullEnc = resultsEnc.FullEnc;
+    statTab(i,1).FullNoPosEnc = resultsEnc.FullNoPosEnc;
+    statTab(i,1).FullNoVelEnc = resultsEnc.FullNoVelEnc;
+    statTab(i,1).FullNoForceEnc= resultsEnc.FullNoForceEnc;
+    statTab(i,1).FullNoSpeedEnc = resultsEnc.FullNoSpeedEnc;
+    statTab(i,1).VelEnc = resultsEnc.VelEnc;
+    statTab(i,1).PosEnc = resultsEnc.PosEnc;
+    statTab(i,1).SpeedEnc = resultsEnc.SpeedEnc;
+    statTab(i,1).VelSpeedEnc = resultsEnc.VelSpeedEnc;
+    statTab(i,1).AccEnc = resultsEnc.AccEnc;
+    
 end
 save('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Compiled\compiledFileMetrics.mat', 'statTab');
 %%
@@ -102,6 +103,7 @@ close all
 disp(struct2table(statTab))
 decodeMat = [[statTab(:).PosMeanR2Decoding]', [statTab(:).VelMeanR2Decoding]', [statTab(:).SpeedMeanR2Decoding]'];
 c = categorical({'Butter','Lando', 'Crackle', 'Chips (area2)', 'Han (area2)'});
+c = reordercats(c, {'Butter','Lando', 'Crackle', 'Chips (area2)', 'Han (area2)'});
 figure2();
 bar(c, decodeMat)
 set(gca,'TickDir','out', 'box', 'off')
@@ -141,35 +143,35 @@ title('Han (area 2)')
 suptitle('Encoding performance with full model')
 xlim([0,1])
 
-
+%%
 
 figure2();
 subplot(5, 1,1)
-histogram(statTab(1).SpeedEnc,0:.05:1.0)
+histogram(statTab(1).VelEnc,0:.05:1.0)
 set(gca,'TickDir','out', 'box', 'off')
 title('Butter')
 xlim([0,1])
 
 subplot(5, 1,2)
-histogram(statTab(2).SpeedEnc,0:.05:1.0)
+histogram(statTab(2).VelEnc,0:.05:1.0)
 set(gca,'TickDir','out', 'box', 'off')
 title('Lando')
 xlim([0,1])
 
 subplot(5, 1,3)
-histogram(statTab(3).SpeedEnc,0:.05:1.0)
+histogram(statTab(3).VelEnc,0:.05:1.0)
 set(gca,'TickDir','out', 'box', 'off')
 title('Crackle')
 xlim([0,1])
 
 subplot(5, 1,4)
-histogram(statTab(4).SpeedEnc,0:.05:1.00)
+histogram(statTab(4).VelEnc,0:.05:1.00)
 set(gca,'TickDir','out', 'box', 'off')
 title('Chips (area 2)')
 xlim([0,1])
 
 subplot(5, 1,5)
-histogram(statTab(5).SpeedEnc,0:.05:1.0)
+histogram(statTab(5).VelEnc,0:.05:1.0)
 set(gca,'TickDir','out', 'box', 'off')
 title('Han (area 2)')
 suptitle('Encoding performance with Vel model')
