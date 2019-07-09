@@ -25,7 +25,7 @@ for trial = 1:length(td)
             negFlag = data <0;
             data = abs(data).^powers(j);
             if keep_sign
-                negMat = zeros(length(data(:,1)), length(data(1,:)));
+                negMat = ones(length(data(:,1)), length(data(1,:)));
                 negMat(negFlag) = -1;
                 data = data.*negMat;
             end

@@ -97,6 +97,8 @@ net = b;
 if isempty(b) && isempty(net)  % fit a new model
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % build inputs and outputs for training
+    c = cvpartition(length(trial_data(:,1)),'kfold', num_folds);
+    
     xAll = get_vars(trial_data(train_idx),in_signals);
     yAll = get_vars(trial_data(train_idx),out_signals);
     
@@ -106,7 +108,7 @@ if isempty(b) && isempty(net)  % fit a new model
         xAll(idx,:) = [];
         yAll(idx,:) = [];
     end
-    c = cvpartition(length(xAll(:,1)),'kfold', num_folds);
+    c = cvpartition(length(trial_data(:,1)),'kfold', num_folds);
 
     for i = 1 : num_folds
         
@@ -124,7 +126,8 @@ if isempty(b) && isempty(net)  % fit a new model
     
     switch lower(model_type)
         case 'glm' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            yfit{i} = zeros(size(y));
+            yfitTrain{i} = zeros(size(y));
+            yfitTest{i} = zeros(size(yTest));
             for iVar = 1:size(y,2) % loop along outputs to predict
                 if do_lasso % not quite implemented yet
                     % NOTE: Z-scores here!
@@ -133,7 +136,8 @@ if isempty(b) && isempty(net)  % fit a new model
                     yfit{i}(:,iVar) = exp([ones(size(x,1),1), zscore(x)]*b(:,iVar));
                 else
                     [b{i}(:,iVar),~,s_temp] = glmfit(x,y(:,iVar),glm_distribution);
-                    yfit{i} = glmval(b{i}(:,iVar), xTest, 'log');
+                    yfitTrain{i}(:,iVar) = glmval(b{i}(:,iVar), x, 'log');
+                    yfitTest{i}(:,iVar) = glmval(b{i}(:,iVar), xTest, 'log');
                 end
                 
                 if isempty(s)
@@ -141,7 +145,7 @@ if isempty(b) && isempty(net)  % fit a new model
                 else
                     s{i}(iVar) = s_temp;
                 end
-                cv(i, iVar) = 1-norm(yfit{i}(:,iVar)-yTest(:,iVar))/norm(mean(yTest(:,iVar))- yTest(:,iVar));
+                cv(i, iVar) = 1-norm(yfitTest{i}(:,iVar)-yTest(:,iVar))/norm(mean(yTest(:,iVar))- yTest(:,iVar));
             end
             
         case 'linmodel' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
