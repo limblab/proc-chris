@@ -20,14 +20,14 @@
 %% All of the loading variables
 clear all
 close all
-date = '20190215';
+date = '20190819';
 task = 'CO';
-monkey = 'Butter';
+monkey = 'Snap';
 array = 'cuneate';
 
-number = 2;
+number = 1;
 
-sorted = false;
+sorted = true;
 % suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
 

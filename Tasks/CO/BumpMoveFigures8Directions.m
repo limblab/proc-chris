@@ -3,14 +3,16 @@ close all
 clear all
 plotRasters = 1;
 savePlots = 1;
+isMapped = true;
 savePDF = true;
 % 
 % date = '20190129';
 % monkey = 'Butter';
 % unitNames = 'cuneate';
-
-date = '20180607';
-monkey = 'Butter';
+params.start_idx =  'idx_goCueTime';
+params.end_idx = 'idx_endTime';
+date = '20190819';
+monkey = 'Snap';
 unitNames= 'cuneate';
 
 mappingLog = getSensoryMappings(monkey);
@@ -21,6 +23,8 @@ beforeMove = .3;
 afterMove = .6;
 
 td =getTD(monkey, date, 'CO',1);
+td = getSpeed(td);
+
 target_direction = 'target_direction';
 if length(td) == 1
     disp('Splitting')
@@ -52,7 +56,7 @@ if contains(unitNames, 'cuneate')
     mkdir([savePath, 'Cuneate']);
     mkdir([savePath, 'Gracile']);
 
-    if isfield(td(1),'cuneate_naming')
+    if isfield(td(1),'cuneate_naming') & isMapped
     elec2MapName = td(1).cuneate_naming;
     for i = 1:length(td(1).(unitSpikes)(1,:))
         gracileFlag(i) = getGracile(monkey, elec2MapName(elec2MapName(:,1) == td(1).cuneate_unit_guide(i,1),2));
@@ -67,7 +71,7 @@ w = gausswin(5);
 w = w/sum(w);
 
 
-numCount = 111:length(td(1).(unitSpikes)(1,:));
+numCount = 1:length(td(1).(unitSpikes)(1,:));
 %% Data Preparation and sorting out trials
 
 dirsM = unique([td.(target_direction)]);
@@ -183,6 +187,8 @@ for num1 = numCount
             
            
         end
+        if isMapped
+
         subplot(7, 3, 19)
         neuron.date = date;
         neuron.monkey = monkey;
@@ -200,7 +206,9 @@ for num1 = numCount
         end
         
         tx = text(0,0,txt);
+        
         extent = tx.Extent;
+     
         xlim([extent(1), extent(1) + extent(3)])
         ylim([extent(2), extent(2) + extent(4)])
         set(gca,'ycolor','w')
@@ -214,6 +222,7 @@ for num1 = numCount
         ylim([extent(2), extent(2) + extent(4)])
         set(gca,'ycolor','w')
         set(gca,'xcolor','w')
+        end
         for i = 1:length(dirs)
             switch dirs(i)
                 case {0 | 0}
@@ -330,7 +339,7 @@ for num1 = numCount
 
             thetaPlot = [theta,theta(1)];
             
-            subplot(7,3, [8,11])
+            subplot('Position',[.39,.48,.25,.2])
 
             polarplot(thetaPlot, [moveHigh;moveHigh(1)], 'Color', [.4,.4,1], 'LineWidth', 2)
             hold on
@@ -351,7 +360,7 @@ for num1 = numCount
 
             thetaPlot = [theta,theta(1)];
 
-            subplot('Position',[.385,.365,.25,.25])
+            subplot('Position',[.39,.48,.25,.2])
             polarplot(thetaPlot, [bumpHigh; bumpHigh(1)], 'Color', [1,.4,.4], 'LineWidth', 2)
             hold on 
             polarplot(thetaPlot, [bumpMean;bumpMean(1)], 'Color', [1,0,0], 'LineWidth', 2)

@@ -3,7 +3,7 @@ function mappingFile = addArrayDimsToSensoryMapping(mappingLog, naming, monkey)
     for i = 1:length(mappingLog)
         mapRow = mappingLog(i);
         mapChan = mappingLog(i).chan;
-        pinChan = naming(naming(:,1)==mapChan,2);
+        pinChan = naming(naming(:,2)==mapChan,1);
         mapShape= getMapShape(monkey);
         [row, col] = find(mapShape == mapChan);
         mapRow.row = row;

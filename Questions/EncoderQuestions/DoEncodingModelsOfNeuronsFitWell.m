@@ -38,9 +38,8 @@ crList =  [1 2 1 2; ...
            72 1 72 2; ...
            74 1 74 1;...
            76 1 76 1];
-       
-monkey = 'Butter';
-date = '20180607';
+monkey = 'Snap';
+date = '20190819';
 array = 'cuneate';
 task = 'CO';
 params.doCuneate = true;
@@ -53,6 +52,7 @@ end
 tdButter = smoothSignals(tdStart, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', .01));
 
 tdButter = getNorm(tdButter,struct('signals','vel','norm_name','speed'));
+tdButter = getSpeed(tdButter);
 
 tdButter = getMoveOnsetAndPeak(tdButter);
 % getGracile
@@ -76,6 +76,7 @@ tdButter([tdButter.idx_endTime] ==1) = [];
 butterNaming = tdButter.([array, '_unit_guide']);
 sortedFlag = butterNaming(:,2) ~= 0;
 [tdButter, cunFlag] = getTDCuneate(tdButter);
+
 tdButter = rectifyTDSignal(tdButter, struct('signals', 'vel'));
 tdButter = rectifyTDSignal(tdButter, struct('signals', 'vel','rect_type', 'hw'));
 

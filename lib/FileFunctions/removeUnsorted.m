@@ -67,9 +67,9 @@ for a = 1:length(arrays)
             temp = trial_data(trial).([array '_unit_guide']);
             temp(bad_units,:) = [];
             trial_data(trial).([array '_unit_guide']) = temp;
-            temp = trial_data(trial).([array '_ts']);
-            temp(bad_units) = [];
-            trial_data(trial).([array '_ts'])= temp;
+%             temp = trial_data(trial).([array '_ts']);
+%             temp(bad_units) = [];
+%             trial_data(trial).([array '_ts'])= temp;
         end
         bad_units = find(bad_units);
     else

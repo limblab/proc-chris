@@ -8,5 +8,8 @@ function mapping = getSensoryMappings(monkey)
     elseif strcmp(monkey, 'Crackle')
         load([getBasePath(), 'SensoryMappings', filesep, 'CrackleMapping20190509.mat'])
         mapping = mappingFile;
+    elseif strcmp(monkey, 'Snap')
+        load([getBasePath(), 'SensoryMappings', filesep, 'SnapMapping20190818.mat'])
+        mapping = mappingFile;
     end
 end

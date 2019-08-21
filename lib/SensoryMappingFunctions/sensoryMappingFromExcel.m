@@ -1,7 +1,11 @@
 function mapping =  sensoryMappingFromExcel(path, array, monkey)
 
     mapping = getSensoryMappings(monkey);
-    prevMappedDates = unique({mapping.date});
+    if isfield(mapping, 'date')
+        prevMappedDates = unique({mapping.date});
+    else
+        prevMappedDates = [];
+    end
     [num, txt, raw] = xlsread(path, ['sensoryMappings', array]);
     colsToRemove = [];
     for i = 2:length(raw(1, :))
@@ -44,6 +48,7 @@ function mapping =  sensoryMappingFromExcel(path, array, monkey)
     mappingNew = findMiddleArm(mappingNew);
     mappingNew = findDistalArm(mappingNew);
     mappingNew = findCutaneous(mappingNew);
+    load('Snap_CO_20190816_TD_001.mat')
     mappingNew = addArrayDimsToSensoryMapping(mappingNew, td(1).cuneate_naming, 'Crackle');
     mapping = [mapping; mappingNew];
 end

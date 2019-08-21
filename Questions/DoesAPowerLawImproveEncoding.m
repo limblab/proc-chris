@@ -1,10 +1,7 @@
 % Load all files for comparison
 clearvars -except tdStart
-% monkey = 'Lando';
-% date = '20170223';
-% array = 'LeftS1';
-% task = 'RW';
-% params.doCuneate = false;
+params.start_idx        =  'idx_goCueTime';
+params.end_idx          =  'idx_endTime';
 % 
 crList =  [1 2 1 2; ...
            2 1 2 1;...
@@ -40,9 +37,9 @@ crList =  [1 2 1 2; ...
            76 1 76 1];
        
 monkey = 'Butter';
-date = '20180530';
+date = '20180607';
 array = 'cuneate';
-task = 'COmovebump';
+task = 'CO';
 params.doCuneate = true;
 powersToTest = [.1:.05:1];
 mappingLog = getSensoryMappings(monkey);
@@ -51,17 +48,15 @@ if ~exist('tdStart')
     tdStart = tdToBinSize(tdStart, 10);
 end
 tdButter = smoothSignals(tdStart, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', .03));
+tdButter = getSpeed(tdButter);
 
-tdButter = getNorm(tdButter,struct('signals','vel','norm_name','speed'));
-
-tdButter = getMoveOnsetAndPeak(tdButter);
-% getGracile
-% tdButter = smoothSignals(tdButter, struct('signals', 'cuneate_spikes'));
+tdButter = getMoveOnsetAndPeak(tdButter, params);
 
 %% Preprocess them (binning, trimming etc)
 param.min_fr = 1;
 % tdButter= removeBadNeurons(tdButter, param);
 tdButter = removeUnsorted(tdButter);
+tdButter=  removeUnmapped(tdButter, struct('flags' , {{'spindle'}}));
 tdButter = tdButter(getTDidx(tdButter, 'result','R'));   
 % tdButter = getRWMovements(tdButter);
 

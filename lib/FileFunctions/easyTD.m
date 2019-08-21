@@ -47,7 +47,7 @@ function td = easyTD(path, monkey, task, date)
         td_meta = struct('task',task);
         params.meta = td_meta;
         td = parseFileByTrial(cds, params);
-        td = getMoveOnsetAndPeak(td,params);
+%         td = getMoveOnsetAndPeak(td,params);
     elseif strcmp(getGenericTask(task), 'WFH')
         params.event_list = {'tgtOn';'goCue';'startTime';'endTime';'tgtDir'};
         td= parseFileByTrial(cds,params);

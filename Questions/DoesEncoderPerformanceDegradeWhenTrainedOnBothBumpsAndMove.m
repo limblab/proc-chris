@@ -6,6 +6,8 @@ clearvars -except tdStart
 % task = 'RW';
 % params.doCuneate = false;
 % 
+params.start_idx        =  'idx_goCueTime';
+params.end_idx          =  'idx_endTime';
 crList =  [1 2 1 2; ...
            2 1 2 1;...
            3 1 3 1;...
@@ -42,7 +44,7 @@ crList =  [1 2 1 2; ...
 monkey = 'Butter';
 date = '20180530';
 array = 'cuneate';
-task = 'COmoveBump';
+task = 'COmovebump';
 params.doCuneate = true;
 if strcmp(date, '20180607')
     centerHold = true;
@@ -54,11 +56,12 @@ if ~exist('tdStart') | ~strcmp(date, tdStart(1).date)
     tdStart =getTD(monkey, date, task,1);
     tdStart = tdToBinSize(tdStart, 10);
 end
+tdStart = getSpeed(tdStart);
+
 tdButter = smoothSignals(tdStart, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', .03));
 
-tdButter = getNorm(tdButter,struct('signals','vel','norm_name','speed'));
 
-tdButter = getMoveOnsetAndPeak(tdButter);
+tdButter = getMoveOnsetAndPeak(tdButter, params);
 % getGracile
 % tdButter = smoothSignals(tdButter, struct('signals', 'cuneate_spikes'));
 
@@ -164,7 +167,7 @@ for i = 1:length(crList(:,1))
 end
 %%
 close all
-modelNum = 1;
+modelNum = 8;
 
 pr2Combo1Temp = pr2Combo1(:,indList)';
 pr2Combo2Temp = pr2Combo2(:,indList)';
@@ -228,10 +231,35 @@ ylabel('PR2 Single-context')
 set(gca,'TickDir','out', 'box', 'off')
 
 %%
-pr2Deg1 = pr2Only1Temp(:,modelNum) - pr2Combo1Temp(:,modelNum);
+close all
+pr2Deg1 =pr2Combo1Temp(:,modelNum)- pr2Only1Temp(:,modelNum);
 encVecDif = encVecOnly1(modelNum,:) - encVecOnly2(modelNum,:);
 figure
-scatter(pr2Deg1, encVecDif(indList))
+scatter(encVecOnly1(modelNum,indList), encVecOnly2(modelNum,indList),'filled')
+hold on
+tmp = [encVecOnly1(modelNum,indList), encVecOnly2(modelNum, indList)];
+plot([min(tmp), max(tmp)], [min(tmp),max(tmp)], 'k--')
+title('Encoding Vector lengths for both single-context models')
+if ~centerHold
+    xlabel({'Unperturbed reaching vector length', '(ie. sensitivity'})
+    ylabel({'Reach-bump vector length', '(ie. sensitivity'})
+else
+    xlabel({'Unperturbed reaching vector length', '(ie. sensitivity'})
+    ylabel({'Center-bump vector length', '(ie. sensitivity'})
+end
+figure
+scatter(pr2Deg1, encVecDif(indList),'filled')
+if ~centerHold
+    xlabel('PR2 change from dual-context')
+    ylabel({'Encoding Vector length change', '(ie. sensitivity)'})
+    title({'Encoding Vector length changes are correlated with PR2 degradation', 'Sensitivity explains ~30% of change'})
+else
+    xlabel('PR2 change by including multiple contexts')
+    ylabel({'Change in encoding vector length' , '(ie. sensitivity to kinematics)'})
+    title({'Encoding Vector length changes are uncorrelated with PR2 degradation'})
+
+end
+
 fitlm(pr2Deg1, encVecDif(indList))
 %%
 close all

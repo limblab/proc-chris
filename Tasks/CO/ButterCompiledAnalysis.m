@@ -2,8 +2,8 @@
 %%
 clear all 
 close all
-date = '20180607';
-monkey = 'Butter';
+date = '20190819';
+monkey = 'Snap';
 array = 'cuneate';
 useMapping = true;
 
@@ -22,7 +22,7 @@ afterMove = .3;
 
 td =getTD(monkey, date, 'CO',1);
 td = normalizeTDLabels(td);
-td = getNorm(td,struct('signals','vel','field_extra','speed'));
+td = getSpeed(td);
 
 %%
 if ~isfield(td, 'idx_movement_on')
@@ -31,7 +31,7 @@ if ~isfield(td, 'idx_movement_on')
     td = getMoveOnsetAndPeak(td, params);
 end
 
-windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
+windowAct= {'idx_movement_on', 0; 'idx_endTime',0}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
 param.arrays = {array};
 param.in_signals = {'vel'};
@@ -65,7 +65,7 @@ saveNeurons(neuronsCO,'MappedNeurons');
 
 %% Compute the trial averaged speed of each direction
 close all
-params.tuningCondition = {'isCuneate', 'isSorted', 'sinTunedAct','sinTunedPas'};
+params.tuningCondition = {'isSorted', 'sinTunedAct', 'sinTunedPas','proximal'};
 % params.suffix = 'Windowed';
 neuronStructPlot(neuronsCO, params);
 %%

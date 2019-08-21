@@ -55,10 +55,10 @@
 function [trainTD, testTD, comboTD,model_info, cv] = getModelCV(trial_data,params)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEFAULT PARAMETERS
-model_type    =  'GLM';
+model_type    =  'linmodel';
 model_name    =  'default';
-in_signals    =  {'vel'};%{'name',idx; 'name',idx};
-out_signals   =  {'cuneate_spikes'};%{'name',idx};
+in_signals    =  {'cuneate_spikes'};%{'name',idx; 'name',idx};
+out_signals   =  {'vel'};%{'name',idx};
 train_idx     =  1:length(trial_data);
 polynomial    =  0; % order of cascaded nonlinearity
 % GLM-specific parameters
@@ -66,6 +66,7 @@ do_lasso      =  false;
 lasso_lambda  =  0;
 lasso_alpha   =  0;
 num_folds     =  5;
+eval_metric   = 'r2';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Here are some parameters that you can overwrite that aren't documented
 add_pred_to_td       =  true;      % whether to add predictions to trial_data
@@ -97,33 +98,31 @@ net = b;
 if isempty(b) && isempty(net)  % fit a new model
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % build inputs and outputs for training
-    c = cvpartition(length(trial_data(:,1)),'kfold', num_folds);
-    
-    xAll = get_vars(trial_data(train_idx),in_signals);
-    yAll = get_vars(trial_data(train_idx),out_signals);
-    
-    if any(any(isnan(xAll))) | any(any(isnan(yAll)))
-        disp('Found NaNs in training data... removing');
-        idx = any(isnan(xAll),2) | any(isnan(All),2);
-        xAll(idx,:) = [];
-        yAll(idx,:) = [];
-    end
-    c = cvpartition(length(trial_data(:,1)),'kfold', num_folds);
-
+    c = cvpartition(length(trial_data),'kfold', num_folds);
     for i = 1 : num_folds
+    
+    trainTD = trial_data(training(c, i));
+    testTD = trial_data(test(c, i));
         
+    x = get_vars(trainTD,in_signals);
+    y = get_vars(trainTD,out_signals);
+    
+    xTest = get_vars(testTD, in_signals);
+    yTest = get_vars(testTD, out_signals);
+    
+    if any(any(isnan(x))) | any(any(isnan(y)))
+        disp('Found NaNs in training data... removing');
+        idx = any(isnan(x),2) | any(isnan(All),2);
+        x(idx,:) = [];
+        y(idx,:) = [];
+    end
+
         
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Fit GLMs
-    if polynomial > 0, P = zeros(size(yAll,2),polynomial+1); end
-    b{i} = zeros(size(xAll,2)+1,size(yAll,2));
-    
-    x = xAll(training(c, i),:);
-    y = yAll(training(c, i),:);
-
-    xTest = xAll(test(c,i), :);
-    yTest = yAll(test(c,i), :);
-    
+    if polynomial > 0, P = zeros(size(y,2),polynomial+1); end
+    b{i} = zeros(size(x,2)+1,size(y,2));
+        
     switch lower(model_type)
         case 'glm' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             yfitTrain{i} = zeros(size(y));
@@ -145,26 +144,18 @@ if isempty(b) && isempty(net)  % fit a new model
                 else
                     s{i}(iVar) = s_temp;
                 end
-                cv(i, iVar) = 1-norm(yfitTest{i}(:,iVar)-yTest(:,iVar))/norm(mean(yTest(:,iVar))- yTest(:,iVar));
+                cv(i, iVar) = get_metric(yfitTest{i}(:,iVar),yTest(:,iVar), eval_metric);
             end
             
         case 'linmodel' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            yfit = zeros(size(y));
+            yfit{i} = zeros(size(y));
             for iVar = 1:size(y,2) % loop along outputs to predict
                 b{i}(:,iVar) = [ones(size(x,1),1), x]\y(:,iVar);
-                yfit{i}(:,iVar) = [ones(size(x,1),1), x]*b(:,iVar);
-                cv(i, iVar) = 1-norm(yfit{i}(:,iVar)-yTest(:,iVar))/norm(mean(yTest(:, iVar))-yTest(:, iVar));
+                yfit{i}(:,iVar) = [ones(size(x,1),1), x]*b{i}(:,iVar);
+                yfitTest{i}(:,iVar) = [ones(size(xTest, 1),1), xTest]*b{i}(:,iVar);
+                cv(i, iVar) = get_metric(yfitTest{i}(:,iVar), yTest(:,iVar), eval_metric);
             end
-            
-        case 'nn' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            net = feedforwardnet(layer_sizes, train_func);
-            net{i} = train(net, x', y');
-            b{i} = net{i};
-            yfit = net(x')';
-            
-        case 'kalman' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            kf_model = train_kalman(x,y);
-            yfit = predict_kalman(kf_model,x,y(1,:),zeros(size(y,2)));
+
     end
     
     
@@ -190,39 +181,29 @@ end
 if add_pred_to_td
 
         
-    yfit = zeros(size(x,1),size(b,2));
 
-    trainTD = trial_data(training(c, 1),:);
-    testTD = trial_data(test(c,1),:);
+    trainTD = trial_data(training(c, 1));
+    testTD = trial_data(test(c,1));
     
     for trial = 1:length(trainTD)
         x  = get_vars(trainTD(trial),in_signals);
         y  = get_vars(trainTD(trial),out_signals);
-        
+        yfit = zeros(size(x,1),size(b{1},2));
+
         switch lower(model_type)
             case 'glm' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 for iVar = 1:size(b,2)
                     if do_lasso
-                        yfit(:,iVar) = exp([ones(size(x,1),1), zscore(x)]*b(:,iVar));
+                        yfit(:,iVar) = exp([ones(size(x,1),1), zscore(x)]*b{1}(:,iVar));
                     else
-                        yfit(:,iVar) = exp([ones(size(x,1),1), x]*b(:,iVar));
+                        yfit(:,iVar) = exp([ones(size(x,1),1), x]*b{1}(:,iVar));
                     end
                 end
                 
             case 'linmodel' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                for iVar = 1:size(b,2)
-                    yfit(:,iVar) = [ones(size(x,1),1), x]*b(:,iVar);
+                for iVar = 1:size(b{1},2)
+                    yfit(:,iVar) = [ones(size(x,1),1), x]*b{1}(:,iVar);
                 end
-                
-            case 'nn' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                warning('neural net is not implemented properly for re-testing. Code cycles along predicted variables but the neural net predicts all at once.');
-                yfit = net(x')';
-                
-            case 'kalman' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                if trial == 1
-                    V = zeros(size(y,2));
-                end
-                [yfit,V] = predict_kalman(kf_model,x,y(1,:),squeeze(V(:,:,1)));
         end
         
         % if there's a polynomial, cascade it!
@@ -238,17 +219,17 @@ if add_pred_to_td
         
         switch lower(model_type)
             case 'glm' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                for iVar = 1:size(b,2)
+                for iVar = 1:size(b{1},2)
                     if do_lasso
-                        yfit(:,iVar) = exp([ones(size(x,1),1), zscore(x)]*b(:,iVar));
+                        yfit(:,iVar) = exp([ones(size(x,1),1), zscore(x)]*b{1}(:,iVar));
                     else
-                        yfit(:,iVar) = exp([ones(size(x,1),1), x]*b(:,iVar));
+                        yfit(:,iVar) = exp([ones(size(x,1),1), x]*b{1}(:,iVar));
                     end
                 end
                 
             case 'linmodel' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                for iVar = 1:size(b,2)
-                    yfit(:,iVar) = [ones(size(x,1),1), x]*b(:,iVar);
+                for iVar = 1:size(b{1},2)
+                    yfit(:,iVar) = [ones(size(x,1),1), x]*b{1}(:,iVar);
                 end
                 
             case 'nn' %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -270,7 +251,7 @@ if add_pred_to_td
         
     end
 end
-
+comboTD = [trainTD, testTD];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Package up outputs
@@ -328,4 +309,31 @@ switch lower(model_type)
             'P',   P, ...
             'cv',  cv);
         
+end
+function metric = get_metric(varargin)
+y_test         = varargin{1};
+eval_metric    = varargin{3};
+y_fit = varargin{2};
+
+if nargin == 3 % normal metric
+    switch lower(eval_metric)
+        case 'pr2'
+            metric = compute_pseudo_R2(y_test,y_fit,mean(y_test));
+        case 'vaf'
+            metric = compute_vaf(y_test,y_fit);
+        case 'r2'
+            metric = compute_r2(y_test,y_fit);
+    end
+elseif nargin == 5 % relative metric
+    y_fit2 = varargin{3};
+    switch lower(eval_metric)
+        case 'pr2'
+            metric = compute_rel_pseudo_R2(y_test(bs),y_fit(bs),y_fit2(bs));
+        case 'vaf'
+            error('VAF not yet implemented for relative metrics');
+        case 'r2'
+            error('R2 not yet implemented for relative metrics');
+        case 'r'
+            error('r not yet implemented for relative metrics');
+    end
 end

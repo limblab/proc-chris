@@ -17,19 +17,24 @@ savePDF = true;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20170913';
-monkey = 'Chips';
-unitNames = 'S1';
+date = '20190730';
+monkey = 'Snap';
+unitNames = 'cuneate';
 
-mappingLog = getSensoryMappings(monkey);
+% mappingLog = getSensoryMappings(monkey);
 
 beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
-
-td =getTD(monkey, date, 'CO');
+params.start_idx        =  'idx_goCueTime';
+params.end_idx          =  'idx_endTime';
+td =getTD(monkey, date, 'CO',2);
 td = removeBadNeurons(td);
+td = getSpeed(td);
+td = getMoveOnsetAndPeak(td, params);
+td = tdToBinSize(td, 10);
+td(isnan([td.idx_movement_on])) =[];
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
 savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
