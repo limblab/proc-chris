@@ -6,16 +6,17 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     date = neuronStruct.date{1};
     
 %     task = neuronStruct.task{1};
-    plotModDepth = true;
-    plotActVsPasPD = true;
-    plotAvgFiring = true;
-    plotAngleDif = true;
+    plotUnitNum = false;
+    plotModDepth = false;
+    plotActVsPasPD = false;
+    plotAvgFiring = false;
+    plotAngleDif = false;
     plotPDDists= true;
     savePlots = true;
     useModDepths = true;
     rosePlot = true;
-    plotModDepthClassic = true;
-    plotSinusoidalFit = true;
+    plotModDepthClassic = false;
+    plotSinusoidalFit = false;
     colorRow = [];
     size1 = 18;
     suffix = [];
@@ -70,7 +71,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         xlabel('Active Modulation Depth (spikes/s / (cm/s))')
         ylabel('Passive Modulation Depth (spikes/s / (cm/s))')
         set(gca,'TickDir','out', 'box', 'off')
-        title('GLM PD fits Modulation Depths in Active and Passive')
+        title(['GLM Sensitivity ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
     end
     if plotSinusoidalFit
         for i = 1:height(neurons)
@@ -140,19 +141,38 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         scatter(actPDs, pasPDs, size1*2,'k', 'filled')
         hold on
         errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'k.')
+        if plotUnitNum
         for i = 1:length(actPDs)
             dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
             text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.chan(i)));
         end
+        end
         plot([-180, 180], [-180, 180], 'r--')
         title(['Act vs. Pas PDs ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
-        xlabel('Active PD direction')
-        ylabel('Passive PD direction')
-        xlim([-180, 180])
-        ylim([-180, 180])
+        xlabel('Active PD')
+        ylabel('Passive PD')
+        xlim([-200, 200])
+        ylim([-200, 200])
+         
+        pdBump = neurons.angBump;
+        pdMove = neurons.angMove;
+        split = pi/4;
+        vec = -pi:split:pi;
+        mat = getIndicesInsideEdge(pdMove, vec);
+        midVec = vec(1)+ .5*split:split:pi;
+        for i = 1:length(mat(:,1))
+            pdMoveVec(i) = rad2deg(circ_mean(pdMove(mat(i,:))));
+            pdBumpVec(i) = rad2deg(circ_mean(pdBump(mat(i,:))));
+        end
+        if pdBumpVec(1) >0 
+            pdBumpVec(1) = pdBumpVec(1) -360;
+        end
+        plot(rad2deg(midVec), pdBumpVec,'b', 'LineWidth', 2)
+        
         set(gca,'TickDir','out', 'box', 'off')
         xticks([-180, -90,0, 90, 180])
         yticks([-180, -90,0,90,180])
+       
     end
     
     if plotAvgFiring
@@ -189,28 +209,30 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         
         if ~rosePlot
         
-        fh5= figure;
-        histogram(rad2deg(actPDs), rad2deg(-pi:pi/6:pi));
-        title('Distribution of PDs in Active')
-        xlabel('Angle')
-        ylabel('# of units')
-        set(gca,'TickDir','out', 'box', 'off')
+            fh5= figure;
+            histogram(rad2deg(actPDs), rad2deg(-pi:pi/6:pi));
+            title('Distribution of PDs in Active')
+            xlabel('Angle')
+            ylabel('# of units')
+            set(gca,'TickDir','out', 'box', 'off')
 
-        fh6 = figure;
-        histogram(rad2deg(pasPDs),rad2deg(-pi:pi/6:pi));
-        title('Distribution of PDs in Passive')
-        xlabel('Angle')
-        ylabel('# of units')
-        set(gca,'TickDir','out', 'box', 'off')
+            fh6 = figure;
+            histogram(rad2deg(pasPDs),rad2deg(-pi:pi/6:pi));
+            title('Distribution of PDs in Passive')
+            xlabel('Angle')
+            ylabel('# of units')
+            set(gca,'TickDir','out', 'box', 'off')
         else
             fh5= figure;
-            rose(actPDs, 18);
+            rose2(actPDs, 18);
+            set(gca,'TickDir','out', 'box', 'off')
 
             title('Distribution of PDs in Active')
 
             fh6 = figure;
-            rose(pasPDs, 18);
-            
+            rose2(pasPDs, 18);
+            set(gca,'TickDir','out', 'box', 'off')
+
             title('Distribution of PDs in Passive')
         end
     end

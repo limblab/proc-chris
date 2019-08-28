@@ -1,15 +1,15 @@
 %% Load the TD
 close all
 clearvars -except tdStart
-savePlots = false;
+savePlots = true;
 savePlots1 = true;
 
-monkey = 'Butter';
-date = '20190117';
-array = 'cuneate';
-% monkey ='Crackle';
-% date = '20190417';
+% monkey = 'Snap';
+% date = '20190821';
 % array = 'cuneate';
+monkey ='Butter';
+date = '20190417';
+array = 'cuneate';
 task = 'OOR';
 params.start_idx        =  'idx_goCueTime';
 params.end_idx          =  'idx_endTime';
@@ -416,7 +416,7 @@ end
 guide1 = td(1).cuneate_unit_guide;
 mkdir([getPathFromTD(td), '\plotting\ForceSurfaces\']);
 for i =1 :length(meanFiring(1,1,:))
-    title1 = ['LoadVelInteractionElec' ,num2str(guide1(i,1)), 'U', num2str(guide1(i,2)),'.pdf'];
+    title1 = ['LoadVelInteractionElec' ,num2str(guide1(i,1)), 'U', num2str(guide1(i,2)),'.png'];
     figure();
     surf(meanFiring(:,:,i))
     title(['Load/Velocity interaction Elec: ' ,num2str(guide1(i,1)), ' unit: ', num2str(guide1(i,2))])
@@ -467,5 +467,10 @@ figure2();
 histogram(pr2(2,:),0:.05:1)
 hold on
 histogram(pr2(4,:),0:.05:1)
+title('Single Unit Decoding Force/Vel')
+xlabel('Decoding R2')
+ylabel('# Units')
+legend('Vel', 'Force')
+
 %%
 

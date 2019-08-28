@@ -87,7 +87,7 @@ if nargout<2
 [a,b] = pol2cart(t,r);     % convert histogram line to polar coordinates
 A = reshape(a,4,numel(x)); % reshape 4*N-element x vector into N columns
 B = reshape(b,4,numel(x)); % reshape 4*N-element y vector into N columns
-patch(A,B,[1 0 0])         % plot N patches based on the columns of A and B
+patch(A,B,[0 0 1])         % plot N patches based on the columns of A and B
   
   if nargout==1, tout = h; end
   return

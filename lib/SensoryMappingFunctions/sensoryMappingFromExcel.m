@@ -16,6 +16,11 @@ function mapping =  sensoryMappingFromExcel(path, array, monkey)
     raw(:, colsToRemove) = [];
     channels =  [raw{2:end,1}];
     dates = raw(1, 2:end);
+    for i = 1:length(dates)
+        if isnumeric(dates{i})
+            dates{i} = num2str(dates{i});
+        end
+    end
     mappingNew = struct('date', [], 'chan', [], 'id',  [], 'pc', [], 'desc', [], 'spindle', []); 
     prevInds = [];
     for i = 1:length(dates)

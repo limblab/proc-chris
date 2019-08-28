@@ -2,7 +2,7 @@
 %%
 clear all 
 close all
-date = '20190819';
+date = '20190823';
 monkey = 'Snap';
 array = 'cuneate';
 useMapping = true;
@@ -31,7 +31,7 @@ if ~isfield(td, 'idx_movement_on')
     td = getMoveOnsetAndPeak(td, params);
 end
 
-windowAct= {'idx_movement_on', 0; 'idx_endTime',0}; %Default trimming windows active
+windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
 param.arrays = {array};
 param.in_signals = {'vel'};
@@ -65,7 +65,11 @@ saveNeurons(neuronsCO,'MappedNeurons');
 
 %% Compute the trial averaged speed of each direction
 close all
-params.tuningCondition = {'isSorted', 'sinTunedAct', 'sinTunedPas','proximal'};
-% params.suffix = 'Windowed';
+params = struct('plotModDepth', false, 'plotActVsPasPD', true, ...
+    'plotAvgFiring', false, 'plotAngleDir', false, 'plotPDDists', true, ...
+    'savePlots', true, 'useModDepths', true, 'rosePlot', false, ...
+    'plotModDepthClassic', false, 'plotSinusoidalFit', false,...
+    'plotUnitNum', true,...
+    'tuningCondition', {{'isSorted', 'sinTunedPas', 'sinTunedAct', 'proximal', 'isSepindle'}});% params.suffix = 'Windowed';
 neuronStructPlot(neuronsCO, params);
 %%

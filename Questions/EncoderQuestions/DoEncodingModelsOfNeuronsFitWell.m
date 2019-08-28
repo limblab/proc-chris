@@ -39,7 +39,7 @@ crList =  [1 2 1 2; ...
            74 1 74 1;...
            76 1 76 1];
 monkey = 'Snap';
-date = '20190819';
+date = '20190823';
 array = 'cuneate';
 task = 'CO';
 params.doCuneate = true;
@@ -49,7 +49,7 @@ if ~exist('tdStart')
     tdStart =getTD(monkey, date, task,1);
     tdStart = tdToBinSize(tdStart, 10);
 end
-tdButter = smoothSignals(tdStart, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', .01));
+tdButter = smoothSignals(tdStart, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', .05));
 
 tdButter = getNorm(tdButter,struct('signals','vel','norm_name','speed'));
 tdButter = getSpeed(tdButter);
@@ -71,7 +71,7 @@ tdButter = tdButter(~isnan([tdButter.idx_movement_on]));
 tdButter = tdToBinSize(tdButter, 10);
 tdButter = trimTD(tdButter, {'idx_movement_on',-30}, {'idx_movement_on', 60});
 % tdButter= removeBadTrials(tdButter);
-tdButter(isnan([tdButter.idx_endTime])) =[];
+% tdButter(isnan([tdButter.idx_endTime])) =[];
 tdButter([tdButter.idx_endTime] ==1) = [];
 butterNaming = tdButter.([array, '_unit_guide']);
 sortedFlag = butterNaming(:,2) ~= 0;
@@ -239,39 +239,39 @@ for i = 1:length(varsToUse)
         meanActFiring(:,j,:) = mean(actFiring,3);
     end
     
-    for k = 1:length(crList(:,1))
-        close all
-        ind2 = find(guide(:,1) == crList(k,3) &...
-        guide(:,2) == crList(k,4));
-        
-        guideCR(k,:) = [guide(ind2,1), guide(ind2,2)];
-        f1 = figure('visible','off');
-        for j = 1:length(dirsM)
-            switch dirsM(j)
-                case 0
-                    subplot(3,3,6)
-                case pi/2
-                    subplot(3,3,2)
-                case pi
-                    subplot(3,3, 4)
-                case 3*pi/2
-                    subplot(3,3, 8)
-            end
-            plot(meanFiring(:,j,ind2))
-            hold on
-            plot(meanActFiring(:,j,ind2))
-            
-        end
-        subplot(3,3,9)
-        plot([0,1],[0,1])
-        hold on
-        plot([0,1], [1,0])
-        legend('Predicted', 'Actual')
-        suptitle1(['Electrode ', num2str(guide(ind2,1)), ' Unit ', num2str(guide(ind2,2)) ' Model ', strjoin(varsToUse{i}, ' ')])
-%         keyboard
-        mkdir([getPathFromTD(tdButter), 'plotting' , filesep,'SimPSTH',filesep, strjoin(varsToUse{i}, '_'), filesep]);
-        saveas(f1, [getPathFromTD(tdButter), 'plotting' , filesep,'SimPSTH',filesep,strjoin(varsToUse{i}, '_'),filesep, 'GLMSimulatedPSTHElectrode ', num2str(guide(ind2,1)), ' Unit ', num2str(guide(ind2,2)) ' Model ', strjoin(varsToUse{i}, '_'), '.png'])
-    end
+%     for k = 1:length(crList(:,1))
+%         close all
+%         ind2 = find(guide(:,1) == crList(k,3) &...
+%         guide(:,2) == crList(k,4));
+%         
+%         guideCR(k,:) = [guide(ind2,1), guide(ind2,2)];
+%         f1 = figure('visible','off');
+%         for j = 1:length(dirsM)
+%             switch dirsM(j)
+%                 case 0
+%                     subplot(3,3,6)
+%                 case pi/2
+%                     subplot(3,3,2)
+%                 case pi
+%                     subplot(3,3, 4)
+%                 case 3*pi/2
+%                     subplot(3,3, 8)
+%             end
+%             plot(meanFiring(:,j,ind2))
+%             hold on
+%             plot(meanActFiring(:,j,ind2))
+%             
+%         end
+%         subplot(3,3,9)
+%         plot([0,1],[0,1])
+%         hold on
+%         plot([0,1], [1,0])
+%         legend('Predicted', 'Actual')
+%         suptitle1(['Electrode ', num2str(guide(ind2,1)), ' Unit ', num2str(guide(ind2,2)) ' Model ', strjoin(varsToUse{i}, ' ')])
+% %         keyboard
+%         mkdir([getPathFromTD(tdButter), 'plotting' , filesep,'SimPSTH',filesep, strjoin(varsToUse{i}, '_'), filesep]);
+%         saveas(f1, [getPathFromTD(tdButter), 'plotting' , filesep,'SimPSTH',filesep,strjoin(varsToUse{i}, '_'),filesep, 'GLMSimulatedPSTHElectrode ', num2str(guide(ind2,1)), ' Unit ', num2str(guide(ind2,2)) ' Model ', strjoin(varsToUse{i}, '_'), '.png'])
+%     end
 end
 %%
 % close all

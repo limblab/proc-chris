@@ -5,8 +5,8 @@ clear all
 plotTrajectories = true;
 plotForceReach = true;
 
-monkey = 'Butter';
-date = '20190117';
+monkey = 'Snap';
+date = '20190820';
 mappingLog = getSensoryMappings(monkey);
 if strcmp(monkey, 'Butter')
     td1 =getTD(monkey, date, 'OOR',1);
@@ -19,6 +19,8 @@ else
 %     td = splitTD(td, struct('split_idx_name', 'idx_startTime', 'linked_fields', {{'trialID','result', 'tgtDir', 'forceDir', 'idx_startTargHoldTime', 'idx_goCueTime', 'idx_endTime', 'idx_endTargHoldTime'}}));
 
 end
+td = getSpeed(td);
+
 td(mod([td.tgtDir], 45)~=0) = [];
 array = getTDfields(td, 'arrays');
 array_spikes = [array{1}, '_spikes'];

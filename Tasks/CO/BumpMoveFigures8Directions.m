@@ -6,14 +6,14 @@ savePlots = 1;
 isMapped = true;
 savePDF = true;
 % 
-% date = '20190129';
-% monkey = 'Butter';
-% unitNames = 'cuneate';
+date = '20190827';
+monkey = 'Snap';
+unitNames = 'cuneate';
 params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
-date = '20190819';
-monkey = 'Snap';
-unitNames= 'cuneate';
+% date = '20190822';
+% monkey = 'Snap';
+% unitNames= 'cuneate';
 
 mappingLog = getSensoryMappings(monkey);
 
@@ -67,7 +67,7 @@ if contains(unitNames, 'cuneate')
 else 
     gracileFlag = zeros(length(td(1).(unitSpikes)(1,:)),1);
 end
-w = gausswin(5);
+w = [.0439; .4578;1;.4578;.0439];
 w = w/sum(w);
 
 
@@ -97,7 +97,7 @@ end
 
     preMove = trimTD(td, {'idx_movement_on', -10}, {'idx_movement_on', -5});
     postMove = trimTD(td, {'idx_movement_on', 0}, {'idx_movement_on',13});
-    postMove = postMove(isnan([postMove.bumpDir]));
+%     postMove = postMove(isnan([postMove.bumpDir]));
     preMoveFiring = cat(3, preMove.(unitSpikes)).*100;
     
     preMoveStat.meanCI(:,1) = squeeze(mean(mean(preMoveFiring, 3),1))';

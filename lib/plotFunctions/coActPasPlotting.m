@@ -26,7 +26,7 @@ modDepthBump =  [inStruct.modDepthBump];
 
 savepath =[getBasicPath(monkey1, dateToLabDate(date1), 'CO'), 'plotting/'];
 
-f3 = figure;
+f3 = figure('visible', 'off');
 angBumpTunedTemp= [angBump{tuned}];
 angBumpTuned = [angBumpTunedTemp];
 angMoveTunedTemp = [angMove{tuned}];
@@ -43,14 +43,14 @@ set(gca,'TickDir','out', 'box', 'off', 'xtick', [-180,-135, -90,-45,0,45, 90, 13
 save2pdf([savepath, 'ActiveVsPassive_',array,'_',  date1,'.pdf'],f3)
 
 pasActDif = angleDiff(angBumpTuned, angMoveTuned);
-f4 =figure;
+f4 =figure('visible', 'off');
 histogram(rad2deg(pasActDif),15)
 title('Angle Between Active and Passive')
 % pctSigBump = sum(sigDifBump)/12;
 % pctSigMove = sum(sigDifMove)/12;
 save2pdf([savepath, 'AngleBetweenActPas_',array,'_',  date1,'.pdf'],f4)
 
-f5 = figure; 
+f5 = figure('visible', 'off'); 
 nBins = 15;
 h1 = histogram(dcBump(tuned),nBins);
 width = h1.BinWidth; 
@@ -60,7 +60,7 @@ legend('Bump change', 'Move Change')
 title('Move Avg. Firing vs. Bump Avg. Firing')
 save2pdf([savepath , 'AvgFiringMoveVsBump_',array,'_',  date1,'.pdf'], f5)
 
-f6 = figure;
+f6 = figure('visible', 'off');
 scatter(modDepthMove(tuned), modDepthBump(tuned))
 title('Modulation Depth in Active vs. Passive')
 xlabel('Max Modulation Depth in Active')
