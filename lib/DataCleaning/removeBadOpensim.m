@@ -1,16 +1,19 @@
-function tdOut = removeBadOpensim(td, params)
+function [tdOut,removeTrials] = removeBadOpensim(td, params)
     bin_size = td(1).bin_size;
     zeroParam = 1e-10;
+    ucThresh = .000001;
     if nargin > 1, assignParams(who,params); end % overwrite defaults
     
     removeTrials =[];
     
     for i = 1:length(td)
         trial = td(i);
-        opensim = trial.opensim(:,15:end);
+        opensim = trial.opensim(:,15:53);
         dOpensim = diff(opensim);
         mDOpensim = mean(dOpensim,2);
-        if any(abs(dOpensim(:,1)) < zeroParam)
+        unchanged = any(range(opensim) < ucThresh);
+
+        if  unchanged %| any(any(abs(dOpensim) < zeroParam)) |
             removeTrials = [removeTrials,i];
         end
     end

@@ -26,7 +26,7 @@ force = [];
 for j = 1:length(dirsM)
     td2Dir{j} = td2([td2.target_direction] == dirsM(j));
     
-    firing = cat(3, td2Dir{j}.cuneate_spikes);
+    firing = cat(3, td2Dir{j}.(spikeLbl));
     psth = [psth; squeeze(mean(firing, 3))];
     velAll = cat(3, td2Dir{j}.vel);
     vel = [vel; squeeze(mean(velAll, 3))];

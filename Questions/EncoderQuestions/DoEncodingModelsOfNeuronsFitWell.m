@@ -39,14 +39,14 @@ crList =  [1 2 1 2; ...
            74 1 74 1;...
            76 1 76 1];
 monkey = 'Snap';
-date = '20190823';
+date = '20190829';
 array = 'cuneate';
 task = 'CO';
 params.doCuneate = true;
 
 mappingLog = getSensoryMappings(monkey);
 if ~exist('tdStart')
-    tdStart =getTD(monkey, date, task,1);
+    tdStart =getTD(monkey, date, task,2);
     tdStart = tdToBinSize(tdStart, 10);
 end
 tdButter = smoothSignals(tdStart, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', .05));

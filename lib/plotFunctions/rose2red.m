@@ -1,4 +1,4 @@
-function [tout,rout] = rose2(varargin)
+function [tout,rout] = rose2red(varargin)
 %ROSE   Angle histogram plot.
 %   ROSE(THETA) plots the angle histogram for the angles in THETA.  
 %   The angles in the vector THETA must be specified in radians.
@@ -86,7 +86,7 @@ t(3:4:mm) = zz(2:m+1);
 [a,b] = pol2cart(t,r);     % convert histogram line to polar coordinates
 A = reshape(a,4,numel(x)); % reshape 4*N-element x vector into N columns
 B = reshape(b,4,numel(x)); % reshape 4*N-element y vector into N columns
-patch(A,B,[0 0 1])         % plot N patches based on the columns of A and B
+patch(A,B,[1 0 0])         % plot N patches based on the columns of A and B
   
 
 if min(size(nn))==1,

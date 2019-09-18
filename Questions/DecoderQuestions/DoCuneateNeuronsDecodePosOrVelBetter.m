@@ -8,21 +8,24 @@ crackleArray = 'cuneate';
 
 monkeyButter = 'Butter';
 monkeyLando = 'Lando';
-monkeyCrackle = 'Crackle';
+monkeyCrackle = 'Snap';
 
 dateButter = '20180326';
 dateLando = '20170320';
-dateCrackle = '20190327';
+dateCrackle = '20190829';
 mappingLog = getSensoryMappings(monkeyButter);
 
-tdButter =getTD(monkeyCrackle, dateCrackle, 'CO',1);
+tdButter =getTD(monkeyButter, dateButter, 'CO',1);
 tdLando = getTD(monkeyLando, dateLando, 'COactpas');
-tdCrackle = getTD(monkeyCrackle, dateCrackle, 'CO',1);
+tdCrackle = getTD(monkeyCrackle, dateCrackle, 'CO',2);
+tdCrackle = getSpeed(tdCrackle);
+tdButter= tdCrackle;
 %% Preprocess them (binning, trimming etc)
 % tdButter = getRWMovements(tdButter);
 [~, tdButter]= getTDidx(tdButter,'result', 'r');
 [~, tdLando] = getTDidx(tdLando, 'result','r');
 % tdButter= removeBadTrials(tdButter);
+tdButter = getSpeed(tdButter);
 tdButter= getMoveOnsetAndPeak(tdButter);
 tdButter= tdButter(~isnan([tdButter.idx_movement_on]));
 tdButter = trimTD(tdButter, {'idx_movement_on'}, 'idx_endTime');

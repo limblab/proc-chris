@@ -6,8 +6,8 @@ savePlots = 1;
 isMapped = true;
 savePDF = true;
 % 
-date = '20190827';
-monkey = 'Snap';
+date = '20190129';
+monkey = 'Butter';
 unitNames = 'cuneate';
 params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
@@ -22,7 +22,7 @@ afterBump = .3;
 beforeMove = .3;
 afterMove = .6;
 
-td =getTD(monkey, date, 'CO',1);
+td =getTD(monkey, date, 'CO',2);
 td = getSpeed(td);
 
 target_direction = 'target_direction';
@@ -41,11 +41,12 @@ params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
 td = getNorm(td,struct('signals','vel','field_extra','speed'));
 
-td = getMoveOnsetAndPeak(td,params);
 
 if td(1).bin_size ==.001
     td = binTD(td, 10);
 end
+td = getMoveOnsetAndPeak(td,params);
+
 td = td(~isnan([td.idx_movement_on]));
 td = removeBadNeurons(td, struct('remove_unsorted', false));
 
@@ -76,6 +77,7 @@ numCount = 1:length(td(1).(unitSpikes)(1,:));
 
 dirsM = unique([td.(target_direction)]);
 dirsM = dirsM(~isnan(dirsM));
+dirsM(mod(dirsM, pi/8) ~= 0) = [];
 
 
 for i = 1:length(dirsM)
@@ -150,6 +152,7 @@ paramsMove.array =unitNames;
 close all
 for num1 = numCount
     close all
+    clear meanKin
     params.neuron = num1;
     bumpX = sum(squeeze(cos(theta)'.*squeeze(bumpTot(num1,1,:)))');
     bumpY = sum(squeeze(sin(theta)'.*squeeze(bumpTot(num1,1,:)))');
@@ -176,6 +179,7 @@ for num1 = numCount
            
             
         elseif bumpMove == 2
+            clear meanKin
             bump = figure('visible','off');
             before = beforeBump;
             after = afterBump;
@@ -259,15 +263,11 @@ for num1 = numCount
             end
             hold on
             xlim([-1*before, after])
+            tdTemp1{i} = trimTD(tdPlot{i}, {startInd, -1*before/tdPlot{i}(1).bin_size}, {startInd, after/tdPlot{i}(1).bin_size});
+            kin{i} = cat(3, tdTemp1{i}.vel);
+            meanKin(i,:) = rownorm(squeeze(mean(kin{i},3)));
 
-            kin{i} = zeros(length(tdPlot{i}), length(tdPlot{i}(1).(startInd)-(before*100):tdPlot{i}(1).(startInd)+(after*100)), 2);
-            for  trial = 1:length(tdPlot{i})
-                kin{i}(trial,:,:) = tdPlot{i}(trial).vel(tdPlot{i}(trial).(startInd)-(before*100):tdPlot{i}(trial).(startInd)+(after*100),:);
-            end
-            meanKin = squeeze(mean(kin{i}));
-            speedKin = sqrt(meanKin(:,1).^2 + meanKin(:,2).^2);
-
-            plot(linspace(-1*before, after, length(speedKin(:,1))), speedKin(:,1), 'k')
+            plot(linspace(-1*before, after, length(meanKin(1,:))), meanKin(i,:), 'k')
             hold on
             plot([0,0],[0, maxSpeed], 'b-')
             ylim([0, maxSpeed])

@@ -6,7 +6,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     date = neuronStruct.date{1};
     
 %     task = neuronStruct.task{1};
-    plotUnitNum = false;
+    plotUnitNum =true;
     plotModDepth = false;
     plotActVsPasPD = false;
     plotAvgFiring = false;
@@ -17,6 +17,10 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     rosePlot = true;
     plotModDepthClassic = false;
     plotSinusoidalFit = false;
+    plotEncodingFits = false;
+    useLogLog = false;
+    examplePDs = [];
+    
     colorRow = [];
     size1 = 18;
     suffix = [];
@@ -25,7 +29,11 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     if iscell(tuningCondition)
         for i = 1:length(tuningCondition)
-            neuronStruct = neuronStruct(find(neuronStruct.(tuningCondition{i})),:);
+            if strcmp(tuningCondition{i}(1), '~')
+                neuronStruct = neuronStruct(find(~neuronStruct.(tuningCondition{i}(2:end))),:);
+            else
+                neuronStruct = neuronStruct(find(neuronStruct.(tuningCondition{i})),:);
+            end
         end
     else
         neuronStruct = neuronStruct(find(neuronStruct.(tuningCondition)),:);
@@ -59,18 +67,47 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     actWindow = cellfun(@num2str, actWindow, 'un', 0);
     pasWindow = strjoin(pasWindow, '_');
     actWindow = strjoin(actWindow, '_');
+    if plotEncodingFits
+        fh9 = figure;
+        full = mean(neurons.encoding.FullEnc,2);
+        vel =  mean(neurons.encoding.VelEnc,2);
+        pos =  mean(neurons.encoding.PosEnc,2);
+        acc =  mean(neurons.encoding.AccEnc,2);
+        speed =  mean(neurons.encoding.SpeedEnc,2);
+        
+        scatter(full,vel,  'filled','b')
+        xlim([0,1])
+        ylim([0,1])
+        hold on
+        scatter(full,pos, 'filled','r')
+        scatter(full,acc, 'filled','g')
+        plot([0,1],[0,1], 'r--')
+
+        title('Encoding model performance on single neurons')
+        xlabel('Full Model performance')
+        ylabel('Single variable performance')
+        legend({'Velocity', 'Position', 'Acceleration'})
+        set(gca,'TickDir','out', 'box', 'off')
+    end
 
     if plotModDepth
         fh1 = figure;
-        scatter(neurons.actPD.velModdepth*20, neurons.pasPD.velModdepth*20,'k', 'filled')
-        lims = [0, max([neurons.actPD.velModdepth; neurons.pasPD.velModdepth])*20+.2];
+        if ~useLogLog
+            scatter(neurons.actPD.velModdepth*20, neurons.pasPD.velModdepth*20,'k', 'filled')
+            lims = [0, max([neurons.actPD.velModdepth; neurons.pasPD.velModdepth])*20+.2];
+                xlabel('Active Modulation Depth (spikes/s / (cm/s))')
+            ylabel('Passive Modulation Depth (spikes/s / (cm/s))')
+        else
+            scatter(log10(neurons.actPD.velModdepth*20), log10(neurons.pasPD.velModdepth*20),'k', 'filled')
+            lims = [0, log10(max([neurons.actPD.velModdepth; neurons.pasPD.velModdepth])*20)+.2];
+            xlabel('log(Active Modulation Depth) (spikes/s / (cm/s))')
+            ylabel('log(Passive Modulation Depth) (spikes/s / (cm/s))')
+        end
         hold on
         plot([lims(1), lims(2)], [lims(1), lims(2)], 'r--')
         xlim(lims)
         ylim(lims)
-        xlabel('Active Modulation Depth (spikes/s / (cm/s))')
-        ylabel('Passive Modulation Depth (spikes/s / (cm/s))')
-        set(gca,'TickDir','out', 'box', 'off')
+                set(gca,'TickDir','out', 'box', 'off')
         title(['GLM Sensitivity ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
     end
     if plotSinusoidalFit
@@ -126,10 +163,13 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
             size1 = modDepths;
             size1(size1==0) =1;
         end
-        
+
         pasPDs = rad2deg(neurons.pasPD.velPD);
         pasPDsHigh = rad2deg(neurons.pasPD.velPDCI(:,2));
         pasPDsLow = rad2deg(neurons.pasPD.velPDCI(:,1));
+        
+        pds = [actPDs, pasPDs];
+        [actPDs, pasPDs, actPDsHigh, actPDsLow, pasPDsHigh, pasPDsLow] = shiftPDsToLine(actPDs, pasPDs, actPDsHigh,actPDsLow, pasPDsHigh, pasPDsLow);
         
         yneg = pasPDs-pasPDsLow;
         ypos = pasPDsHigh -pasPDs;
@@ -143,7 +183,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'k.')
         if plotUnitNum
         for i = 1:length(actPDs)
-            dx = -0.3; dy = 0.1; % displacement so the text does not overlay the data points
+            dx = -1; dy = 0.1; % displacement so the text does not overlay the data points
             text(actPDs(i)+ dx, pasPDs(i) +dy, num2str(neurons.chan(i)));
         end
         end
@@ -151,8 +191,8 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         title(['Act vs. Pas PDs ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
         xlabel('Active PD')
         ylabel('Passive PD')
-        xlim([-200, 200])
-        ylim([-200, 200])
+        xlim([-230, 230])
+        ylim([-230, 230])
          
         pdBump = neurons.angBump;
         pdMove = neurons.angMove;
@@ -208,31 +248,43 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         pasPDs = neurons.pasPD.velPD;
         
         if ~rosePlot
-        
+            
             fh5= figure;
             histogram(rad2deg(actPDs), rad2deg(-pi:pi/6:pi));
             title('Distribution of PDs in Active')
             xlabel('Angle')
             ylabel('# of units')
             set(gca,'TickDir','out', 'box', 'off')
-
+   
+            
             fh6 = figure;
-            histogram(rad2deg(pasPDs),rad2deg(-pi:pi/6:pi));
+            histogram(rad2deg(pasPDs),rad2deg(-pi:pi/6:pi), 'FaceColor', 'r');
             title('Distribution of PDs in Passive')
             xlabel('Angle')
             ylabel('# of units')
             set(gca,'TickDir','out', 'box', 'off')
         else
             fh5= figure;
-            rose2(actPDs, 18);
+            [theta1, rad1] =rose2(actPDs, 18);
+            hold on
+            if ~isempty(examplePDs)
+                neuron = neurons([neurons.ID] == examplePDs(2) & [neurons.chan] == examplePDs(1),:);
+                [x, y] =pol2cart([neuron.actPD.velPD, neuron.actPD.velPD], [0, max(rad1)]);
+                plot(x,y, 'k', 'LineWidth', 3)
+            end
             set(gca,'TickDir','out', 'box', 'off')
 
             title('Distribution of PDs in Active')
 
             fh6 = figure;
-            rose2(pasPDs, 18);
+            [theta2, rad2] = rose2red(pasPDs, 18);
+            hold on
             set(gca,'TickDir','out', 'box', 'off')
-
+            if ~isempty(examplePDs)
+                   neuron = neurons([neurons.ID] == examplePDs(2) & [neurons.chan] == examplePDs(1),:);
+                   [x, y] =pol2cart([neuron.pasPD.velPD, neuron.actPD.velPD], [0, max(rad1)]);
+                   plot(x,y, 'k', 'LineWidth', 3)
+            end
             title('Distribution of PDs in Passive')
         end
     end

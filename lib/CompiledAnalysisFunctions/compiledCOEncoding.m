@@ -1,4 +1,4 @@
-function [results,td] = compiledCOEncoding(td, params)
+function [results,td,neurons] = compiledCOEncoding(td, params, neurons)
 array= 'cuneate';
 doCuneate= true;
 if nargin > 1, assignParams(who,params); end % overwrite parameters
@@ -8,8 +8,8 @@ td = smoothSignals(td, struct('signals', [array, '_spikes'], 'calc_rate',true, '
 % tdButter= removeBadTrials(tdButter);
 td = td(~isnan([td.idx_movement_on]));
 
-td = trimTD(td, 'idx_movement_on', {'idx_movement_on', 13});
-td= tdToBinSize(td,10);
+td = trimTD(td, 'idx_movement_on', 'idx_endTime');
+td= tdToBinSize(td,50);
 % tdButter= removeBadTrials(tdButter);
 % td(isnan([td.idx_endTime])) =[];
 td([td.idx_endTime] ==1) = [];
@@ -95,17 +95,17 @@ params.model_name = 'Acc';
 accPR2 = squeeze(evalModel(td, params));
 
 %%
-Full = squeeze(fullPR2(sortedFlag & cunFlag))';
-FullMinusPos = fullPR2minusPos(sortedFlag& cunFlag);
-FullMinusVel = fullPR2minusVel(sortedFlag& cunFlag);
-FullMinusForce = fullPR2minusForce(sortedFlag& cunFlag);
-FullMinusSpeed = fullPR2minusSpeed(sortedFlag& cunFlag);
-Vel = velPR2(sortedFlag& cunFlag)';
-Pos = posPR2(sortedFlag& cunFlag)';
-% Force = forcePR2(sortedFlag& cunFlag)';
-Speed = speedPR2(sortedFlag& cunFlag)';
-VelSpeed = velSpeedPR2(sortedFlag& cunFlag)';
-Acc = accPR2(sortedFlag&cunFlag)';
+Full = squeeze(fullPR2);
+FullMinusPos = fullPR2minusPos;
+FullMinusVel = fullPR2minusVel;
+FullMinusForce = fullPR2minusForce;
+FullMinusSpeed = fullPR2minusSpeed;
+Vel = velPR2;
+Pos = posPR2;
+% Force = forcePR2(sortedFlag& cunFlag);
+Speed = speedPR2;
+VelSpeed = velSpeedPR2;
+Acc = accPR2;
 
 results.FullEnc = Full;
 results.FullNoPosEnc = FullMinusPos;
@@ -117,6 +117,8 @@ results.PosEnc = Pos;
 results.SpeedEnc = Speed;
 results.VelSpeedEnc = VelSpeed;
 results.AccEnc = Acc;
+
+tab = struct2table(results);
 results.modelFull = modelFull;
 results.modelFullMinusPos =modelFullMinusPos;
 results.modelFullMinusVel = modelFullMinusVel;
@@ -128,4 +130,7 @@ results.modelForce=modelForce;
 results.modelVelSpeed =modelVelSpeed;
 results.modelAcc =modelAcc;
 
+if nargin >2 
+    neurons.encoding = tab;
+end
 end

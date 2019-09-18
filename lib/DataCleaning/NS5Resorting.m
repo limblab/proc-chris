@@ -54,3 +54,4 @@ for i = 1:96
     s1.Unit = [s1.Unit, zeros(1,length(s.TimeStamp))];
 end
 nev.Data.Spikes = s1;
+saveNEV(nev)

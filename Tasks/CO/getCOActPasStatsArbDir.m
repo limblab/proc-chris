@@ -141,7 +141,7 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
     end
     %% Computing helpful temp variables
     unitLabel = array;
-    unitGuide = ['cuneate_unit_guide'];
+    unitGuide = [array, '_unit_guide'];
     spikeLabel = [unitLabel, '_spikes'];
     
     

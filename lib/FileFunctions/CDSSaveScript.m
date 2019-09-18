@@ -20,7 +20,7 @@
 %% All of the loading variables
 clear all
 close all
-date = '20190827';
+date = '20190806';
 task = 'CO';
 monkey = 'Snap';
 array = 'cuneate';
@@ -34,7 +34,8 @@ outpath = getCdsSavePath(monkey, date, getGenericTask(task));
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS.mat'];
 
 %%
-motionTrack = false;
+motionTrack = true;
+newMotionTrack = true;
 
 if sorted(1)
     srtStr = 'sorted';
@@ -51,56 +52,68 @@ makeFileStructure(monkey, date, getGenericTask(task));
 meta = cds.meta;
 
 markersFilename = ['markers_', monkey, '_', date, '_', task,'.mat'];
-opensimFilename = ['opensim_',monkey '_' date,'_',task, '.trc'];
+if newMotionTrack
+    markersFilename = ['markers_', monkey, '_', date, '_', task,'.xlsx'];
+
+end
+opensimFilename = ['opensim_',monkey '_' date,'_',task, '1.trc'];
 
 %%
 
 %%
 close all
 if motionTrack
-%     cds = easyCDS(monkey, task, date, array, number, sorted);
-
-    first_time = true;
     motionTrackPath = [getBasicPath(monkey, date, getGenericTask(task)), 'MotionTracking', filesep];
+
+%     cds = easyCDS(monkey, task, date, array, number, sorted);
+    if ~newMotionTrack
+    first_time = true;
     motionTrackName = getMotionTrackName(monkey, date, task, number);
     load([motionTrackPath, motionTrackName])
+    
 %     color_tracker_4colors_script;
-%     affine_xform = cds.loadRawMarkerData(fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep,markersFilename));
-%     writeTRCfromCDS(cds,fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep, opensimFilename));
+    affine_xform = cds.loadRawMarkerData(fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep,markersFilename));
+    writeTRCfromCDS(cds,fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep, opensimFilename));
 %     writeHandleForceFromCDS(cds,fullfile('OpenSim',[monkey '_' date '_TRT_handleForce.mot']))
+    end
 
-    % load joint information
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_ang')
+    if newMotionTrack
+        
+        affine_xform = cds.loadRawMarkerDataDLC(fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep,markersFilename));
+        writeTRCfromCDS(cds,fullfile(getBasicPath(monkey, date, getGenericTask(task)),filesep,'MotionTracking',filesep, opensimFilename));
 
-    % load joint velocities
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_vel')
+            % load joint information
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_ang')
 
-    % load joint moments
-    % cds{fileIdx}.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_dyn')
+        % load joint velocities
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_vel')
 
-    % load muscle information
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'muscle_len')
+        % load joint moments
+        % cds{fileIdx}.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'joint_dyn')
 
-    % load muscle velocities
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'muscle_vel')
-    
-    % load hand positions
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_pos')
-    
-    % load hand velocities
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_vel')
-    
-    % load hand accelerations
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_acc')
+        % load muscle information
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'muscle_len')
+
+        % load muscle velocities
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'muscle_vel')
+
         % load hand positions
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'elbow_pos')
-    
-    % load hand velocities
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'elbow_vel')
-    
-    % load hand accelerations
-    cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'elbow_acc')
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_pos')
 
+        % load hand velocities
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_vel')
+
+        % load hand accelerations
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'hand_acc')
+            % load hand positions
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'elbow_pos')
+
+        % load hand velocities
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'elbow_vel')
+
+        % load hand accelerations
+        cds.loadOpenSimData(fullfile(motionTrackPath,'OpenSim','Analysis'),'elbow_acc')
+    end
 end
 
 

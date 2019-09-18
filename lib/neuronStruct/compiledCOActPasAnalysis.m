@@ -150,7 +150,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         params.windowPas = windowPas;
         params.out_signals = [params.array, '_spikes'];
         params.distribution = distribution;
-        params.out_signal_names =td(1).(['cuneate_unit_guide']); 
+        params.out_signal_names =td(1).([params.array, '_unit_guide']); 
         params.num_bins = 8;
         params.window = windowAct;
         %% To train new GLM

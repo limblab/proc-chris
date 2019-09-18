@@ -1,7 +1,7 @@
-function results = compiledCODecoding(td, params)
-    Array= 'cuneate';
+function [results, predicted] = compiledCODecoding(td, params)
+    array= 'cuneate';
     if nargin > 1, assignParams(who,params); end % overwrite parameters
-    td = smoothSignals(td, struct('signals', [Array, '_spikes']));
+    td = smoothSignals(td, struct('signals', [array, '_spikes']));
     td = removeBadNeurons(td);
     [~, td]= getTDidx(td,'result', 'r');
     % td= removeBadTrials(td);
@@ -11,11 +11,11 @@ function results = compiledCODecoding(td, params)
 
 
     %% Decoding accuracy:
-    Naming = td.([Array, '_unit_guide']);
+    Naming = td.([array, '_unit_guide']);
 
     Vel = cat(1, td.vel);
     Pos = cat(1, td.pos);
-    Neurons = cat(1,td.([Array, '_spikes']));
+    Neurons = cat(1,td.([array, '_spikes']));
     SortedNeurons = Neurons(:, Naming(:,2) ~=0);
 
     numBoots  =100;
@@ -45,7 +45,8 @@ function results = compiledCODecoding(td, params)
         VelYModel = fitlm(Training, TrainingVelY);
         SpeedModel = fitlm(Training, TrainingSpeed);
 
-    %     
+    %   
+        predicted{i} = [predict(VelXModel, Testing), TestingVelX];
         R2(i).pos = [corr(predict(PosXModel, Testing),TestingPosX).^2, corr(predict(PosYModel, Testing), TestingPosY).^2 ];
         R2(i).vel = [corr(predict(VelXModel, Testing), TestingVelX).^2, corr(predict(VelYModel, Testing), TestingVelY).^2];
         R2(i).speed= corr(predict(SpeedModel, Testing), TestingSpeed').^2;
@@ -56,16 +57,16 @@ function results = compiledCODecoding(td, params)
     VelMean = mean(cat(1, R2.vel),2);
     SpeedMean = [R2.speed];
 
-    SpeedBoot = sort(bootstrp(1000, @mean, SpeedMean));
-    PosBoot = sort(bootstrp(1000, @mean, PosMean));
-    VelBoot = sort(bootstrp(1000, @mean, VelMean));
+    SpeedBoot = sort(SpeedMean);
+    PosBoot = sort(PosMean);
+    VelBoot = sort(VelMean);
     
-    SpeedLow = SpeedBoot(25);
-    SpeedHigh = SpeedBoot(975);
-    PosLow = PosBoot(25);
-    PosHigh =PosBoot(975);
-    VelLow = VelBoot(25);
-    VelHigh = VelBoot(975);
+    SpeedLow = SpeedBoot(floor(.025*numBoots));
+    SpeedHigh = SpeedBoot(floor(.975*numBoots));
+    PosLow = PosBoot(floor(.025*numBoots));
+    PosHigh =PosBoot(floor(.975*numBoots));
+    VelLow = VelBoot(floor(.025*numBoots));
+    VelHigh = VelBoot(floor(.975*numBoots));
     
     
     results.PosMean = mean(PosMean);
