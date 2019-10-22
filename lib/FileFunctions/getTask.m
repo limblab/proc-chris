@@ -17,6 +17,10 @@ function [ cdsTask ] = getTask( inTask )
         cdsTask = 'TRT';
     elseif strcmp(inTask, 'WFH')
         cdsTask = 'WF';
+    elseif strcmp(inTask, 'bumpDir')
+        cdsTask = 'BD';
+    elseif strcmp(inTask, 'BD')
+        cdsTask = 'BD';
     else
         cdsTask = 'Unknown';
     end

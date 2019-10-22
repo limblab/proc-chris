@@ -104,7 +104,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 %% Parameter defaults
 
     includeSpeedTerm = false;
-    cutoff = pi/2; %cutoff for significant of sinusoidal tuning
+    cutoff = pi/3; %cutoff for significant of sinusoidal tuning
     arrays= {'cuneate'}; %default arrays to look for
     windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
     windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
@@ -121,6 +121,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     tdPSTH = trimTD(tdAct, windowEncPSTH(1,:), windowEncPSTH(2,:));
     
     tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
+%     tdAct = tdAct(isnan([tdAct.bumpDir]));
     tdBump = td(~isnan([td.bumpDir]) & abs([td.bumpDir]) <361); 
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
     
@@ -198,7 +199,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         processedTrial(i).actPasStats = outStruct;
         params.num_bins = sum(~isnan(unique([tdAct.target_direction])));
         processedTrial(i).tuningCurveAct= getTuningCurves(tdAct, params);
-        params.num_bins = sum(~isnan(unique([tdPas.bumpDir])));
+        params.num_bins = params.num_bins;
         processedTrial(i).tuningCurvePas = getTuningCurves(tdPas,params);
         clear neuronProcessed;
         
@@ -215,7 +216,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         % column corresponds to the channel # (what is in the cds) while
         % the second column is what I see when I do the sensory mapping.
         % The neuronProcessed.chan
-
+        
         neuronProcessed.actWindow = repmat({windowAct}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.pasWindow = repmat({windowPas}, [length(params.out_signal_names(:,1)),1]);
         neuronProcessed.unitNum = params.out_signal_names(:,2);
@@ -237,6 +238,8 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
         neuronProcessed.bumpTuned = [outStruct.bumpTuned]';
         neuronProcessed.preMove = [outStruct.preMove]';
         neuronProcessed.postMove = [outStruct.postMove]';
+        neuronProcessed.sensMove = [outStruct.moveSens]';
+        neuronProcessed.sensBump = [outStruct.bumpSens]';
         neuronProcessed.sinTunedAct = sinTunedAct;
         neuronProcessed.sinTunedPas = sinTunedPas;
         

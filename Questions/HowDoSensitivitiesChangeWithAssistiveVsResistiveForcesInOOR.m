@@ -1,27 +1,71 @@
 %% Load the TD
 close all
-clearvars -except tdStart
+clearvars -except td1 td2 td3
 savePlots = true;
 savePlots1 = true;
-
-% monkey = 'Snap';
-% date = '20190821';
-% array = 'cuneate';
-monkey ='Butter';
-date = '20190417';
-array = 'cuneate';
-task = 'OOR';
-params.start_idx        =  'idx_goCueTime';
-params.end_idx          =  'idx_endTime';
 plotPDs = true;
+task = 'OOR';
 
-if ~exist('tdStart') | ~checkCorrectTD(tdStart, monkey, date)
-    tdStart =getTD(monkey, date, task,1);
-    tdStart = tdToBinSize(tdStart, 10);
+
+if ~exist('td1')
+for mon = 1:3
+    switch mon
+        case 1
+            monkey = 'Snap';
+            date = '20190821';
+            array = 'cuneate';
+            td1 = getTD(monkey, date, task,1);
+            td1 = tdToBinSize(td1, 50);
+
+        case 2
+            
+            monkey ='Crackle';
+            date = '20190417';
+            array = 'cuneate';
+            td2 = getTD(monkey,date, task,1);
+            td2 = tdToBinSize(td2, 50);
+        case 3
+            
+            monkey = 'Han';
+            date = '20170203';
+            array = 'S1';
+            td3 = getTD(monkey, date, task,1);
+            td3 = splitTD(td3);
+            td3 = tdToBinSize(td3, 50);
+
+    end
 end
+end
+for mon = 1:3
+    switch mon
+        case 1
+            monkey = 'Snap';
+            date = '20190821';
+            array = 'cuneate';
+            td = td1;
+            array = 'cuneate';
+        case 2
+            monkey ='Crackle';
+            date = '20190417';
+            array = 'cuneate';
+            td = td2;
+            array = 'cuneate';
+
+        case 3
+            monkey = 'Han';
+            date = '20170203';
+            array = 'S1';
+            td = td3;
+            array = 'S1';
+
+    end
+    params.start_idx        =  'idx_goCueTime';
+    params.end_idx          =  'idx_endTargHoldTime';
 
 
-td = smoothSignals(tdStart, struct('signals', [array, '_spikes'], 'calc_rate',true, 'width', .1));
+
+
+td = smoothSignals(td, struct('signals', [array, '_spikes'], 'calc_rate',true, 'width', .1));
 for i= 1:length(td)
     if td(i).forceDir == 360
         td(i).forceDir = 0;
@@ -29,14 +73,20 @@ for i= 1:length(td)
 end
 td = removeUnsorted(td);
 td = getSpeed(td);
-td = getMoveOnsetAndPeak(td, params);
+if ~strcmp(monkey, 'Han')
 td = removeGracileTD(td);
+else
+    
+td = normalizeTDLabels(td);
+end    
+td = getMoveOnsetAndPeak(td, params);
+guide = td(1).([array, '_unit_guide']);
+spikes = [array, '_spikes'];
 
 td = removeBadTrials(td);
 [~, td] = getTDidx(td, 'result','R');
 td(isnan([td.idx_movement_on])) = [];
-td = trimTD(td, 'idx_movement_on', 'idx_endTime');
-
+td = trimTD(td, 'idx_movement_on', 'idx_endTargHoldTime');
 dirsM = unique([td.target_direction]);
 dirsM(isnan(dirsM)) = [];
 
@@ -49,6 +99,67 @@ paramsPD.out_signal_names  = td(1).([array, '_unit_guide']);
 paramsPD.in_signals   = 'vel';
 paramsPD.distribution  = 'poisson';
 paramsPD.num_boots   = 100;
+
+%%
+
+params2.glm_distribution = 'normal';
+params2.model_type ='linmodel';
+params2.eval_metric = 'r2'; 
+params2.num_boots = 1;
+
+prForce = zeros(length(guide), 2);
+prVel = zeros(length(guide), 2);
+sigXF = zeros(length(guide),1);
+sigYF = zeros(length(guide),1);
+sigXV = zeros(length(guide),1);
+sigYV = zeros(length(guide),1);
+
+vel = cat(1,td.vel);
+fr = cat(1,td.(spikes));
+force = cat(1,td.force);
+for i = 1:length(guide)
+    lmX= fitlm(fr(:,i), vel(:,1));
+    lmY = fitlm(fr(:,i), vel(:,1));
+    prVel(i,1) = lmX.Rsquared.Ordinary;
+    prVel(i,2) = lmY.Rsquared.Ordinary;
+    
+    lmXF = fitlm(fr(:,i),force(:,1));
+    lmYF = fitlm(fr(:,i), force(:,2));
+    prForce(i,1) = lmXF.Rsquared.Ordinary;
+    prForce(i,2) = lmYF.Rsquared.Ordinary;
+    sigXF(i) = lmXF.Coefficients.pValue(2) < .0001;
+    sigYF(i) = lmYF.Coefficients.pValue(2) < .0001;
+    sigXV(i) = lmX.Coefficients.pValue(2) < .0001;
+    sigYV(i) = lmY.Coefficients.pValue(2) < .0001;
+    
+end
+
+%%
+figure
+histogram(prVel(logical(sigXV),1), 0:.025:.4)
+hold on
+histogram(prForce(logical(sigXF),1), 0:.025:.4)
+legend('Velocity', 'Force')
+title(['Single Unit Decoding vel. and force in ',monkey, ' ', array])
+% subplot(3,1,mon)
+% scatter(prVel(:,2), prForce(:,2), 'filled')
+% hold on
+% plot([0,1], [0,.8], 'r--', 'LineWidth', 3)
+% set(gca,'TickDir','out', 'box', 'off')
+
+forceDecX = fitlm(fr, force(:,1));
+forceDecY = fitlm(fr, force(:,2));
+r2ForceX(mon) = forceDecX.Rsquared.Ordinary;
+r2ForceY(mon) = forceDecY.Rsquared.Ordinary;
+velDecX = fitlm(fr, vel(:,1));
+velDecY = fitlm(fr, vel(:,2));
+r2VelX(mon) = velDecX.Rsquared.Ordinary;
+r2VelY(mon) = velDecY.Rsquared.Ordinary;
+
+end
+
+%%
+
 %%
 paramsForce= paramsPD;
 paramsForce.in_signals = 'force';
@@ -57,7 +168,7 @@ velPDs = getTDPDs(td, paramsPD);
 tuned = checkIsTunedPDtable(velPDs, pi/4, 'vel') & checkIsTunedPDtable(forcePDs, pi/4, 'force');
 forcePDs(~tuned,:) = [];
 velPDs(~tuned,:) = [];
-%%
+
 figure2();
 velPD1 = velPDs.velPD;
 forcePD1 = forcePDs.forcePD;
@@ -428,7 +539,6 @@ for i =1 :length(meanFiring(1,1,:))
     end
 end
 %%
-spikes = [array, '_spikes'];
 params.model_type = 'glm';
 params.num_boots = 1;
 params.eval_metric = 'pr2';
@@ -443,34 +553,49 @@ varsToUse = {{'pos'},...
  guide = td(1).cuneate_unit_guide;
      
 for i = 1:length(varsToUse)
-    disp(['Working on  ' strjoin(varsToUse{i})])
-    params.in_signals= varsToUse{i};
-    params.model_name = strjoin(varsToUse{i}, '_');
-    modelNames{i} = strjoin(varsToUse{i}, '_');
-    params.out_signals = {spikes};
-    td= getModel(td, params);
-    pr2(i,:) = squeeze(evalModel(td, params));
+    for j = 1:length(guide)
+        disp(['Working on  ' strjoin(varsToUse{i})])
+        params.in_signals= varsToUse{i};
+        params.model_name = strjoin(varsToUse{i}, '_');
+        modelNames{i} = strjoin(varsToUse{i}, '_');
+        params.out_signals = {spikes};
+        td= getModel(td, params);
+        pr2(i,:) = squeeze(evalModel(td, params));
+    end
+end
+
+%%
+params2.glm_distribution = 'normal';
+params2.model_type ='linmodel';
+params2.eval_metric = 'r2'; 
+params2.num_boots = 1;
+
+for i = 1:length(guide)
+    params2.in_signals = {spikes, i};
+    params2.out_signals = 'force';
+    params2.model_name = 'forceM';
+    td = getModel(td, params2);
+    prForce(i,:) = squeeze([evalModel(td, params2)]);
+    
+    params2.in_signals = {spikes, i};
+    params2.out_signals = 'vel';
+    params2.model_name = 'velM';
+    td = getModel(td, params2);
+    prVel(i,:) = squeeze(evalModel(td, params2));
+    
 end
 %%
-params1.glm_distribution = 'normal';
-params1.model_type ='glm';
-params1.in_signals = {'vel'};
-params1.out_signals = {'force'};
-params1.model_name = 'vel2force';
-params1.eval_metric = 'r2';
-
-td = getModel(td, params1);
-pr2Vel2Force = squeeze(evalModel(td, params1));
-
-%%
-figure2();
-histogram(pr2(2,:),0:.05:1)
+close all
+figure
+histogram(prVel(:,2), 0:.05:.8)
 hold on
-histogram(pr2(4,:),0:.05:1)
-title('Single Unit Decoding Force/Vel')
-xlabel('Decoding R2')
-ylabel('# Units')
-legend('Vel', 'Force')
+histogram(prForce(:,2), 0:.05:.8)
+
+figure
+scatter(prVel(:,2), prForce(:,2), 'filled')
+hold on
+plot([0,1], [0,.8], 'r--', 'LineWidth', 3)
+set(gca,'TickDir','out', 'box', 'off')
 
 %%
 

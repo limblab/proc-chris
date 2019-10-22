@@ -20,8 +20,8 @@
 %% All of the loading variables
 clear all
 close all
-date = '20190806';
-task = 'CO';
+date = '20191010';
+task = 'RW';
 monkey = 'Snap';
 array = 'cuneate';
 
@@ -34,8 +34,8 @@ outpath = getCdsSavePath(monkey, date, getGenericTask(task));
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS.mat'];
 
 %%
-motionTrack = true;
-newMotionTrack = true;
+motionTrack = false;
+newMotionTrack = false;
 
 if sorted(1)
     srtStr = 'sorted';
@@ -48,13 +48,11 @@ end
 cds = easyCDS(monkey, task, date, array, number, sorted);
 % compute the outpath depending on what computer you are using and the task
 outpath = getCdsSavePath(monkey, date, getGenericTask(task));
-makeFileStructure(monkey, date, getGenericTask(task));
 meta = cds.meta;
 
 markersFilename = ['markers_', monkey, '_', date, '_', task,'.mat'];
 if newMotionTrack
     markersFilename = ['markers_', monkey, '_', date, '_', task,'.xlsx'];
-
 end
 opensimFilename = ['opensim_',monkey '_' date,'_',task, '1.trc'];
 

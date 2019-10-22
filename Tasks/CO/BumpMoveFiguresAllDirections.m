@@ -17,7 +17,7 @@ savePDF = true;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20190730';
+date = '20190918';
 monkey = 'Snap';
 unitNames = 'cuneate';
 

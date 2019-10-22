@@ -5,8 +5,8 @@ clear all
 plotTrajectories = true;
 plotForceReach = true;
 
-monkey = 'Snap';
-date = '20190820';
+monkey = 'Crackle';
+date = '20190417';
 mappingLog = getSensoryMappings(monkey);
 if strcmp(monkey, 'Butter')
     td1 =getTD(monkey, date, 'OOR',1);
@@ -54,7 +54,8 @@ dirsForce = unique([tdReach.forceDir]);
 
 dirsAct = dirsAct(~isnan(dirsAct));
 dirsForce= dirsForce(~isnan(dirsForce));
-%%
+dirsForce(mod(dirsForce, 45)~=0) = [];
+%% get the mean firing in each force/reach pair
 for i = 1:length(dirsAct)
    for j = 1:length(dirsForce)
        tdReachForce{i,j} = tdReach([tdReach.forceDir] == dirsForce(j) & [tdReach.tgtDir] == dirsAct(i));
@@ -62,7 +63,7 @@ for i = 1:length(dirsAct)
    end
 end
 
-%%
+%% plot reach trajectories
 close all
 if plotTrajectories
 colors = linspecer(length(dirsForce));
@@ -78,9 +79,11 @@ for i = 1:length(dirsAct)
        end
    end
 end
-figure2();
-hold on
+%% plot force trajectories
+
 for i =1:length(dirsForce)
+    figure2();
+hold on
     for j = 1:length(dirsAct)
         trials = tdReachForce{j,i};
         force = cat(1, trials.force);

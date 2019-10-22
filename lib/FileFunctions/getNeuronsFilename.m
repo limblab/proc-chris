@@ -5,11 +5,15 @@ function fn =  getNeuronsFilename(neurons, suffix)
     task = neurons.task{1};
     actWindow = neurons.actWindow{1}';
     actWindow = actWindow(:);
-    pasWindow = neurons.pasWindow{1}';
-    pasWindow = pasWindow(:);
-    pasWindow = cellfun(@num2str, pasWindow, 'un', 0);
+    if strcmp(task(1:2), 'CO')
+        pasWindow = neurons.pasWindow{1}';
+        pasWindow = pasWindow(:);
+        pasWindow = cellfun(@num2str, pasWindow, 'un', 0);
+        pasWindow = strjoin(pasWindow, '_');
+
+    end
+
     actWindow = cellfun(@num2str, actWindow, 'un', 0);
-    pasWindow = strjoin(pasWindow, '_');
     actWindow = strjoin(actWindow, '_');
     
     if strcmp(task(1:2), 'CO')

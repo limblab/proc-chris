@@ -1,7 +1,7 @@
 function neurons = fitCOBumpPSTH(td,neurons, params)
 plotFigs = false;
 array = 'cuneate';
-windowEncPSTH = {'idx_movement_on', -30;'idx_movement_on', 60};
+windowEncPSTH = {'idx_movement_on', -30;'idx_movement_on', 50};
 
 %% File parameters
 if nargin > 2, assignParams(who,params); end % overwrite parameters

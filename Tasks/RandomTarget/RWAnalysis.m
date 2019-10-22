@@ -1,25 +1,40 @@
 % clear all
-% load('C:\Users\csv057\Documents\MATLAB\MonkeyData\CDS\Lando\20170728\Lando_RW_hold_20170728_001_TD.mat');
-% clear all
-getSensoryMappings();
+clearvars -except tdCO1
+close all
 array = 'cuneate';
-date = '20180405';
-task= 'RW';
-% paramTD.include_ts = true;
-% paramTD.include_start = true;
-% trial_data = parseFileByTrial(cds, paramTD);
-% %%
-% [tdIdx,td] = getTDidx(trial_data, 'result', 'R');
-% params.go_cue_name ='idx_goCueTime';
-% params.end_name = 'idx_endTime';
-% td1 = binTD(td, 5);
-% td1 = removeBadTrials(td1);
-% td1 = removeBadNeurons(td1);
-% td1 = getRWMovements(td1, params);
-td1 = removeBadTrials(td);
+monkey = 'Snap';
+date = '20191010';
+plotPos = true;
+plotSpeeds = true;
+plotResponses =true;
 
-td_act = trimTD(td1, 'idx_movement_on', 'idx_endTime');
-td_pas = trimTD(td1, 'idx_startTime', 'idx_movement_on');
+
+if ~exist('tdCO1')
+    tdCO1 = getTD(monkey, date, 'RW',1);
+end
+tdRW = tdToBinSize(tdCO1,10);
+
+if ~isfield(tdRW, 'idx_movement_on')
+    tdRW = getSpeed(tdRW);
+    params.go_cue_name = 'idx_goCueTime';
+    params.end_name           =  'idx_endTime';
+
+    params.start_idx =  'idx_goCueTime';
+    params.end_idx = 'idx_endTime';
+    tdRW=  getRWMovements(tdRW, params);
+
+    tdRW = getMoveOnsetAndPeak(tdRW, params);
+end
+
+% 
+tdRW = removeUnsorted(tdRW);
+
+tdRW = removeGracileTD(tdRW);
+
+tdRW = tdRW(~isnan([tdRW.idx_movement_on]));
+
+td_act = trimTD(tdRW, 'idx_movement_on', 'idx_endTime');
+td_pas = trimTD(tdRW, 'idx_trial_start', 'idx_movement_on');
 
 [trialProcessed, neuronNew] = compiledRWAnalysis(td_act);
 param.array = 'cuneate';
@@ -27,6 +42,7 @@ param.sinTuned= neuronNew.isTuned;
 param.in_signals      = 'vel';
 
 %%
+mappingLog = getSensoryMappings('Snap');
 neuronsRW = [neuronNew];
 neuronsRW = insertMappingsIntoNeuronStruct(neuronsRW,mappingLog);
 
@@ -44,8 +60,8 @@ fh2 = figure;
 
 meanDir = rad2deg(circ_mean(tunedPDs));
 %% 
-pos = cat(1, td1.pos);
-vel = cat(1,td1.vel);
+pos = cat(1, tdRW.pos);
+vel = cat(1,td_pas.vel);
 
 velAct = cat(1, td_act.vel);
 figure
@@ -57,7 +73,7 @@ histogram(rownorm(velAct),'Normalization', 'probability')
 close all
 
 paramHeat.array = array;
-paramHeat.unitsToPlot = 1:length(td(1).([paramHeat.array,'_spikes'])(1,:));
+paramHeat.unitsToPlot = 1:length(td_pas(1).([paramHeat.array,'_spikes'])(1,:));
 paramHeat.numBounds = 6;
 paramHeat.xLimits = [-10,10];
 paramHeat.yLimits = [-42, -22];
@@ -66,7 +82,7 @@ paramHeat.plotError = false;
 paramHeatAct = paramHeat;
 paramHeatPas = paramHeat;
 paramHeatPas.velocityCutoffHigh =10;
-[f1, spikingInBounds, varInBounds] = neuralHeatmap(td1,paramHeat);
+[f1, spikingInBounds, varInBounds] = neuralHeatmap(td_pas,paramHeat);
 % [f2, spikingInBoundsPas, varInBoundsPas] = neuralHeatmap(td1, paramHeatPas);
 
 % for i = 1:16

@@ -119,9 +119,9 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
     array = array{1};
     monkey1 = td(1).monkey;
     histogramFlag= false;
-    circleFlag = true;
-    plotFlag = true;
-    saveFig =true;
+    circleFlag = false;
+    plotFlag = false;
+    saveFig =false;
 
     if(exist('params') && ~isfield(params,'sinTuned'))
         warning('No sinusoidal tuning provided, assuming all are tuned')
@@ -160,7 +160,10 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
         postMoveDir{i} = postMove([postMove.target_direction] == dirsM(i));
         postMoveFiring{i} = cat(3, postMoveDir{i}.(spikeLabel))/td(1).bin_size;
         postMoveFiring{i}(postMoveFiring{i} == Inf |  postMoveFiring{i} >1000) = 0;
+        postMoveSpeed{i} = cat(2, postMoveDir{i}.speed);
+        postMoveSpeed{i} = mean(mean(postMoveSpeed{i}));
         postMoveStat(i).meanCI(:,1) = squeeze(mean(mean(postMoveFiring{i}, 3),1))';
+        postMoveSens(i,:) = (postMoveStat(i).meanCI(:,1)-preMoveStat.meanCI(:,1))/postMoveSpeed{i};
         postMoveStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postMoveFiring{i}))')';
     end
     
@@ -169,6 +172,7 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
     dirsBump = dirsBump(~isnan(dirsBump));
     
     dirsBump = dirsBump(abs(dirsBump)<361);
+    dirsBump = dirsBump(mod(dirsBump,45)==0);
     preBump = trimTD(tdBump, {'idx_bumpTime', -10}, {'idx_bumpTime', -5});
 
     postBump = trimTD(tdBump, {'idx_bumpTime', beforeBump}, {'idx_bumpTime', afterBump});
@@ -176,8 +180,11 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
         postBumpDir{i}= postBump([postBump.bumpDir] == dirsBump(i));
         postBumpFiring{i} = cat(3, postBumpDir{i}.(spikeLabel)).*100;
         postBumpFiring{i}(postBumpFiring{i} == Inf |  postBumpFiring{i} >1000) = 0;
-
+        
+        postBumpSpeed{i} = cat(2, postBumpDir{i}.speed);
+        postBumpSpeed{i} = mean(mean(postBumpSpeed{i}));
         postBumpStat(i).meanCI(:,1) = squeeze(mean(mean(postBumpFiring{i}, 3),1))';
+        postBumpSens(i,:) = (postBumpStat(i).meanCI(:,1)-preMoveStat.meanCI(:,1))/postBumpSpeed{i};
         postBumpStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postBumpFiring{i}))')';
 
     end
@@ -233,7 +240,7 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
         
         thetaPlot = [theta,theta(1)];
         
-        f2 = figure('Position', [100, 0, 600, 600]); 
+        f2 = figure('Position', [100, 0, 600, 600],'visible','off'); 
         polarplot(thetaPlot, [bumpHigh; bumpHigh(1)], 'Color', [1,.4,.4], 'LineWidth', 2)
         hold on 
         polarplot(thetaPlot, [bumpMean;bumpMean(1)], 'Color', [1,0,0], 'LineWidth', 2)
@@ -267,6 +274,8 @@ outStruct(i).postMove.mean = moveTot(i,1,:);
 outStruct(i).postMove.high = moveTot(i,3,:);
 outStruct(i).postMove.low = moveTot(i,2,:);
 
+outStruct(i).moveSens = postMoveSens(:,i);
+outStruct(i).bumpSens = postBumpSens(:,i);
 %%
 
 %%

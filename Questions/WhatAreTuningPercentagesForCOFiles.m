@@ -3,11 +3,15 @@ close all
 butterDate = '20190129';
 snapDate = '20190829';
 crackleDate = '20190418';
-hanDate = '20171122';
+s1Date = '20190710';
+monkeyS1 = 'Duncan';
 array = 'cuneate';
 recompute = false;
 doEncoding= false;
 doDecoding = false;
+
+windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
+windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
 
 beforeBump = .3;
 afterBump = .3;
@@ -27,57 +31,24 @@ for i = 1:4
             date = snapDate;
             number =2;
             td = getTD(monkey, date, 'CO',number);
-%             params.neuronsToKeep = [4,1;...
-%                              5,2;...
-%                              6,1;...
-%                              9,1;...
-%                              9,2;...
-%                              13,1;...
-%                              17,1;...
-%                              18,2;...
-%                              18,1;...
-%                              19,1;...
-%                              39,1;...
-%                              40,1;...
-%                              44,1;...
-%                              44,2;...
-%                              45,1;...
-%                              49,1;...
-%                              51,1;...
-%                              53,1;...
-%                              54,2;...
-%                              55,1;...
-%                              56,1;...
-%                              64,1;...
-%                              68,1;...
-%                              76,1;...
-%                              78,1;...
-%                              78,2;...
-%                              80,1;...
-%                              80,2;...
-%                              83,1;...
-%                              84,1;...
-%                              85,1;...
-%                              86,1;...
-%                              89,1;...
-%                              92,1;...
-%                              92,2;...
-%                              94,2];
-%                          td = removeUnsorted(td, params);
+
         case 3
             monkey = 'Crackle';
             date = crackleDate;
             number =1;
             td = getTD(monkey, date, 'CO', number);
         case 4
-            monkey = 'Han';
-            date = hanDate;
+            monkey = 'Duncan';
+            date = s1Date;
             number = 1;
-            td = getTD(monkey,date,'COactpas', number);
-            array = 'LeftS1Area2';
+            td = getTD(monkey,date,'CObumpmove', number);
+            array = 'leftS1';
+            if strcmp(monkey, 'Duncan') 
+                td(~isnan([td.idx_bumpTime]) & [td.idx_goCueTime]< [td.idx_bumpTime])=[];
+            end
 
     end
-    if ~strcmp(monkey, 'Han')
+    if ~strcmp(monkey, 'Han') & ~strcmp(monkey, 'Duncan')
         mappingFile = getSensoryMappings(monkey);
         mappingFile = findDistalArm(mappingFile);
         mappingFile = findHandCutaneousUnits(mappingFile);
@@ -99,14 +70,18 @@ for i = 1:4
     dirsM = [td.target_direction];
     f1 = mod(dirsM, pi/4) ~= 0;
     td(f1) = [];
+    for p = 1:length(td)
+        td(p).bumpDir= mod(td(p).bumpDir, 360);
+    end
+    td(isnan([td.idx_movement_on]))= [];
     %%
     if recompute
-        windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
-        windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
+
         param.arrays = {array};
         param.in_signals = {'vel'};
         param.train_new_model = true;
         param.array = array;
+        params.cutoff = pi/4;
 
         params.start_idx =  'idx_goCueTime';
         params.end_idx = 'idx_endTime';
@@ -121,7 +96,7 @@ for i = 1:4
         param.sinTuned= neuronsNew.sinTunedAct | neuronsNew.sinTunedPas;
         neuronsCO = [neuronsNew];
         %%
-        if ~strcmp(monkey, 'Han')
+        if ~strcmp(monkey, 'Han') & ~strcmp(monkey, 'Duncan')
             neuronsCO = insertMappingsIntoNeuronStruct(neuronsCO,mappingFile);
         end
         if doEncoding
@@ -142,10 +117,10 @@ end
 end
 
 %%
-neuronsB = getNeurons('Butter', butterDate,'CObump','cuneate');
-neuronsS = getNeurons('Snap', snapDate, 'CObump','cuneate');
-neuronsC = getNeurons('Crackle', crackleDate, 'CObump','cuneate');
-neuronsH = getNeurons('Han', hanDate,'COactpas','LeftS1Area2');
+neuronsB = getNeurons('Butter', butterDate,'CObump','cuneate',[windowAct; windowPas]);
+neuronsS = getNeurons('Snap', snapDate, 'CObump','cuneate',[windowAct; windowPas]);
+neuronsC = getNeurons('Crackle', crackleDate, 'CObump','cuneate',[windowAct; windowPas]);
+neuronsS1 = getNeurons(monkeyS1, s1Date,'CObump','leftS1',[windowAct; windowPas]);
 neuronsCombined = [neuronsB; neuronsS; neuronsC];
 load('C:\Users\wrest\Documents\MATLAB\MonkeyData\Encoding\EncodingMoveOnToEndHanInc.mat');
 load('C:\Users\wrest\Documents\MATLAB\MonkeyData\Decoding\DecodingMoveOnToEndHanInc.mat')
@@ -170,7 +145,7 @@ sFlag(~[neuronsS.isSorted]& ~[neuronsS.isCuneate]) = [];
 cFlag = [neuronsC.modDepthMove] >1 & [neuronsC.modDepthBump] >1  & ~[neuronsC.handUnit];
 cFlag(~[neuronsC.isSorted]& ~[neuronsC.isCuneate]) = [];
 
-hFlag = [neuronsH.isSorted];
+s1Flag = [neuronsS1.isSorted];
 
 
 neuronsB= sorted(strcmp(sorted.monkey, 'Butter'),:);
@@ -194,9 +169,21 @@ clear params
 params.mdl = mdl;
 neuronsB = testForBimodality(neuronsB, params);
 neuronsC = testForBimodality(neuronsC, params);
-%%
+%% Split based on tuning curve
 close all
-vecStr = 'bimodProjMean';
+vecStr = 'bimodProjMan';
+
+cutoffMan = .93;
+cutoffMean = .955;
+
+neuronsS.handPSTHMan = [neuronsS.bimodProjMan] < cutoffMan;
+neuronsB.handPSTHMan = [neuronsB.bimodProjMan] < cutoffMan;
+neuronsC.handPSTHMan = [neuronsC.bimodProjMan] < cutoffMan;
+
+neuronsS.handPSTHMean = [neuronsS.bimodProjMean] < cutoffMean;
+neuronsB.handPSTHMean = [neuronsB.bimodProjMean] < cutoffMean;
+neuronsC.handPSTHMean = [neuronsC.bimodProjMean] < cutoffMean;
+
 % lims = [1.2, 2];
 % lims = [.9,1];
 lims = [.8,1];
@@ -216,99 +203,79 @@ histogram(neuronsC(logical(neuronsC.sameDayMap & neuronsC.handUnit),:).(vecStr),
 hold on
 histogram(neuronsC(logical(neuronsC.sameDayMap & ~neuronsC.handUnit),:).(vecStr),30,'Normalization', 'probability')
 xlim(lims)
-%%
+%% Figure 3A. PD dists 
 close all
-cutoffMan = .925;
-cutoffMean = .955;
 
-neuronsS.handPSTHMan = [neuronsS.bimodProjMan] < cutoffMan;
-neuronsB.handPSTHMan = [neuronsB.bimodProjMan] < cutoffMan;
-neuronsC.handPSTHMan = [neuronsC.bimodProjMan] < cutoffMan;
+params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD',false, ...
+    'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
+    'savePlots', true, 'useModDepths', false, 'rosePlot', true, ...
+    'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
+    'useLogLog', false, 'useNewSensMetric', true, 'plotSensEllipse', true,...
+    'tuningCondition', {{'isSorted','isCuneate','sinTunedAct', 'sinTunedPas'}});
 
-neuronsS.handPSTHMean = [neuronsS.bimodProjMean] < cutoffMean;
-neuronsB.handPSTHMean = [neuronsB.bimodProjMean] < cutoffMean;
-neuronsC.handPSTHMean = [neuronsC.bimodProjMean] < cutoffMean;
-
-params = struct('plotModDepth', false, 'plotActVsPasPD', true, ...
-    'plotAvgFiring', false, 'plotAngleDir', false, 'plotPDDists', true, ...
-    'savePlots', true, 'useModDepths', true, 'rosePlot', true, ...
-    'plotModDepthClassic', false, 'plotSinusoidalFit', false,...
-    'tuningCondition', {{'isSorted','isCuneate','sinTunedAct', 'sinTunedPas', 'handPSTHMean'}});
-
-params.examplePDs = [5,1];
 nS= neuronStructPlot(neuronsS, params)
 
-params.examplePDs = [74,1];
 nB = neuronStructPlot(neuronsB, params)
 
-params.examplePDs = [40,3];
 nC = neuronStructPlot(neuronsC, params)
 
-%%
-params.examplePDs = [];
-params.date = 'all';
-neuronStructPlot([nB; nC; nS], params)
 
-%%
-
-params = struct('plotModDepth', true, 'plotActVsPasPD', false, ...
-    'plotAvgFiring', false, 'plotAngleDir', false, 'plotPDDists', true, ...
+%% Fig 3B. Act vs Pas PD
+close all
+params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', false, ...
+    'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
     'savePlots', true, 'useModDepths', true, 'rosePlot', true, ...
-    'plotModDepthClassic', false, 'plotSinusoidalFit', false,...
-    'tuningCondition', {{'isSorted','sinTunedPas'}});
-
-params.examplePDs = [];
-neuronStructPlot(neuronsH,params);
-%%
-
-params = struct('plotModDepth', true, 'plotActVsPasPD', true, ...
-    'plotAvgFiring', false, 'plotAngleDir', false, 'plotPDDists', true, ...
-    'savePlots', true, 'useModDepths', true, 'rosePlot', true, ...
-    'plotModDepthClassic', false, 'plotSinusoidalFit', false,...
-    'tuningCondition', {{'isSorted','isCuneate', 'sinTunedAct','sinTunedPas'}});
+    'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
+    'useLogLog', false, 'useNewSensMetric', false, 'plotSensEllipse', false,...
+    'tuningCondition', {{'isSorted','isCuneate','sinTunedAct', 'handPSTHMan','~distal'}});
 
 params.examplePDs = [74,1];
-neuronStructPlot(neuronsB, params)
+nBActNonHand = neuronStructPlot([neuronsB], params);
 
 params.examplePDs = [40,3];
-neuronStructPlot(neuronsC, params)
+nCActNonHand = neuronStructPlot([neuronsC], params);
+
+params.examplePDs = [5,2];
+nSActNonHand = neuronStructPlot([neuronsS], params);
+
+params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', false, ...
+    'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
+    'savePlots', true, 'useModDepths', true, 'rosePlot', true, ...
+    'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
+    'useLogLog', false, 'useNewSensMetric', false, 'plotSensEllipse', false,...
+    'tuningCondition', {{'isSorted','isCuneate','sinTunedPas', 'handPSTHMan','~distal'}});
+
+params.examplePDs = [74,1];
+nBPasNonHand = neuronStructPlot([neuronsB], params);
+
+params.examplePDs = [40,3];
+nCPasNonHand = neuronStructPlot([neuronsC], params);
+
+params.examplePDs = [5,2];
+nSPasNonHand = neuronStructPlot([neuronsS], params);
 
 
-params.examplePDs = [5,1];
-neuronStructPlot(neuronsS, params)
-
-%%
-
-params = struct('plotModDepth', true, 'plotActVsPasPD', false, ...
+params1 = struct('plotModDepth', false, 'plotActVsPasPD', false, ...
     'plotAvgFiring', false, 'plotAngleDir', false, 'plotPDDists', true, ...
     'savePlots', true, 'useModDepths', true, 'rosePlot', true, ...
-    'plotModDepthClassic', false, 'plotSinusoidalFit', false,...
+    'plotModDepthClassic', false, 'plotSinusoidalFit', false,'useNewSensMetric', false, 'plotSensEllipse', false,...
     'tuningCondition', {{'isSorted','sinTunedAct'}});
 
-params.examplePDs = [];
-neuronStructPlot(neuronsH,params);
+params1.examplePDs = [];
+nS1Act = neuronStructPlot(neuronsS1,params1);
 
-params = struct('plotModDepth', true, 'plotActVsPasPD', false, ...
-    'plotAvgFiring', false, 'plotAngleDir', false, 'plotPDDists', true, ...
-    'savePlots', true, 'useModDepths', true, 'rosePlot', true, ...
-    'plotModDepthClassic', false, 'plotSinusoidalFit', false,...
-    'tuningCondition', {{'isSorted','sinTunedAct', 'sinTunedPas'}});
+params1.tuningCondition = {'isSorted', 'sinTunedPas'};
+nS1Pas = neuronStructPlot(neuronsS1,params1);
 
-params.examplePDs = [];
-neuronStructPlot(neuronsH,params);
-%%
-params = struct('plotModDepth', true, 'plotActVsPasPD', true, ...
-    'plotAvgFiring', false, 'plotAngleDir', false, 'plotPDDists', false, ...
-    'savePlots', true, 'useModDepths', true, 'rosePlot', true, ...
-    'plotModDepthClassic', false, 'plotSinusoidalFit', false,...
-    'tuningCondition', {{'isSorted','isCuneate', 'sinTunedAct', 'sinTunedPas', '~handUnit'}});
-params.date = 'all';
+[tabC] = compareUniformity(nCActNonHand, nS1Act);
+[tabS] = compareUniformity(nSActNonHand, nS1Act);
+[tabB] = compareUniformity(nBActNonHand, nS1Act);
 
-neuronStructPlot(sorted, params)
+[tabCom] = compareUniformity([nBActNonHand; nCActNonHand; nSActNonHand], nS1Act);
 
-
-
-[lcn, hcn, ls1, hs1] = compareUniformity([nB; nC; nS], neuronsH);
+[tabCp] = compareUniformity(nCPasNonHand, nS1Pas);
+[tabSp] = compareUniformity(nSPasNonHand, nS1Pas);
+[tabBp] = compareUniformity(nBPasNonHand, nS1Pas);
 %%
 stats(2).cuneate = sum(neuronsB.isCuneate);
 stats(2).cuneateTuned = sum(neuronsB.isCuneate & neuronsB.tuned);
@@ -336,17 +303,8 @@ stats(4).sinTunedBoth = sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTu
 statTab = struct2table(stats, 'RowNames', {'Combined', 'Butter', 'Snap', 'Crackle'});
 
 %%
-close all
-params = struct('plotModDepth', true, 'plotActVsPasPD', true, 'plotEncodingFits', true,...
-    'plotAvgFiring', false, 'plotAngleDir', false, 'plotPDDists', true, ...
-    'savePlots', false, 'useModDepths', true, 'rosePlot', true, ...
-    'plotModDepthClassic', false, 'plotSinusoidalFit', false,...
-    'tuningCondition', {{'isSorted','isCuneate','sinTunedAct', 'sinTunedPas'}});
-params.date = 'all';
-% params.suffix = 'Windowed';
-x = neuronStructPlot(sorted, params);
-params.tuningCondition = {'isSorted','sinTunedAct', 'sinTunedPas'};
-y = neuronStructPlot(neuronsH, params);
+x = sorted(sorted.isCuneate,:);
+y = neuronsS1;
 
 neuronsB= x(strcmp(x.monkey, 'Butter'),:);
 neuronsS = x(strcmp(x.monkey, 'Snap'),:);

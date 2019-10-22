@@ -4,7 +4,11 @@ function [ closeMap ] = getClosestMap( neuron, mapping )
     date= neuron.date;
     monkey = neuron.monkey;
     elec = neuron.chan;
-    unit = neuron.unitNum;
+    if isfield(neuron, 'unitNum')
+        unit = neuron.unitNum;
+    elseif isfield(neuron,'ID')
+        unit = neuron.ID;
+    end
     mapName = neuron.mapName;
 
     daysApart = 1000;

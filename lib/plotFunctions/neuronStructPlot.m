@@ -6,7 +6,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     date = neuronStruct.date{1};
     
 %     task = neuronStruct.task{1};
-    plotUnitNum =true;
+    plotUnitNum =false;
     plotModDepth = false;
     plotActVsPasPD = false;
     plotAvgFiring = false;
@@ -19,6 +19,9 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     plotSinusoidalFit = false;
     plotEncodingFits = false;
     useLogLog = false;
+    
+    useNewSensMetric = true;
+    plotSenEllipse = true;
     examplePDs = [];
     
     colorRow = [];
@@ -110,6 +113,21 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
                 set(gca,'TickDir','out', 'box', 'off')
         title(['GLM Sensitivity ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
     end
+    if useNewSensMetric
+        fh9 = figure;
+        scatter(max(abs(neurons.sensMove)'), max(abs(neurons.sensBump)'), 'k', 'filled')
+        hold on
+        lims = [0, max(max([neurons.sensMove, neurons.sensBump]))];
+        plot([lims(1), lims(2)], [lims(1), lims(2)], 'r--')
+
+        title('Maximal Sensitivity in Active/Passive')
+        xlabel('Active Sensitivity (Hz/cm/s)')
+        ylabel('Passive Sensitivity (Hz/cm/s)')
+        title(['New Sensitivity ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
+
+        set(gca,'TickDir','out', 'box', 'off')
+        
+    end
     if plotSinusoidalFit
         for i = 1:height(neurons)
             bins = neurons.actTuningCurve.bins(i,:);
@@ -178,7 +196,11 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         xpos = actPDsHigh - actPDs;
         
         fh2 = figure;
-        scatter(actPDs, pasPDs, size1*2,'k', 'filled')
+        if plotSenEllipse
+            ellipse(2*max(neurons.sensMove'), 2*max(neurons.sensBump'),zeros(height(neurons), 1), actPDs, pasPDs, 'k')
+        else
+            scatter(actPDs, pasPDs, size1*2,'k', 'filled')
+        end
         hold on
         errorbar(actPDs, pasPDs, yneg, ypos, xneg, xpos,'k.')
         if plotUnitNum
@@ -196,7 +218,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
          
         pdBump = neurons.angBump;
         pdMove = neurons.angMove;
-        split = pi/4;
+        split = pi/5;
         vec = -pi:split:pi;
         mat = getIndicesInsideEdge(pdMove, vec);
         midVec = vec(1)+ .5*split:split:pi;
@@ -251,7 +273,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
             
             fh5= figure;
             histogram(rad2deg(actPDs), rad2deg(-pi:pi/6:pi));
-            title('Distribution of PDs in Active')
+            title(['ActPD dist ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
             xlabel('Angle')
             ylabel('# of units')
             set(gca,'TickDir','out', 'box', 'off')
@@ -259,7 +281,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
             
             fh6 = figure;
             histogram(rad2deg(pasPDs),rad2deg(-pi:pi/6:pi), 'FaceColor', 'r');
-            title('Distribution of PDs in Passive')
+             title(['PasPD dist ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
             xlabel('Angle')
             ylabel('# of units')
             set(gca,'TickDir','out', 'box', 'off')
@@ -273,8 +295,9 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
                 plot(x,y, 'k', 'LineWidth', 3)
             end
             set(gca,'TickDir','out', 'box', 'off')
+            text(.5*max(rad1), .5*max(rad1), ['N = ' ,num2str(length(actPDs))])
 
-            title('Distribution of PDs in Active')
+            title(['ActPD dist ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
 
             fh6 = figure;
             [theta2, rad2] = rose2red(pasPDs, 18);
@@ -285,11 +308,12 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
                    [x, y] =pol2cart([neuron.pasPD.velPD, neuron.actPD.velPD], [0, max(rad1)]);
                    plot(x,y, 'k', 'LineWidth', 3)
             end
-            title('Distribution of PDs in Passive')
+            text(.5*max(rad2), .5*max(rad2), ['N = ' ,num2str(length(pasPDs))])
+            title(['PasPD dist ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
         end
     end
     
-    if (savePlots)
+    if (savePlots && ~strcmp(date, 'all'))
         savePath = [getBasicPath(monkey, dateToLabDate(date), getGenericTask('CO')), 'plotting', filesep,'NeuronStructPlots', filesep, actWindow, '_', pasWindow, filesep];
         mkdir(savePath)
         if ~isempty(suffix)

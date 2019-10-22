@@ -6,12 +6,15 @@ function [ neuron ] = insertMappingIntoNeuron( neuron, mappingFile )
     isTableCol = @(t, thisCol) ismember(thisCol, t.Properties.VariableNames);
     if isTableCol(neuron, 'chan')
         elec = neuron.chan;
-        unit = neuron.unitNum;
+        if isTableCol(neuron, 'unitNum')
+            unit = neuron.unitNum;
+        else
+            unit = neuron.ID;
+        end
     else
         elec = neuron.signalID(1,1);
         unit = neuron.signalID(1,2);
     end
-    
     mapName = neuron.mapName;
     neuron.isCuneate = ~getGracile(monkey, mapName);
     neuron.isGracile =  getGracile(monkey, mapName);

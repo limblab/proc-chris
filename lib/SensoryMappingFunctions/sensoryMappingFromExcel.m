@@ -1,6 +1,7 @@
-function mapping =  sensoryMappingFromExcel(path, array, monkey)
+function mapping =  sensoryMappingFromExcel(array, monkey)
 
     mapping = getSensoryMappings(monkey);
+    path = getDailyLogPath(monkey);
     if isfield(mapping, 'date')
         prevMappedDates = unique({mapping.date});
     else
@@ -53,7 +54,6 @@ function mapping =  sensoryMappingFromExcel(path, array, monkey)
     mappingNew = findMiddleArm(mappingNew);
     mappingNew = findDistalArm(mappingNew);
     mappingNew = findCutaneous(mappingNew);
-    load('Snap_CO_20190816_TD_001.mat')
-    mappingNew = addArrayDimsToSensoryMapping(mappingNew, td(1).cuneate_naming, 'Crackle');
+    mappingNew = addArrayDimsToSensoryMapping(mappingNew, getMapForMonkey(monkey), monkey);
     mapping = [mapping; mappingNew];
 end
