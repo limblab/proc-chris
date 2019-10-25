@@ -43,6 +43,7 @@ td = getNorm(td,struct('signals','vel','field_extra','speed'));
 
 td = getMoveOnsetAndPeak(td,params);
 
+
 if td(1).bin_size ==.001
     td = binTD(td, 10);
 end
@@ -52,7 +53,7 @@ td = removeBadNeurons(td, struct('remove_unsorted', false));
 % td = removeUnsorted(td);
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
-savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawPeakAlignedPlots',filesep];
+savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawPeakBumpAlignedPlots',filesep];
 if contains(unitNames, 'cuneate')
     mkdir([savePath, 'Cuneate']);
     mkdir([savePath, 'Gracile']);
@@ -90,9 +91,14 @@ dirsBump = unique([td.bumpDir]);
 dirsBump = dirsBump(abs(dirsBump)<361);
 dirsBump = dirsBump(~isnan(dirsBump));
 
-
+params.peak_name = 'bump_peak_speed';
+params.onset_name = 'bump_movement_on';
+params.start_idx = 'idx_bumpTime';
+params.end_idx = 'idx_goCueTime';
+params.peak_idx_end = 13;
 for i = 1:length(dirsBump)
-    tdBump{i}= td([td.bumpDir] == dirsBump(i));
+    tdBump{i}= getMoveOnsetAndPeak(td([td.bumpDir] == dirsBump(i)), params);
+
 end
 
 %%
@@ -141,7 +147,7 @@ end
 maxSpeed = 60;
 
 paramsBump.yMax = maxSpeed;
-paramsBump.align= 'bumpTime';
+paramsBump.align= 'bump_peak_speed';
 paramsBump.xBound = [-.3, .3];
 paramsBump.array = unitNames;
 
@@ -184,7 +190,7 @@ for num1 = numCount
             bump = figure('visible','off');
             before = beforeBump;
             after = afterBump;
-            startInd = 'idx_bumpTime';
+            startInd = 'idx_bump_peak_speed';
             params = paramsBump;
             params.neuron = num1;
             tdPlot = tdBump;
