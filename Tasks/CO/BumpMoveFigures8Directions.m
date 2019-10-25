@@ -6,7 +6,7 @@ savePlots = 1;
 isMapped = true;
 savePDF = true;
 % 
-date = '20190327';
+date = '20190418';
 monkey = 'Crackle';
 unitNames = 'cuneate';
 params.start_idx =  'idx_goCueTime';
@@ -19,8 +19,8 @@ mappingLog = getSensoryMappings(monkey);
 
 beforeBump = .3;
 afterBump = .3;
-beforeMove = .3;
-afterMove = .6;
+beforeMove = .6;
+afterMove = .3;
 
 td =getTD(monkey, date, 'CO',1);
 td = getSpeed(td);
@@ -52,7 +52,7 @@ td = removeBadNeurons(td, struct('remove_unsorted', false));
 % td = removeUnsorted(td);
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
-savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
+savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawPeakAlignedPlots',filesep];
 if contains(unitNames, 'cuneate')
     mkdir([savePath, 'Cuneate']);
     mkdir([savePath, 'Gracile']);
@@ -82,7 +82,7 @@ dirsM(mod(dirsM, pi/8) ~= 0) = [];
 
 for i = 1:length(dirsM)
     tdDir{i} = td([td.(target_direction)] == dirsM(i));
-    tdDir{i} = tdDir{i}(isnan([tdDir{i}.bumpDir]));
+%     tdDir{i} = trimTD(tdDir{i}, {'idx_bumpTime', 13}, 'idx_endTime');
 %     tdDir{i} = tdDir{i}([tdDir{i}.idx_endTime] - [tdDir{i}.idx_goCueTime] < 1/tdDir{i}(1).bin_size);
 end
 bumpTrials = td(~isnan([td.bumpDir])); 
@@ -146,7 +146,7 @@ paramsBump.xBound = [-.3, .3];
 paramsBump.array = unitNames;
 
 paramsMove.yMax = maxSpeed;
-paramsMove.align= 'movement_on';
+paramsMove.align= 'peak_speed';
 paramsMove.xBound = [-.3, .3];
 paramsMove.array =unitNames;
     
@@ -171,7 +171,7 @@ for num1 = numCount
             move = figure('visible','off');
             before = beforeMove;
             after = afterMove;
-            startInd = 'idx_movement_on';
+            startInd = 'idx_peak_speed';
             params = paramsMove;
             params.neuron = num1;
             tdPlot = tdDir;
