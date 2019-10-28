@@ -6,8 +6,8 @@ savePlots = 1;
 isMapped = true;
 savePDF = true;
 % 
-date = '20190418';
-monkey = 'Crackle';
+date = '20190829';
+monkey = 'Snap';
 unitNames = 'cuneate';
 params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
@@ -19,10 +19,10 @@ mappingLog = getSensoryMappings(monkey);
 
 beforeBump = .3;
 afterBump = .3;
-beforeMove = .6;
+beforeMove = .3;
 afterMove = .3;
 
-td =getTD(monkey, date, 'CO',1);
+td =getTD(monkey, date, 'CO',2);
 td = getSpeed(td);
 
 target_direction = 'target_direction';
@@ -171,7 +171,8 @@ for num1 = numCount
     angBump(num1) = atan2(bumpY, bumpX);
     
     title1 = [monkey, ' ', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
-    maxFiring =0;
+    maxFiringMove =0;
+    maxFiringBump = 0;
     for bumpMove = 1:2
         if bumpMove == 1            
             move = figure('visible','off');
@@ -231,34 +232,34 @@ for num1 = numCount
         for i = 1:length(dirs)
             switch dirs(i)
                 case {0 | 0}
-                    subplot(7,3, 9)
+                    sp1 = subplot(7,3, 9);
                     set(gca,'TickDir','out', 'box', 'off')
                     set(gca,'xtick',[],'ytick',[])
                 case {45, pi/4}
-                    subplot(7,3, 3)
+                    sp2 = subplot(7,3, 3);
                     set(gca,'TickDir','out', 'box', 'off')
                     set(gca,'xtick',[],'ytick',[])
                 case {90, pi/2}
-                    subplot(7,3, 2)
+                    sp3 = subplot(7,3, 2);
                     set(gca,'TickDir','out', 'box', 'off')
                     set(gca,'xtick',[],'ytick',[])
                 case {135, 3*pi/4}
-                    subplot(7,3, 1)
+                    sp4 = subplot(7,3, 1);
                     set(gca,'TickDir','out', 'box', 'off')
                     set(gca,'xtick',[],'ytick',[])
                 case {180, pi}
-                    subplot(7,3, 7)
+                    sp5 = subplot(7,3, 7);
                     set(gca,'TickDir','out', 'box', 'off')
                     set(gca,'xtick',[],'ytick',[])
                 case {225, 5*pi/4}
-                    subplot(7,3, 13)
+                    sp6 = subplot(7,3, 13);
                     set(gca,'TickDir','out', 'box', 'off')
                     set(gca,'xtick',[],'ytick',[])
                 case {270, 3*pi/2}
-                    subplot(7,3, 14)
+                    sp7 = subplot(7,3, 14);
                     hold on
                 case {315, 7*pi/4}
-                    subplot(7,3, 15)
+                    sp8 = subplot(7,3, 15);
                     set(gca,'TickDir','out', 'box', 'off')
                     set(gca,'xtick',[],'ytick',[])
             end
@@ -276,37 +277,73 @@ for num1 = numCount
                 params.xBound = [-1*before, after];
                 unitRaster(tdPlot{i}, params);
             end
-            switch dirs(i)
-                case 0
-                    subplot(7,3, 12)
-                    set(gca,'TickDir','out', 'box', 'off')
-                    set(gca,'xtick',[],'ytick',[])
-                case {45, pi/4}
-                    subplot(7,3, 6)
-                    set(gca,'TickDir','out', 'box', 'off')
-                    set(gca,'xtick',[],'ytick',[])
-                case {90, pi/2}
-                    subplot(7,3, 5)
-                    set(gca,'TickDir','out', 'box', 'off')
-                    set(gca,'xtick',[],'ytick',[])
-                case {135,3*pi/4}
-                    subplot(7,3, 4)
-                    set(gca,'TickDir','out', 'box', 'off')
-                    set(gca,'xtick',[],'ytick',[])
-                case {180, pi}
-                    subplot(7,3, 10)
-                    set(gca,'TickDir','out', 'box', 'off')
-                    set(gca,'xtick',[],'ytick',[])
-                case {225,  5*pi/4}
-                    subplot(7,3, 16)
-                    set(gca,'TickDir','out', 'box', 'off')
-                    set(gca,'xtick',[],'ytick',[])
-                case {270, 3*pi/2}
-                    subplot(7,3, 17)
-                case {315,  7*pi/4}
-                    subplot(7,3, 18)
-                    set(gca,'TickDir','out', 'box', 'off')
-                    set(gca,'xtick',[],'ytick',[])
+            switch bumpMove
+                case 1
+                switch dirs(i)
+                    case 0
+                        spr1 = subplot(7,3, 12);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {45, pi/4}
+                        spr2 = subplot(7,3, 6);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {90, pi/2}
+                        spr3 = subplot(7,3, 5);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {135,3*pi/4}
+                        spr4 = subplot(7,3, 4);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {180, pi}
+                        spr5 = subplot(7,3, 10);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {225,  5*pi/4}
+                        spr6 = subplot(7,3, 16);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {270, 3*pi/2}
+                        spr7 = subplot(7,3, 17);
+                    case {315,  7*pi/4}
+                       spr8 =  subplot(7,3, 18);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                end
+                case 2
+                switch dirs(i)
+                    case 0
+                        sprb1 = subplot(7,3, 12);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {45, pi/4}
+                        sprb2 = subplot(7,3, 6);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {90, pi/2}
+                        sprb3 = subplot(7,3, 5);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {135,3*pi/4}
+                        sprb4 = subplot(7,3, 4);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {180, pi}
+                        sprb5 = subplot(7,3, 10);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {225,  5*pi/4}
+                        sprb6 = subplot(7,3, 16);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    case {270, 3*pi/2}
+                        sprb7 = subplot(7,3, 17);
+                    case {315,  7*pi/4}
+                       sprb8 =  subplot(7,3, 18);
+                        set(gca,'TickDir','out', 'box', 'off')
+                        set(gca,'xtick',[],'ytick',[])
+                    end
             end
             hold on
             xlim([-1*before, after])
@@ -316,17 +353,13 @@ for num1 = numCount
             meanMoveFiring = 100*mean(squeeze(firing(:,num1,:)),2);
             bar(linspace(-1*before, after, length(meanMoveFiring)), conv(meanMoveFiring, w, 'same'), 'edgecolor', 'none', 'BarWidth', 1)
             xlim([-1*before, after])
-            maxFiring = max(max(conv(meanMoveFiring, w, 'same')), maxFiring);
+            if bumpMove ==1
+                maxFiringMove = max(max(conv(meanMoveFiring, w, 'same')), maxFiringMove);
+            else
+                maxFiringBump = max(max(conv(meanMoveFiring, w, 'same')), maxFiringBump);
+            end
         end
-        if length(dirsM) == 4
-            pt1 = [5, 10, 12, 17];
-        else
-            pt1 = [4,5,6,10,12,16,17,18];
-        end
-        for pt = pt1    
-            subplot(7,3,pt)
-            ylim([0, max(1,1.1*maxFiring)])
-        end
+        
 
         
         if bumpMove == 1
@@ -376,6 +409,23 @@ for num1 = numCount
             end
         end
         disp(num1)
+    end
+    for bm = 1:2
+        switch bm
+            case 1
+                move;
+                pt1 = [spr1,spr2,spr3,spr4,spr5,spr6,spr7,spr8];
+
+            case 2
+                bump;
+                pt1 = [sprb1,sprb2,sprb3,sprb4,sprb5,sprb6,sprb7,sprb8];
+
+                
+        end
+      
+        for pt = 1:length(pt1)    
+            ylim(pt1(pt), [0,max(1.1*max(maxFiringMove, maxFiringBump))])
+        end
     end
     if savePlots
             if gracileFlag(num1)
