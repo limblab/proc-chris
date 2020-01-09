@@ -8,6 +8,8 @@ function [td] = removeGracileTD(td,params)
     [~, bad_units] = getTDCuneate(td);
     bad_units = ~bad_units;
     bad_units = bad_units | td(1).([array, '_unit_guide'])(:,2) == 0;
+    disp(['Removing ', num2str(sum(bad_units)), ' due to Gracile'])
+
     if sum(bad_units) > 0
         for trial = 1:length(td)
             temp = td(trial).([array '_spikes']);

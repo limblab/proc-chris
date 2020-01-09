@@ -12,5 +12,8 @@ function td = getTD(monkey, date, task, number)
         load([path1, monkey, '_', task, '_', date, '_TD', numberStr, '.mat']);
         disp(['loaded',  [path1, monkey, '_', task, '_', date, '_TD', numberStr, '.mat']])
     end
+    if exist('trial_data')
+        td = trial_data;
+    end
 
 end

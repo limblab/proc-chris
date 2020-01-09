@@ -14,6 +14,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     plotPDDists= true;
     savePlots = true;
     useModDepths = true;
+    plotFitLine = false;
     rosePlot = true;
     plotModDepthClassic = false;
     plotSinusoidalFit = false;
@@ -21,7 +22,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     useLogLog = false;
     
     useNewSensMetric = true;
-    plotSenEllipse = true;
+    plotSenEllipse = false;
     examplePDs = [];
     
     colorRow = [];
@@ -98,8 +99,8 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         if ~useLogLog
             scatter(neurons.actPD.velModdepth*20, neurons.pasPD.velModdepth*20,'k', 'filled')
             lims = [0, max([neurons.actPD.velModdepth; neurons.pasPD.velModdepth])*20+.2];
-                xlabel('Active Modulation Depth (spikes/s / (cm/s))')
-            ylabel('Passive Modulation Depth (spikes/s / (cm/s))')
+                xlabel('Active Modulation Depth GLM (spikes/s / (cm/s))')
+            ylabel('Passive Modulation Depth GLM (spikes/s / (cm/s))')
         else
             scatter(log10(neurons.actPD.velModdepth*20), log10(neurons.pasPD.velModdepth*20),'k', 'filled')
             lims = [0, log10(max([neurons.actPD.velModdepth; neurons.pasPD.velModdepth])*20)+.2];
@@ -218,6 +219,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
          
         pdBump = neurons.angBump;
         pdMove = neurons.angMove;
+        if plotFitLine
         split = pi/5;
         vec = -pi:split:pi;
         mat = getIndicesInsideEdge(pdMove, vec);
@@ -230,7 +232,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
             pdBumpVec(1) = pdBumpVec(1) -360;
         end
         plot(rad2deg(midVec), pdBumpVec,'b', 'LineWidth', 2)
-        
+        end
         set(gca,'TickDir','out', 'box', 'off')
         xticks([-180, -90,0, 90, 180])
         yticks([-180, -90,0,90,180])
@@ -258,7 +260,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         pasPDs = neurons.pasPD.velPD;
         pdDif = angleDiff(actPDs, pasPDs, true, true);
         fh4 = figure;
-        histogram(pdDif)
+        histogram(abs(pdDif), 0:pi/8:pi)
         title('PD rotations between active and passive')
         xlabel('change in PD directions')
         ylabel('# of units')

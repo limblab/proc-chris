@@ -5,8 +5,8 @@ clear all
 plotTrajectories = true;
 plotForceReach = true;
 
-monkey = 'Crackle';
-date = '20190417';
+monkey = 'Han';
+date = '20170203';
 mappingLog = getSensoryMappings(monkey);
 if strcmp(monkey, 'Butter')
     td1 =getTD(monkey, date, 'OOR',1);
@@ -16,7 +16,7 @@ if strcmp(monkey, 'Butter')
     td = removeGracileTD(td);
 else
     td = getTD(monkey, date, 'OOR',1);
-%     td = splitTD(td, struct('split_idx_name', 'idx_startTime', 'linked_fields', {{'trialID','result', 'tgtDir', 'forceDir', 'idx_startTargHoldTime', 'idx_goCueTime', 'idx_endTime', 'idx_endTargHoldTime'}}));
+    td = splitTD(td, struct('split_idx_name', 'idx_startTime', 'linked_fields', {{'trialID','result', 'tgtDir', 'forceDir', 'idx_startTargHoldTime', 'idx_goCueTime', 'idx_endTime', 'idx_endTargHoldTime'}}));
 
 end
 td = getSpeed(td);
@@ -37,7 +37,7 @@ td = smoothSignals(td, struct('signals', array_spikes));
 td = smoothSignals(td, struct('signals', 'force'));
 td = tdToBinSize(td, 50);
 if ~isfield(td(1), 'idx_movement_on')
-    td = getMoveOnsetAndPeak(td, struct('start_idx', 'idx_goCueTime', 'end_idx', 'idx_endTime'));
+    td = getMoveOnsetAndPeak(td, struct('start_idx', 'idx_goCueTime', 'end_idx', 'idx_endTargHoldTime'));
 end
 for i = 1:length(td)
     if td(i).forceDir == 360

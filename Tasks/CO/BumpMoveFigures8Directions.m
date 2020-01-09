@@ -1,28 +1,45 @@
 % clear all
 close all
 clear all
-plotRasters = 1;
-savePlots = 1;
-isMapped = true;
-savePDF = true;
-% 
-date = '20190829';
-monkey = 'Snap';
-unitNames = 'cuneate';
-params.start_idx =  'idx_goCueTime';
-params.end_idx = 'idx_endTime';
-% date = '20190822';
-% monkey = 'Snap';1
-% unitNames= 'cuneate';
+dateArr = {'20190418', '20190829', '20190129'};
+monkeyArr = {'Crackle', 'Snap', 'Butter'};
+numArr = [1,2,2];
 
-mappingLog = getSensoryMappings(monkey);
+
+
+for mon = 3
+clearvars -except dateArr monkeyArr numArr mon
 
 beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .3;
 
-td =getTD(monkey, date, 'CO',2);
+date = dateArr{mon};
+monkey = monkeyArr{mon};
+numT = numArr(mon);
+unitNames = 'cuneate';
+params.start_idx =  'idx_goCueTime';
+params.end_idx = 'idx_endTime';
+
+td =getTD(monkey, date, 'CO',numT);
+
+plotRasters = 1;
+savePlots = 1;
+isMapped = true;
+savePDF = true;
+% 
+
+% date = '20190822';
+% monkey = 'Snap';
+% unitNames= 'cuneate';
+alignMove = 'movement_on';
+alignBump = 'bumpTime';
+
+mappingLog = getSensoryMappings(monkey);
+
+
+
 td = getSpeed(td);
 
 target_direction = 'target_direction';
@@ -41,19 +58,23 @@ params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
 td = getNorm(td,struct('signals','vel','field_extra','speed'));
 
-td = getMoveOnsetAndPeak(td,params);
-
-
+% td = removeHighSpeedAtOnset(td);
+if strcmp(monkey, 'Duncan') 
+    td(~isnan([td.idx_bumpTime]) & [td.idx_goCueTime]< [td.idx_bumpTime])=[];
+end
 if td(1).bin_size ==.001
     td = binTD(td, 10);
 end
+td = removeUnsorted(td);
+td = getMoveOnsetAndPeak(td,params);
+td(isnan([td.idx_movement_on])) = [];
 
 td = td(~isnan([td.idx_movement_on]));
 td = removeBadNeurons(td, struct('remove_unsorted', false));
 % td = removeUnsorted(td);
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
-savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawPeakBumpAlignedPlots',filesep];
+savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
 if contains(unitNames, 'cuneate')
     mkdir([savePath, 'Cuneate']);
     mkdir([savePath, 'Gracile']);
@@ -83,6 +104,7 @@ dirsM(mod(dirsM, pi/8) ~= 0) = [];
 
 for i = 1:length(dirsM)
     tdDir{i} = td([td.(target_direction)] == dirsM(i));
+%     tdDir{i}(~isnan([tdDir{i}.idx_bumpTime])) =[];
 %     tdDir{i} = trimTD(tdDir{i}, {'idx_bumpTime', 13}, 'idx_endTime');
 %     tdDir{i} = tdDir{i}([tdDir{i}.idx_endTime] - [tdDir{i}.idx_goCueTime] < 1/tdDir{i}(1).bin_size);
 end
@@ -147,12 +169,12 @@ end
 maxSpeed = 60;
 
 paramsBump.yMax = maxSpeed;
-paramsBump.align= 'bump_peak_speed';
+paramsBump.align= alignBump;
 paramsBump.xBound = [-.3, .3];
 paramsBump.array = unitNames;
 
 paramsMove.yMax = maxSpeed;
-paramsMove.align= 'peak_speed';
+paramsMove.align= alignMove;
 paramsMove.xBound = [-.3, .3];
 paramsMove.array =unitNames;
     
@@ -170,7 +192,9 @@ for num1 = numCount
     angMove(num1) = atan2(moveY, moveX);
     angBump(num1) = atan2(bumpY, bumpX);
     
-    title1 = [monkey, ' ', unitNames, ' Electrode' num2str(td(1).(unitGuide)(num1,1)), ' Unit ', num2str(td(1).(unitGuide)(num1,2))];
+    title1 = [monkey(1:2), '\_', unitNames(1:3), '\_E' num2str(td(1).(unitGuide)(num1,1)), 'U', num2str(td(1).(unitGuide)(num1,2))];
+    title2 = [monkey, ' ', unitNames(1:3), ' E' num2str(td(1).(unitGuide)(num1,1)), 'U', num2str(td(1).(unitGuide)(num1,2))];
+
     maxFiringMove =0;
     maxFiringBump = 0;
     for bumpMove = 1:2
@@ -178,7 +202,7 @@ for num1 = numCount
             move = figure('visible','off');
             before = beforeMove;
             after = afterMove;
-            startInd = 'idx_peak_speed';
+            startInd = ['idx_', alignMove];
             params = paramsMove;
             params.neuron = num1;
             tdPlot = tdDir;
@@ -191,7 +215,7 @@ for num1 = numCount
             bump = figure('visible','off');
             before = beforeBump;
             after = afterBump;
-            startInd = 'idx_bump_peak_speed';
+            startInd = ['idx_',alignBump];
             params = paramsBump;
             params.neuron = num1;
             tdPlot = tdBump;
@@ -374,12 +398,12 @@ for num1 = numCount
             thetaPlot = [theta,theta(1)];
             
             subplot('Position',[.39,.48,.25,.2])
-
+            thetaLong = 0:pi/40:2*pi;
             polarplot(thetaPlot, [moveHigh;moveHigh(1)], 'Color', [.4,.4,1], 'LineWidth', 2)
             hold on
             polarplot(thetaPlot, [moveMean;moveMean(1)], 'Color', [0,0,1], 'LineWidth', 2)
             polarplot(thetaPlot, [moveLow; moveLow(1)], 'Color', [.4,.4,1], 'LineWidth', 2)
-
+            polarplot(thetaLong, [preMoveStat.meanCI(num1,1)*ones(length(thetaLong),1)],'LineWidth',2, 'Color',[.5,.5,.5])
             polarplot([angMove(num1), angMove(num1)], [0, max([bumpHigh])], 'Color', [0,0,1],'LineWidth',2);
             set(gca,'TickDir','out', 'box', 'off')
             set(gca,'thetatick',[],'rtick',[])
@@ -388,6 +412,8 @@ for num1 = numCount
             suptitle1([title1, ' Active GRACILE'])
             end
         else
+            thetaLong = 0:pi/40:2*pi;
+
             bumpHigh =squeeze(bumpTot(num1, 3, :));
             bumpMean = squeeze(bumpTot(num1,1,:));
             bumpLow = squeeze(bumpTot(num1,2,:));
@@ -399,6 +425,7 @@ for num1 = numCount
             hold on 
             polarplot(thetaPlot, [bumpMean;bumpMean(1)], 'Color', [1,0,0], 'LineWidth', 2)
             polarplot(thetaPlot, [bumpLow;bumpLow(1)], 'Color', [1,.4,.4], 'LineWidth', 2)
+            polarplot(thetaLong, [preMoveStat.meanCI(num1,1)*ones(length(thetaLong),1)],'LineWidth',2, 'Color',[.5,.5,.5])
 
             polarplot([angBump(num1), angBump(num1)], [0, max([moveHigh])],'Color', [1,0,0], 'LineWidth', 2);
             set(gca,'TickDir','out', 'box', 'off')
@@ -408,7 +435,7 @@ for num1 = numCount
             suptitle1([title1, ' Passive GRACILE'])
             end
         end
-        disp(num1)
+        disp([num2str(num1), ' of ', num2str(length(numCount))])
     end
     for bm = 1:2
         switch bm
@@ -424,24 +451,24 @@ for num1 = numCount
         end
       
         for pt = 1:length(pt1)    
-            ylim(pt1(pt), [0,max(1.1*max(maxFiringMove, maxFiringBump))])
+            ylim(pt1(pt), [-.00001,max(1.1*max(maxFiringMove, maxFiringBump))])
         end
     end
     if savePlots
             if gracileFlag(num1)
                 set(bump, 'Renderer', 'Painters');
-                save2pdf([savePath, 'Gracile',filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), 'GRACILE.pdf'],bump)
+                save2pdf([savePath, 'Gracile',filesep, strrep(title2, ' ', '_'), '_Bump_', num2str(date), 'GRACILE.pdf'],bump)
                 set(move, 'Renderer', 'Painters');
-                save2pdf([savePath, 'Gracile', filesep,strrep(title1, ' ', '_'), 'Move', num2str(date), 'GRACILE.pdf'],move)
-                saveas(bump,[savePath,'Gracile',filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), 'GRACILE.png'])
-                saveas(move,[savePath,'Gracile', filesep, strrep(title1, ' ', '_'), '_Move_', num2str(date), 'GRACILE.png'])
+                save2pdf([savePath, 'Gracile', filesep,strrep(title2, ' ', '_'), 'Move', num2str(date), 'GRACILE.pdf'],move)
+                saveas(bump,[savePath,'Gracile',filesep, strrep(title2, ' ', '_'), '_Bump_', num2str(date), 'GRACILE.png'])
+                saveas(move,[savePath,'Gracile', filesep, strrep(title2, ' ', '_'), '_Move_', num2str(date), 'GRACILE.png'])
             else
                 set(bump, 'Renderer', 'Painters');
-                save2pdf([savePath, unitNames,filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), '.pdf'],bump)
+                save2pdf([savePath, unitNames,filesep, strrep(title2, ' ', '_'), '_Bump_', num2str(date), '.pdf'],bump)
                 set(move, 'Renderer', 'Painters');
-                save2pdf([savePath,unitNames, filesep,strrep(title1, ' ', '_'), '_Move_', num2str(date), '.pdf'],move)
-                saveas(bump,[savePath, unitNames,filesep, strrep(title1, ' ', '_'), '_Bump_', num2str(date), '.png'])
-                saveas(move,[savePath, unitNames,filesep, strrep(title1, ' ', '_'), '_Move_', num2str(date), '.png'])
+                save2pdf([savePath,unitNames, filesep,strrep(title2, ' ', '_'), '_Move_', num2str(date), '.pdf'],move)
+                saveas(bump,[savePath, unitNames,filesep, strrep(title2, ' ', '_'), '_Bump_', num2str(date), '.png'])
+                saveas(move,[savePath, unitNames,filesep, strrep(title2, ' ', '_'), '_Move_', num2str(date), '.png'])
             end
 
     end
@@ -449,7 +476,7 @@ for num1 = numCount
         
     end
 
-   
+end  
 
 
 %% Short time

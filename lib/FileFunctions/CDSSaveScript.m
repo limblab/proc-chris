@@ -20,14 +20,14 @@
 %% All of the loading variables
 clear all
 close all
-date = '20191010';
-task = 'RW';
-monkey = 'Snap';
+date = '20180403';
+task = 'CO';
+monkey = 'Butter';
 array = 'cuneate';
 
 number = 1;
 
-sorted = false;
+sorted = true;
 % suffix = 'resort';
 makeFileStructure(monkey, date, getGenericTask(task));
 outpath = getCdsSavePath(monkey, date, getGenericTask(task));

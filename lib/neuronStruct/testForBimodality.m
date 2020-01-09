@@ -7,6 +7,7 @@ th = neurons.pasTuningCurve.bins;
 th = th(1,:);
 curves = neurons.pasTuningCurve.velCurve;
 curves = bsxfun(@rdivide, curves, rownorm(curves)');
+if length(curves(1,:))>8
 elecs = neurons.chan;
 ids = neurons.ID;
 handVec = [1, .5, .2, .5, 1, .5,.2, .5];
@@ -47,4 +48,9 @@ proj2 = curves*handVec2'./rownorm(curves)';
 neurons.bimodProjMan = proj;
 neurons.bimodProjMean = proj2;
 neurons.handLDAPred = predClasses;
+else
+    neurons.bimodProjMan = zeros(height(neurons),1);
+    neurons.bimodProjMean = zeros(height(neurons),1);
+    neurons.handLDAPred = zeros(height(neurons),1);
+end
 end

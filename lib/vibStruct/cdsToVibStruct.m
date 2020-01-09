@@ -34,6 +34,7 @@ function [ vibStruct ] = cdsToVibStruct( cds, params )
     vibOnCutoff = 20;
     binSize = 50;
     helperPlot = true;
+    pName = 'VibPulse';
     close all
     
     if nargin > 1 && ~isempty(params)
@@ -46,12 +47,12 @@ function [ vibStruct ] = cdsToVibStruct( cds, params )
     
     vibStruct.monkey= parts(1);
     vibStruct.date = parts(2);
-    vibStruct.array = parts(7);
+%     vibStruct.array = parts(7);
     vibStruct.electrode = str2num(parts{5}(5:end));
     vibStruct.muscle = parts(6);
     %% Getting the vibration signal (what this is called may change)
     vibTime = cds.analog{1,2}.t;
-    vibration = cds.analog{1,2}.VibPulse;
+    vibration = cds.analog{1,2}.(pName);
     vibOn = [abs(diff(vibration))>vibOnCutoff; 0];
     %% Scrubbing out the defects
     for i = 1:numScrubs
@@ -75,7 +76,7 @@ function [ vibStruct ] = cdsToVibStruct( cds, params )
     vibStruct.vibTimes= vibWindow;
     %% Getting the correct unit by crossreferencing the map file
     sortedUnits = cds.units([cds.units.ID] >0  & [cds.units.ID] <255);
-    unitVibedRows = ~cellfun(@isempty, strfind({cds.units.label},['elec', parts{5}(5:end)]));
+    unitVibedRows = ~cellfun(@isempty, strfind({cds.units.label},['elec', num2str(vibStruct.electrode)]));
     unitVibed = cds.units(find(unitVibedRows & [cds.units.ID] >0 & [cds.units.ID] <255) );
     %% Binning Spikes
     binnedSpike = bin_spikes(sortedUnits, 1:length(sortedUnits), linspace(vibTime(1), vibTime(end), length(vibTime)/binSize)');

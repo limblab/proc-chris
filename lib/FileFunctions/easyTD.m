@@ -9,7 +9,7 @@ function td = easyTD(path, monkey, task, date)
     params.end_idx = 'idx_endTime';
     params.trial_results = {'R', 'A'};
     if strcmp(getGenericTask(task), 'CO')
-        params.event_list = {'bumpTime'; 'bumpDir'};
+        params.event_list = {'bumpTime'; 'bumpDir'; 'tgtOnTime'};
 %         params.min_ds = 2.5;
 %         params.s_thresh = 40;
         if any(contains(fieldnames(cds.trials), 'vibOnTime'))

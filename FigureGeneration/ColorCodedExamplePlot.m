@@ -2,6 +2,8 @@
 close all
 clear all
 % % 
+% date = '20190418';
+% monkey = 'Crackle';
 date = '20190829';
 monkey = 'Snap';
 unitNames = 'cuneate';
@@ -17,10 +19,13 @@ params.end_idx = 'idx_endTime';
 
 % mappingLog = getSensoryMappings(monkey);
 
-beforeBump = .3;
-afterBump = .3;
+windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
+windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
+
+beforeBump = .1;
+afterBump = .13;
 beforeMove = .1;
-afterMove = .3;
+afterMove = .13;
 
 td =getTD(monkey, date, 'CO',2);
 td = getSpeed(td);
@@ -46,7 +51,7 @@ if td(1).bin_size ==.001
     td = binTD(td, 10);
 end
 td = getMoveOnsetAndPeak(td,params);
-neurons = getNeurons('Snap', '20190829', 'CObump','cuneate');
+neurons = getNeurons(monkey, date, 'CObump','cuneate',[windowAct; windowPas]);
 
 td = td(~isnan([td.idx_movement_on]));
 td = removeNeuronsFlag(td, neurons, {'isSorted', 'isCuneate', 'sameDayMap','~distal', '~handUnit'});
@@ -76,6 +81,8 @@ for i = 1:length(dirsM)
     fMax(i,:) = mean(firingMax);
     moveSpikes{i} = cat(3, tdDir{i}.([unitNames, '_spikes']));
     meanSpikes(:,:,i) = squeeze(mean(moveSpikes{i},3));
+    speeds(i,:) = mean(squeeze(cat(3,tdDir{i}.speed)),2);
+    pos(i,:,:) = squeeze(mean(cat(3, tdDir{i}.pos),3));
 end
 bumpTrials = td(~isnan([td.bumpDir])); 
 dirsBump = unique([td.bumpDir]);
@@ -86,28 +93,83 @@ dirsBump = dirsBump(~isnan(dirsBump));
 for i = 1:length(dirsBump)
     tdBump{i}= td([td.bumpDir] == dirsBump(i));
     tdBump{i} = trimTD(tdBump{i}, {'idx_bumpTime', -1*beforeBump*100}, {'idx_bumpTime', afterBump*100});
-    moveSpikes{i} = cat(3, tdDir{i}.([unitNames, '_spikes']));
-end
+    bumpSpikes{i} = cat(3, tdBump{i}.([unitNames, '_spikes']));
+    meanBSpikes(:,:,i) = squeeze(mean(bumpSpikes{i},3));
+    speedsB(i,:) = mean(squeeze(cat(3,tdBump{i}.speed)),2);
+    posB(i,:,:) = squeeze(mean(cat(3, tdBump{i}.pos),3));
 
+end
+maxSpeed = max(max([speedsB, speeds]))+5;
 %%
+close all
 for i = 1:length(meanSpikes(1,:,1))
     [~, sInds(i,:)] = sort(fMax(:,i));
-    normFR(:,i,:) = meanSpikes(:,i,:)/max(max(meanSpikes(:,i,:)));
+    max1 = max(max([squeeze(meanSpikes(:,i,:)); squeeze(meanBSpikes(:,i,:))]));
+    normFR(:,i,:) = meanSpikes(:,i,:)/max1;
+    normBFR(:,i,:) = meanBSpikes(:,i,:)/max1;
 end
 [sd,fSort] = sort(sInds(:,end));
 normFR = normFR(:,fSort,:);
+normBFR = normBFR(:,fSort,:);
 figure
 for i = 1:length(dirsM)
     normFR1 = normFR(:,:,:);
-    subplot(8,1,i)
+    subplot(12,1,i+4)
+
     imagesc(normFR1(:,:,i)')
-    set(gca,'TickDir','out', 'box', 'off')
     if i ~=8
         set(gca,'xtick',[],'ytick',[])
     else
         set(gca, 'ytick',[])
-        xticklabels({'-200', '-100', '0', '100', '200', '300','400', '500', '600'})
 %         colorbar
+        xticklabels({'-50', '0', '50', '100', '150', '200', '250', '300'}) 
+    end
+    hold on
+    yyaxis right
+    plot(speeds(i,:),'k', 'LineWidth', 2)
+    ylim([0, maxSpeed])
+    set(gca,'TickDir','out', 'box', 'off')
+
+end
+pos1 = reshape(pos, length(dirsM)*length(pos(1,:,1)),2);
+subplot(12,1,1:4)
+scatter(pos1(:,1), pos1(:,2),'k')
+xlim([-10,10])
+ylim([-45,-25])
+set(gca,'TickDir','out', 'box', 'off')
+
+suptitle('Move Figure')
+
+figure
+for i = 1:length(dirsBump)
+    normBFR1 = normBFR(:,:,:);
+    subplot(12,1,i+4)
+    imagesc(normBFR1(:,:,i)')
+    
+    if i ~=8
+        set(gca,'xtick',[],'ytick',[])
+    else
+        set(gca, 'ytick',[])
+%         colorbar
+        xticklabels({'-50', '0', '50', '100', '150', '200', '250', '300'}) 
 
     end
+    hold on
+    hold on
+    yyaxis right
+    plot(speedsB(i,:),'k', 'LineWidth', 2)
+    ylim([0, maxSpeed])
+
+    set(gca,'TickDir','out', 'box', 'off')
+    yticklabels({''}) 
+
 end
+posB1 = reshape(posB, length(dirsM)*length(posB(1,:,1)),2);
+
+subplot(12,1,1:4)
+scatter(posB1(:,1), posB1(:,2),'k')
+set(gca,'TickDir','out', 'box', 'off')
+
+xlim([-10,10])
+ylim([-45,-25])
+suptitle('Bump Figure')

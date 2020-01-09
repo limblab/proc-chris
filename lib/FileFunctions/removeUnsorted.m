@@ -74,6 +74,7 @@ for a = 1:length(arrays)
         end
         bad_units = logical(bad_units);
     end
+    disp(['Removing ', num2str(sum(bad_units)), ' due to unsorted'])
 
     % now remove the bad cells
     if sum(bad_units) > 0

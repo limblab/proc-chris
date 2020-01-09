@@ -21,9 +21,15 @@ bad_units = [td(1).([array, '_unit_guide'])(:,2) == 0]';
 
 for j = 1:length(guide(:,1))
     map1 = map([map.elec] == guide(j,1) & datetime(date, 'InputFormat', 'MM-dd-yyyy') == datetime(string({map.date}), 'InputFormat', 'yyyyMMdd'));
-    if ~isempty(map1)
+    if length(map1)>1
+        map1(1).mapped = true;
+        temp = join(horzcat(map1.desc));
+        mapComp(j,:) = map1(1,:);
+        mapComp(j).desc = temp;
+    elseif ~isempty(map1)
         map1.mapped = true;
         mapComp(j,:) = map1;
+    
     else
         map1(1).mapped = false;
         map1(1).date  ='na';
@@ -47,11 +53,11 @@ end
     
 
 for i = 1:length(rfFilter(:,1))
-    flag1 = [mapComp.(rfFilter{i,1})] == rfFilter{i,2} | ~[mapComp.mapped];
+    flag1 = [mapComp.(rfFilter{i,1})] == rfFilter{i,2};% | ~[mapComp.mapped];
     bad_units = bad_units | flag1;
 end
 
-disp(['Removing ', num2str(sum(bad_units))])
+disp(['Removing ', num2str(sum(bad_units)), ' due to sensory mapping'])
 % now remove the bad cells
 if sum(bad_units) > 0
     for trial = 1:length(td)

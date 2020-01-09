@@ -1,4 +1,4 @@
-function [results,td,neurons] = compiledCOEncoding(td, params, neurons)
+function [results,td] = IsEncodingRelatedToHandSpeedByTrial(td, params)
 array= 'cuneate';
 doCuneate= true;
 plotExample = false;
@@ -22,9 +22,9 @@ cunFlag = ones(length(Naming(:,1)), 1);
 % td = rectifyTDSignal(td, struct('signals_to_rectify', {{'acc'}}));
 %% Compute the full models, and the pieces of the models
 spikes = [array, '_spikes'];
-params.model_type = 'glm';
+params.model_type = 'linmodel';
 params.num_boots = 100;
-params.eval_metric = 'pr2';
+params.eval_metric = 'r2';
 % params.glm_distribution
 disp('Full')
 params.in_signals= {'pos';'vel';'speed';'acc';'force'};
@@ -32,6 +32,18 @@ params.model_name = 'Full';
 params.out_signals = {spikes};
 [td, modelFull]= getModel(td, params);
 fullPR2 = squeeze(evalModel(td, params));
+params.num_boots = 1;
+
+for i = 1:length(td)
+    trialFullPR2(i,:) = squeeze(evalModel(td(i),params));
+    trialSpeed(i) = max(td(i).speed);
+end
+trialFullPR2(trialFullPR2 < -1) = -1;
+params.num_boots = 100;
+for i =1:length(trialFullPR2(1,:))
+   figure
+   scatter(trialSpeed, trialFullPR2(:,i))
+end
 disp('Full-pos')
 params.in_signals= {'vel';'speed';'acc';'force'};
 params.model_name = 'FullMinusPos';

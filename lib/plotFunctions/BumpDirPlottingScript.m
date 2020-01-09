@@ -15,6 +15,9 @@ params.end_idx = 'idx_endTime';
 % monkey = 'Snap';
 % unitNames= 'cuneate';
 
+windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
+windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
+
 mappingLog = getSensoryMappings(monkey);
 
 beforeBump = .3;

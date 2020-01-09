@@ -78,4 +78,9 @@ function [results, predicted] = compiledCODecoding(td, params)
     results.SpeedMean = mean(SpeedMean);
     results.SpeedLow = SpeedLow;
     results.SpeedHigh = SpeedHigh;
+    
+    tab = struct2table(results);
+    if nargin >2 
+        neurons.decoding = tab;
+    end
 end

@@ -51,8 +51,6 @@ monkeyArray = {monkey1, date1, task1, num1;...
                monkey4, date4, task4, num4;...
                monkey5, date5, task5, num5};
 
-cnSAct = [];
-cnSPas = [];
 
 for mon = 1:5
     monkey = monkeyArray{mon, 1};
@@ -200,10 +198,10 @@ for mon = 1:5
     
 
 
-        
+    for win = 1:10
     guide = td(1).([array, '_unit_guide']);
     td([td.idx_peak_speed]< [td.idx_movement_on])=[];
-    tdAct = trimTD(td, {'idx_movement_on',0}, {'idx_movement_on', 13});
+    tdAct = trimTD(td, {'idx_peak_speed',-20+ win}, {'idx_peak_speed', -7+win});
     if mon ~=1
         tdAct(~isnan([tdAct.bumpDir]))=[];
     end
@@ -384,13 +382,9 @@ for mon = 1:5
     spindle = spindle(mapped);
     sensAct{mon}= sAct;
     sensPas{mon} = sPas;
-    
-    cnSAct = [cnSAct; sAct];
-    cnSPas = [cnSPas; sPas];
-    
     lmAll{mon} = fitlm(sAct, sPas, 'Intercept', false)
-    slopeAll(mon) = lmAll{mon}.Coefficients.Estimate;
-    slopeCI(mon,:) = coefCI(lmAll{mon});
+    slopeAll(mon,win) = lmAll{mon}.Coefficients.Estimate;
+    slopeCI(mon,win,:) = coefCI(lmAll{mon});
     spindleLM{mon} = fitlm(sAct(spindle), sPas(spindle), 'Intercept', false);
     nSpindleLM{mon}= fitlm(sAct(~spindle), sPas(~spindle), 'Intercept', false);
     
@@ -467,14 +461,17 @@ for mon = 1:5
     saveas(gca, [savePath, 'ActPasSensitivity' ,suffix, '.png']);
    end
     end
+    vec1 = [sensAct{1}, sensPas{1}];
+    pSim(mon,win) = doNonParametricForUnityLine(100000, vec1);
+    nAct = sum(vec1(:,1) >vec1(:,2));
 
-    
+    pBer(mon,win) = binopdf(nAct, length(vec1(:,1)), .5);
+
+    end
 end
 %%
 spindleM = fitlm(sActSpindleComb, sPasSpindleComb, 'Intercept', false)
 nSpindleM = fitlm(sActNSpindleComb, sPasNSpindleComb, 'Intercept', false)
-
-figure
 
 sSlope(1) = spindleM.Coefficients.Estimate(1);
 cSlope(1) = nSpindleM.Coefficients.Estimate(1);
@@ -487,28 +484,6 @@ cra = [sensAct{2}, sensPas{2}];
 snap = [sensAct{3}, sensPas{3}];
 han = [sensAct{4}, sensPas{4}];
 dun = [sensAct{5}, sensPas{5}];
-
-
-maxSens = max(max([but; cra; snap]));
-figure
-scatter(but(:,1), but(:,2), 'r', 'filled')
-hold on
-scatter(cra(:,1), cra(:,2), 'b', 'filled')
-scatter(snap(:,1), snap(:,2), 'g', 'filled')
-plot([0, maxSens], [0, maxSens], 'k-')
-set(gca,'TickDir','out', 'box', 'off')
-leg = legend('Bu', 'Cr', 'Sn');
-title(leg, 'Monkey')
-
-maxSens1 = max(max([han; dun]));
-figure
-scatter(han(:,1), han(:,2), 'r', 'filled')
-hold on
-scatter(dun(:,1), dun(:,2), 'b', 'filled')
-plot([0, maxSens1], [0, maxSens1], 'k-')
-set(gca,'TickDir','out', 'box', 'off')
-leg = legend('Ha', 'Du');
-title(leg, 'Monkey')
 
 p4 = doNonParametricForUnityLine(1000000, han);
 p5 = doNonParametricForUnityLine(1000000, dun);

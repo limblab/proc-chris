@@ -11,5 +11,7 @@ function mapping = getSensoryMappings(monkey)
     elseif strcmp(monkey, 'Snap')
         load([getBasePath(), 'SensoryMappings', filesep, 'SnapMapping20191010.mat'])
         mapping = mappingFile;
+    else
+        mapping = [];
     end
 end

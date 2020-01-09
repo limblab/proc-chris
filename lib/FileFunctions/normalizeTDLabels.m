@@ -17,6 +17,10 @@ fields = fieldnames(td);
                 newField{i} = 'target_direction';
             case 'bump_direction'
                 newField{i} = 'bumpDir';
+            case 'date_time'
+                newField{i} = 'date';
+            case 'tgtDir'
+                newField{i} = 'target_direction';
             otherwise
                 newField{i} = field;
         end

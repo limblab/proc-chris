@@ -12,7 +12,7 @@ for mon = 1:3
     switch mon
         case 1
             monkey = 'Snap';
-            date = '20190821';
+            date = '20190924';
             array = 'cuneate';
             td1 = getTD(monkey, date, task,1);
             td1 = tdToBinSize(td1, 50);
@@ -89,7 +89,11 @@ td(isnan([td.idx_movement_on])) = [];
 td = trimTD(td, 'idx_movement_on', 'idx_endTargHoldTime');
 dirsM = unique([td.target_direction]);
 dirsM(isnan(dirsM)) = [];
-
+if any(dirsM>7)
+    dirsM(mod(dirsM, 45)~=0) = [];
+else
+    dirsM(mod(dirsM, pi/4)~=0) =[];
+end
 dirsF = unique([td.forceDir]);
 dirsF(isnan(dirsF)) = [];
 
@@ -162,7 +166,7 @@ end
 
 %%
 paramsForce= paramsPD;
-paramsForce.in_signals = 'force';
+paramsForce.in_signals = {'force',1:2};
 forcePDs = getTDPDs(td, paramsForce);
 velPDs = getTDPDs(td, paramsPD);
 tuned = checkIsTunedPDtable(velPDs, pi/4, 'vel') & checkIsTunedPDtable(forcePDs, pi/4, 'force');
@@ -196,7 +200,7 @@ ylabel('# of units')
 % most units
 % 2. The sensitivities vary significantly as a funciton of the bias force
 % directions
-sinTuned = ones(length(td(1).cuneate_spikes(1,:)),1);
+sinTuned = ones(length(td(1).(spikes)(1,:)),1);
 for i = 1:length(dirsF)
 %     h = msgbox(['Working on dir : ', num2str(dirsF(i))]);
     [~, td1] = getTDidx(td, 'forceDir', dirsF(i));
@@ -510,34 +514,7 @@ plot([0, max([spdAss, spdRes])], [0, max([spdAss, spdRes])])
 %% Do the Load-velocity plots in CN look similar to those in S1 (Prudhomme/Kalaska comparison)
 % Answer: Not really. They don't seem to have as strong of a load component
 % as shown in their paper.
-close all
-clear meanFiring
-for i = 1:length(dirsM)
-    for j = 1:length(dirsF)
-        tdMF = td([td.forceDir] == dirsF(j) & [td.target_direction] == dirsM(i));
-        if ~isempty(tdMF)
-        tdMF(isnan([tdMF.idx_peak_speed]))=[];
-        tdMF = trimTD(tdMF, {'idx_peak_speed', -10}, {'idx_peak_speed', 10});
-        meanFiring(i,j,:) = getMeanTD(tdMF, struct('signal', 'cuneate_spikes'));
-        else
-            meanFiring(i,j,:) = zeros(1,1,length(meanFiring(1,1,:)));
-        end
-    end
-end
-guide1 = td(1).cuneate_unit_guide;
-mkdir([getPathFromTD(td), '\plotting\ForceSurfaces\']);
-for i =1 :length(meanFiring(1,1,:))
-    title1 = ['LoadVelInteractionElec' ,num2str(guide1(i,1)), 'U', num2str(guide1(i,2)),'.png'];
-    figure();
-    surf(meanFiring(:,:,i))
-    title(['Load/Velocity interaction Elec: ' ,num2str(guide1(i,1)), ' unit: ', num2str(guide1(i,2))])
-    ylabel('Movement direction')
-    xlabel('Force direction')
-    zlabel('Firing rate')
-    if savePlots
-        saveas(gca, [getPathFromTD(td),'\plotting\ForceSurfaces\',title1])
-    end
-end
+
 %%
 params.model_type = 'glm';
 params.num_boots = 1;
