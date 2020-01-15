@@ -2,6 +2,7 @@ function [tdOut,removeTrials] = removeBadOpensim(td, params)
     bin_size = td(1).bin_size;
     zeroParam = 1e-10;
     ucThresh = .000001;
+    removeDistal = true;
     if nargin > 1, assignParams(who,params); end % overwrite defaults
     
     removeTrials =[];

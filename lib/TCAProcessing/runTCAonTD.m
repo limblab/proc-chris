@@ -15,5 +15,4 @@ tensorIn = cat(3, td.(spikes));
 tensorIn = permute(tensorIn, [2, 1, 3]);
 tca = cp_als(tensor(tensorIn), num_comps);
 viz_ktensor_td(tca,td, plotParams)
-
 end

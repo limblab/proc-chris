@@ -10,7 +10,7 @@
 % td = td(~isnan([td.idx_goCueTime]));
 %%
 close all
-clearvars -except td3
+clearvars -except td1
 % 
 date = '20190829';
 monkey = 'Snap';
@@ -27,11 +27,11 @@ beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .6;
-td = td3;
+td = td1;
 % td =getTD(monkey, date, 'CO',2);
 td = getSpeed(td);
-dsVec = 1:.1:2;
-sVec = 2;
+dsVec = 1.5;
+sVec = [1.9:.1:2.7];
 fig = figure();
 % params.useForce = true;
 % params.which_field = 'force';
@@ -42,9 +42,9 @@ dirsM = unique([td.target_direction]);
 dirsM(isnan(dirsM)) = [];
 dirsM(mod(dirsM, pi/4) ~=0) = [];
     
-if td(1).bin_size ==.001
-    td = binTD(td, 10);
-end
+% if td(1).bin_size ==.001
+%     td = binTD(td, 10);
+% end
 td(~isnan([td.idx_bumpTime]))=[];
 for i = 1:length(dsVec)
     for j = 1:length(sVec)
@@ -58,7 +58,7 @@ for i = 1:length(dsVec)
     %         tdTemp = removeBadTrials(tdTemp);
             tdTemp = tdTemp(~isnan([tdTemp.idx_movement_on]));
 
-            trimmedTemp = trimTD(tdTemp, {'idx_movement_on', -20}, {'idx_movement_on', 30});
+            trimmedTemp = trimTD(tdTemp, {'idx_movement_on', -200}, {'idx_movement_on', 300});
     %         trimmedTemp1 = removeBadTrials(trimmedTemp);
             speed= cat(2,trimmedTemp.speed);
             plot(speed)
