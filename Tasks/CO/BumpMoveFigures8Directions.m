@@ -1,13 +1,13 @@
 % clear all
 close all
 clear all
-dateArr = {'20190418', '20190829', '20190129'};
-monkeyArr = {'Crackle', 'Snap', 'Butter'};
-numArr = [1,2,2];
+dateArr = {'20190418', '20190829', '20190129', '20170917'};
+monkeyArr = {'Crackle', 'Snap', 'Butter', 'Lando'};
+numArr = [1,2,2,1];
 
 
 
-for mon = 3
+for mon = 4
 clearvars -except dateArr monkeyArr numArr mon
 
 beforeBump = .3;
@@ -441,12 +441,18 @@ for num1 = numCount
         switch bm
             case 1
                 move;
-                pt1 = [spr1,spr2,spr3,spr4,spr5,spr6,spr7,spr8];
-
+                if length(dirs) == 8
+                    pt1 = [spr1,spr2,spr3,spr4,spr5,spr6,spr7,spr8];
+                else
+                    pt1 = [spr1,spr3, spr5, spr7];
+                end
             case 2
                 bump;
-                pt1 = [sprb1,sprb2,sprb3,sprb4,sprb5,sprb6,sprb7,sprb8];
-
+                if length(dirsBump) == 8
+                    pt1 = [sprb1,sprb2,sprb3,sprb4,sprb5,sprb6,sprb7,sprb8];
+                else
+                    pt1 = [sprb1,sprb3, sprb5, sprb7];
+                end
                 
         end
       

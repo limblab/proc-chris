@@ -145,6 +145,7 @@ for mon = 1:5
                 td3 = removeNeuronsByNeuronStruct(td3, struct('flags', {{'~handPSTHMan'}}));
 
             end
+%             td3 = removeVisually(td3);
             td = td3;
         case 4
             array = 'LeftS1Area2';
@@ -362,7 +363,7 @@ for mon = 1:5
             lmPas = fitlm(velPas, pasFR(:,i));
             sPas(i) = norm(lmPas.Coefficients.Estimate(2:3));
 
-            if ml(unit).spindle
+            if any(ml(unit).spindle)
                 spindle(i) = true;
 %                 figure
 %                 plot(lmAct)
@@ -482,6 +483,7 @@ cSlope(1) = nSpindleM.Coefficients.Estimate(1);
 sSlope(2:3) = coefCI(spindleM);
 cSlope(2:3) = coefCI(nSpindleM);
 %%
+close all
 but = [sensAct{1}, sensPas{1}];
 cra = [sensAct{2}, sensPas{2}];
 snap = [sensAct{3}, sensPas{3}];
@@ -510,11 +512,12 @@ set(gca,'TickDir','out', 'box', 'off')
 leg = legend('Ha', 'Du');
 title(leg, 'Monkey')
 
-p4 = doNonParametricForUnityLine(1000000, han);
-p5 = doNonParametricForUnityLine(1000000, dun);
-p1 = doNonParametricForUnityLine(1000000, but);
-p2 = doNonParametricForUnityLine(1000000, cra);
-p3 = doNonParametricForUnityLine(1000000, snap);
+p4 = doNonParametricForUnityLine(10000, han);
+p5 = doNonParametricForUnityLine(10000, dun);
+p1 = doNonParametricForUnityLine(10000, but);
+p2 = doNonParametricForUnityLine(10000, cra);
+p3 = doNonParametricForUnityLine(10000, snap);
+
 
 nBut = sum(but(:,1) >but(:,2));
 nSnap = sum(snap(:,1) >snap(:,2));
@@ -528,4 +531,9 @@ pB3 = binopdf(nSnap, length(snap(:,1)), .5);
 pB4 = binopdf(nHan, length(han(:,1)), .5);
 pB5 = binopdf(nDun, length(dun(:,1)), .5);
 
+pBB1 = myBinomTest(nBut, length(but(:,1)), .5, 'one')
+pBCr1 = myBinomTest(nCra, length(cra(:,1)), .5, 'one');
+pBSn1 = myBinomTest(nSnap, length(snap(:,1)), .5, 'one')
+pBHa1 = myBinomTest(nHan, length(han(:,1)), .5, 'one')
+pBD1 = myBinomTest(nDun, length(dun(:,1)), .5, 'one')
 

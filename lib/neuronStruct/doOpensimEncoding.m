@@ -1,8 +1,8 @@
 function neurons1 = doOpensimEncoding(td, params)
-    start_time = {'idx_movement_on', -10};
-    end_time = {'idx_movement_on', 50};
+    start_time = {'idx_movement_on', 0};
+    end_time = {'idx_endTime', 0};
     array = 'cuneate';
-    powers = [.1:.05:1.1];
+    powers = [.5];
     if nargin > 1, assignParams(who,params); end % overwrite parameters
     td = removeBadOpensim(td);
 
@@ -37,8 +37,8 @@ function neurons1 = doOpensimEncoding(td, params)
     %% compute the GLMs and accuracies for move data
     
 
-    tdLen = length(td);
-   num_folds = 10;
+   tdLen = length(td);
+   num_folds = 100;
    perms = randperm(length(td));
    guide = td(1).cuneate_unit_guide;
    encVars = {'handElb','jointAng', 'jointVel', 'muscleLen', 'muscleVel', 'joint', 'muscle', 'pos', 'vel', 'hand', powerVars{:}};
@@ -139,8 +139,11 @@ function neurons1 = doOpensimEncoding(td, params)
                       varInTe = varInTeTemp(:,54:end);
               end     
                lm1 = fitlm(varIn, fr(:,u));
-               neurons(u).(encVars{v})(f) = lm1.Rsquared.Ordinary;
-               neurons(u).(encVars{v})(f) = corr(predict(lm1, varInTe), frTe(:,u))^2; 
+%                neurons(u).(encVars{v})(f) = lm1.Rsquared.Ordinary;
+%                neurons(u).(encVars{v})(f) = corr(predict(lm1, varInTe), frTe(:,u))^2;
+               ssRes = sum((frTe(:,u) - predict(lm1, varInTe)).^2);
+               ssTot = sum((frTe(:,u) - mean(frTe(:,u))).^2);
+               neurons(u).(encVars{v})(f) = 1 - ssRes/ssTot;
           end
       end
     disp(['done with ' num2str(u) ' of ' num2str(length(guide(:,1)))])

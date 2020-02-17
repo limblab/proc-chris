@@ -160,6 +160,8 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
         postMoveDir{i} = postMove([postMove.target_direction] == dirsM(i));
         postMoveFiring{i} = cat(3, postMoveDir{i}.(spikeLabel))/td(1).bin_size;
         postMoveFiring{i}(postMoveFiring{i} == Inf |  postMoveFiring{i} >1000) = 0;
+        postMoveFiringTrial{i} = squeeze(mean(postMoveFiring{i}))
+
         postMoveSpeed{i} = cat(2, postMoveDir{i}.speed);
         postMoveSpeed{i} = mean(mean(postMoveSpeed{i}));
         postMoveStat(i).meanCI(:,1) = squeeze(mean(mean(postMoveFiring{i}, 3),1))';
@@ -183,6 +185,7 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
         
         postBumpSpeed{i} = cat(2, postBumpDir{i}.speed);
         postBumpSpeed{i} = mean(mean(postBumpSpeed{i}));
+        postBumpFiringTrial{i} = squeeze(mean(postBumpFiring{i}))
         postBumpStat(i).meanCI(:,1) = squeeze(mean(mean(postBumpFiring{i}, 3),1))';
         postBumpSens(i,:) = (postBumpStat(i).meanCI(:,1)-preMoveStat.meanCI(:,1))/postBumpSpeed{i};
         postBumpStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postBumpFiring{i}))')';
@@ -193,8 +196,20 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
 
     preBumpStat.meanCI(:,1) = squeeze(mean(mean(preBumpFiring, 3),1))';
     preBumpStat.meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(preBumpFiring))')';
-
-    
+    trialFiringMove = horzcat(postMoveFiringTrial{:});
+    trialFiringBump = horzcat(postBumpFiringTrial{:});
+    [~, trialsB] = cellfun(@size, postBumpFiringTrial);
+    [~, trialsM] = cellfun(@size, postMoveFiringTrial);
+    groupB =[];
+    groupM =[];
+    for i = 1:length(trialsB)
+        groupB = [groupB; i*ones(trialsB(i), 1)];
+        groupM = [groupM; i*ones(trialsM(i), 1)];
+    end
+    for i = 1:length(postBumpFiringTrial{1}(:,1))
+        fMove(i) = anovan(trialFiringMove(i,:), groupM,  'display', 'off')
+        fBump(i) = anovan(trialFiringBump(i,:), groupB,  'display', 'off')
+    end
     timeVec = linspace(-.01*beforeBump, .01*afterBump, length(postMove(1).pos(:,1)));
     %% Compute firing for plots around bump start and movement onset
     t = cat(3, postMoveStat.meanCI);
@@ -292,7 +307,8 @@ outStruct(i).firing.active = moveTot;
 outStruct(i).firing.passive = bumpTot;
 % outStruct(i).numPasDif = sum(sigDifBump(i));
 % outStruct(i).numActDif = sum(sigDifMove(i));
-
+outStruct(i).fBump = fBump(i);
+outStruct(i).fMove = fMove(i);
 
 outStruct(i).dcBump = mean(bumpTot(i, 1, :)- bumpPre(i,1));
 outStruct(i).dcMove= mean(moveTot(i,1, :) - movePre(i,1));

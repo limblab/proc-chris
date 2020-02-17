@@ -10,7 +10,7 @@ td = smoothSignals(td, struct('signals', [array, '_spikes'], 'calc_rate',true, '
 td = td(~isnan([td.idx_movement_on]));
 
 td = trimTD(td, 'idx_movement_on', 'idx_endTime');
-td= tdToBinSize(td,10);
+td= tdToBinSize(td,50);
 % tdButter= removeBadTrials(tdButter);
 % td(isnan([td.idx_endTime])) =[];
 td([td.idx_endTime] ==1) = [];

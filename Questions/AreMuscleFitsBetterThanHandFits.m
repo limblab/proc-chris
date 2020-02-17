@@ -9,14 +9,16 @@ mapping = getSensoryMappings('Snap');
 if exist('td')~=1
     td = getTD(monkey, date, 'CO',number); 
 end
+td = removeUnsorted(td);
 neurons1 = loadAnalysis(td, type);
-if isempty(neurons1)
+% clear neurons1
+if ~exist('neurons1')
     neurons1 = doOpensimEncoding(td);
 end
 neuronsMean = getMeanEncoding(neurons1);
 neurons = insertMappingsIntoNeuronStruct(neuronsMean, mapping);
 %% Compare hand position encoding vs joint angle encoding
-neuronsFilt = neurons([neurons.isSpindle] &[neurons.ID] ~=0,:);
+neuronsFilt = neurons([neurons.isSpindle] ~=0,:);
 close all
 comps = {'pos', 'jointAng';...
          'pos', 'muscleLen';...
@@ -36,8 +38,31 @@ for i = 1:length(comps(:,1))
     xlabel([comps{i,1},' R2'])
     ylabel([comps{i,2}, ' R2'])
     set(gca,'TickDir','out', 'box', 'off')
-
+    ylim([0,1])
+    xlim([0,1])
+    xticklabels({'0','','','','','','','','','','1.0'})
+    yticklabels({'0','','','','','','','','','','1.0'})
 end
+%%
+musMinHand = neuronsFilt.muscle - neuronsFilt.hand;
+musMinJoint = neuronsFilt.muscle -neuronsFilt.joint;
+
+mean(musMinHand)
+mean(musMinJoint)
+
+[a1, a2] = ttest(musMinHand)
+[b1, b2] = ttest(musMinJoint)
+%%
+figure 
+histogram(musMinHand,8)
+xlabel('muscle minus hand')
+    set(gca,'TickDir','out', 'box', 'off')
+
+
+figure
+histogram(musMinJoint,8)
+xlabel('muscle minus joint')
+    set(gca,'TickDir','out', 'box', 'off')
 
 %% Compare muscle vel encoding to power law transformed muscle vel encoding
 

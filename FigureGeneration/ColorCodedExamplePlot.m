@@ -23,9 +23,9 @@ windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windo
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
 
 beforeBump = .1;
-afterBump = .13;
+afterBump = .3;
 beforeMove = .1;
-afterMove = .13;
+afterMove = .3;
 
 td =getTD(monkey, date, 'CO',2);
 td = getSpeed(td);
@@ -132,8 +132,11 @@ for i = 1:length(dirsM)
 
 end
 pos1 = reshape(pos, length(dirsM)*length(pos(1,:,1)),2);
+posR = reshape(pos(:, 1:23,:), length(dirsM)*length(pos(1,1:23,1)),2);
 subplot(12,1,1:4)
 scatter(pos1(:,1), pos1(:,2),'k')
+hold on
+scatter(posR(:,1), posR(:,2), 'r')
 xlim([-10,10])
 ylim([-45,-25])
 set(gca,'TickDir','out', 'box', 'off')
@@ -165,9 +168,12 @@ for i = 1:length(dirsBump)
 
 end
 posB1 = reshape(posB, length(dirsM)*length(posB(1,:,1)),2);
+posRB1 = reshape(posB(:, 1:23,:), length(dirsM)*length(posB(1,1:23,1)),2);
 
 subplot(12,1,1:4)
 scatter(posB1(:,1), posB1(:,2),'k')
+hold on
+scatter(posRB1(:,1), posRB1(:,2), 'r')
 set(gca,'TickDir','out', 'box', 'off')
 
 xlim([-10,10])

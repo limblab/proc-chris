@@ -25,10 +25,13 @@ function [tout,rout] = rose2(varargin)
 
 [cax,args,nargs] = axescheck(varargin{:});
 error(nargchk(1,3,nargs,'struct'));
-
+thetaOff = false;
 theta = args{1};
 if nargs > 1, 
   x = args{2}; 
+end
+if nargs > 2
+    thetaOff = args{3};
 end
 
 if ischar(theta)
@@ -38,7 +41,7 @@ theta = rem(rem(theta,2*pi)+2*pi,2*pi); % Make sure 0 <= theta <= 2*pi
 if nargs==1,
   x = (0:19)*pi/10+pi/20;
 
-elseif nargs==2,
+elseif nargs>1,
   if ischar(x)
     error(id('NonNumericInput'),'Input arguments must be numeric.');
   end
@@ -82,7 +85,9 @@ t(3:4:mm) = zz(2:m+1);
   else
     h = polar(t,r);
   end
-
+if thetaOff
+    thetaticks([])
+end
 [a,b] = pol2cart(t,r);     % convert histogram line to polar coordinates
 A = reshape(a,4,numel(x)); % reshape 4*N-element x vector into N columns
 B = reshape(b,4,numel(x)); % reshape 4*N-element y vector into N columns

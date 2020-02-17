@@ -7,9 +7,10 @@ s1Date = '20190710';
 monkeyS1 = 'Duncan';
 hanDate = '20171122';
 array = 'cuneate';
-recompute = true;
-doEncoding= true;
-doDecoding = true;
+
+recompute = false;
+doEncoding= false;
+doDecoding = false;
 
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
@@ -60,6 +61,7 @@ for i = 1:5
     end
     if ~strcmp(monkey, 'Han') & ~strcmp(monkey, 'Duncan')
         mappingFile = getSensoryMappings(monkey);
+        keyboard
         mappingFile = findDistalArm(mappingFile);
         mappingFile = findHandCutaneousUnits(mappingFile);
         mappingFile = findProximalArm(mappingFile);
@@ -170,7 +172,7 @@ load('C:\Users\wrest\Documents\MATLAB\MonkeyData\Decoding\DecodingMoveOnToEndHan
 %%
 close all
 sorted = neuronsCombined(logical([neuronsCombined.isSorted]),:);
-sorted([sorted.modDepthMove] <1 & [sorted.modDepthBump] < 1,:) = [];
+% sorted([sorted.modDepthMove] <1 & [sorted.modDepthBump] < 1,:) = [];
 
 bFlag = [neuronsB.modDepthMove] >1 & [neuronsB.modDepthBump] >1  & ~[neuronsB.handUnit];
 bFlag(~[neuronsB.isSorted]& ~[neuronsB.isCuneate]) = [];
@@ -241,10 +243,10 @@ nC = neuronStructPlot(neuronsC, params)
 
 %% Fig 3B. Act vs Pas PD
 close all
-params = struct('plotUnitNum', true,'plotModDepth', true, 'plotActVsPasPD', false, ...
-    'plotAvgFiring', false, 'plotAngleDif', true, 'plotPDDists', true, ...
+params = struct('plotUnitNum', true,'plotModDepth', false, 'plotActVsPasPD', false, ...
+    'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
     'savePlots', true, 'useModDepths', true, 'rosePlot', true, 'plotFitLine', false,...
-    'plotModDepthClassic', true, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
+    'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
     'useLogLog', false, 'useNewSensMetric', true, 'plotSenEllipse', false,...
     'tuningCondition', {{'isSorted','isCuneate','sinTunedAct','sinTunedPas','handPSTHMan','~distal'}});
 
@@ -256,7 +258,7 @@ nCActNonHand = neuronStructPlot([neuronsC], params);
 
 params.examplePDs = [5,2];
 nSActNonHand = neuronStructPlot([neuronsS], params);
-
+%%
 
 params.date = 'all';
 nAll = neuronStructPlot([neuronsB; neuronsC; neuronsS], params);
@@ -286,7 +288,7 @@ nS1Pas = neuronStructPlot(neuronsS1,params1);
 %%
 close all
 params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', false, ...
-    'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', false, ...
+    'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
     'savePlots', true, 'useModDepths', true, 'rosePlot', true, 'plotFitLine', false,...
     'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
     'useLogLog', false, 'useNewSensMetric', true, 'plotSenEllipse', false,...
@@ -303,7 +305,7 @@ nSActNonHand = neuronStructPlot([neuronsS], params);
 
 params.date = 'all';
 nAll = neuronStructPlot([neuronsB; neuronsC; neuronsS], params);
-
+%%
 
 params1 = struct('plotModDepth', false, 'plotActVsPasPD', false, ...
     'plotAvgFiring', false, 'plotAngleDir', false, 'plotPDDists', false, ...
@@ -321,9 +323,9 @@ nS1Pas = neuronStructPlot(neuronsS1,params1);
 clear stats
 stats(1).total = height(sorted);
 stats(1).cuneate = sum(sorted.isCuneate);
-stats(1).cuneateTuned = sum(sorted.isCuneate & sorted.tuned);
-stats(1).moveTuned = sum(sorted.isCuneate & sorted.tuned & sorted.moveTuned);
-stats(1).bumpTuned = sum(sorted.isCuneate & sorted.tuned & sorted.bumpTuned);
+stats(1).cuneateTuned = sum(sorted.isCuneate & (sorted.fMove <0.01 | sorted.fBump <0.01));
+stats(1).moveTuned = sum(sorted.isCuneate & sorted.fMove < 0.01);
+stats(1).bumpTuned = sum(sorted.isCuneate & sorted.fBump < 0.01);
 stats(1).sinTunedAct = sum(sorted.isCuneate & sorted.tuned & sorted.sinTunedAct);
 stats(1).sinTunedPas = sum(sorted.isCuneate & sorted.tuned & sorted.sinTunedPas);
 stats(1).sinTunedBoth = sum(sorted.isCuneate & sorted.tuned & sorted.sinTunedPas & sorted.sinTunedPas);
@@ -338,9 +340,9 @@ stats(1).proprioceptive = sum(sorted.isCuneate & sorted.proprio);
 
 stats(2).total = height(neuronsB);
 stats(2).cuneate = sum(neuronsB.isCuneate);
-stats(2).cuneateTuned = sum(neuronsB.isCuneate & neuronsB.tuned);
-stats(2).moveTuned = sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.moveTuned);
-stats(2).bumpTuned = sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.bumpTuned);
+stats(2).cuneateTuned = sum(neuronsB.isCuneate & (neuronsB.fMove <0.01 | neuronsB.fBump <0.01));
+stats(2).moveTuned = sum(neuronsB.isCuneate & neuronsB.fMove < 0.01);
+stats(2).bumpTuned = sum(neuronsB.isCuneate & neuronsB.fBump < 0.01);
 stats(2).sinTunedAct = sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.sinTunedAct);
 stats(2).sinTunedPas = sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.sinTunedPas);
 stats(2).sinTunedBoth = sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.sinTunedPas & neuronsB.sinTunedPas);
@@ -355,9 +357,9 @@ stats(2).proprioceptive = sum(neuronsB.isCuneate & neuronsB.proprio);
 
 stats(3).total = height(neuronsS);
 stats(3).cuneate = sum(neuronsS.isCuneate);
-stats(3).cuneateTuned = sum(neuronsS.isCuneate & neuronsS.tuned);
-stats(3).moveTuned = sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.moveTuned);
-stats(3).bumpTuned = sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.bumpTuned);
+stats(3).cuneateTuned = sum(neuronsS.isCuneate & (neuronsS.fMove <0.01 | neuronsS.fBump <0.01));
+stats(3).moveTuned = sum(neuronsS.isCuneate & neuronsS.fMove < 0.01);
+stats(3).bumpTuned = sum(neuronsS.isCuneate & neuronsS.fBump < 0.01);
 stats(3).sinTunedAct = sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.sinTunedAct);
 stats(3).sinTunedPas = sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.sinTunedPas);
 stats(3).sinTunedBoth = sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.sinTunedPas & neuronsS.sinTunedPas);
@@ -372,9 +374,9 @@ stats(3).proprioceptive = sum(neuronsS.isCuneate & neuronsS.proprio);
 
 stats(4).total = height(neuronsC);
 stats(4).cuneate = sum(neuronsC.isCuneate);
-stats(4).cuneateTuned = sum(neuronsC.isCuneate & neuronsC.tuned);
-stats(4).moveTuned = sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.moveTuned);
-stats(4).bumpTuned = sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.bumpTuned);
+stats(4).cuneateTuned = sum(neuronsC.isCuneate & (neuronsC.fMove <0.01 | neuronsC.fBump <0.01));
+stats(4).moveTuned = sum(neuronsC.isCuneate & neuronsC.fMove < 0.01);
+stats(4).bumpTuned = sum(neuronsC.isCuneate & neuronsC.fBump < 0.01);
 stats(4).sinTunedAct = sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTunedAct);
 stats(4).sinTunedPas = sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTunedPas);
 stats(4).sinTunedBoth = sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTunedPas & neuronsC.sinTunedPas);
@@ -401,7 +403,7 @@ params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', fa
     'savePlots', false, 'useModDepths', true, 'rosePlot', false, 'plotFitLine', false,...
     'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
     'useLogLog', false, 'useNewSensMetric', false, 'plotSenEllipse', false,...
-    'tuningCondition', {{'isSorted','isCuneate', 'handPSTHMan','~distal'}});
+    'tuningCondition', {{'isSorted','isCuneate','tuned' 'handPSTHMan','~distal'}});
 
 nC = neuronStructPlot(neuronsC, params);
 nB = neuronStructPlot(neuronsB, params);
@@ -409,16 +411,17 @@ nS = neuronStructPlot(neuronsS, params);
 x = [nC; nB; nS];
 
 params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', false, ...
-    'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', false, ...
-    'savePlots', false, 'useModDepths', true, 'rosePlot', false, 'plotFitLine', false,...
+    'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
+    'savePlots', false, 'useModDepths', true, 'rosePlot', true, 'plotFitLine', false,...
     'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
     'useLogLog', false, 'useNewSensMetric', false, 'plotSenEllipse', false,...
-    'tuningCondition', {{'isSorted', 'sinTunedAct', 'sinTunedPas'}});
+    'tuningCondition', {{'isSorted','sinTunedAct', 'sinTunedPas'}});
 
 nD = neuronStructPlot(neuronsD, params);
 nH = neuronStructPlot(neuronsH, params);
 y = [nD;nH];
 %%
+
 close all
 full = x.encoding.FullEnc(:,2);
 fullB = nB.encoding.FullEnc(:,2);
@@ -442,6 +445,22 @@ fullMPosD = nD.encoding.FullNoPosEnc(:,2);
 
 
 fullH(isnan(fullH)) = 0;
+full(isnan(full))= 0;
+fullB(isnan(fullB))= 0;
+fullC(isnan(fullC))= 0;
+fullS(isnan(fullS))= 0;
+fullH(isnan(fullH))= 0;
+fullD(isnan(fullD))= 0;
+
+
+fullH(fullH<0) = 0;
+full(full<0)= 0;
+fullB(fullB<0)= 0;
+fullC(fullC<0)= 0;
+fullS(fullS<0)= 0;
+fullH(fullH<0)= 0;
+fullD(fullD<0)= 0;
+
 bootci(100, @mean, full)
 bootci(100, @mean, fullB)
 bootci(100, @mean, fullC)

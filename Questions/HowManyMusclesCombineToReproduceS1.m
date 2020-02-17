@@ -6,7 +6,7 @@ monkey = 'Snap';
 
 root = false;
 useBumps = false;
-onlyMapped = true;
+onlyMapped = false;
 %% More setup
 date = snapDate;
 number =2;
@@ -74,78 +74,14 @@ hVel = cat(3, td1.vel);
 mNames = osNames(54:end);
 mNames(distalM) =[];
 if onlyMapped
-    mNamesM = mNames(mapped1);
-    mVelM = mVel(:, mapped1,:);
-    forcesM = forces(mapped1);
+    mNames = mNames(mapped1);
+    mVel = mVel(:, mapped1,:);
+    forces = forces(mapped1);
 end
 %% Scale # of spindles to the force production capabilities of the muscles
 
-%% Plot the color map that I'll use later for reference
-colors = linspecer(length(dirsM));
-figure
-for dir = 1:length(dirsM)
-    polarscatter(dirsM(dir), 1, 32,'filled',  'MarkerFaceColor', colors(dir,:))
-    hold on
 
-end
-title('Random colormap')
 %% Iterate through muscles
-clear endVel
-highFRScaled = [];
-for i = 1:length(mVel(1,:,1))
-    
-    figure
-    hold on
-    %% For each muscle, take each direction and take the last few velocities (the end of the window)
-    for dir = 1:length(dirsM)
-        dirVel = squeeze(mVel(:,i,[td1.(dirBM)] == dirsM(dir)));
-        endVel(dir) = mean(mean(dirVel(speedInds,:)));
-%         keyboard
-        mDir = mean(squeeze(dirVel),2);
-        plot(mDir, 'Color', colors(dir,:))
-
-    end
-    %% Plot the velocities to show which has the highest lengthening
-    title(mNames{i})
-    endVel(endVel<0) = 0.00000001;
-    figure
-    for dir = 1:length(dirsM)
-        polarscatter(dirsM(dir), endVel(dir), 32, 'filled', 'MarkerFaceColor', colors(dir,:))
-        hold on
-
-    end
-    title(mNames{i})
-    [~, highFR(i)] = max(endVel);
-    highFRScaled = [highFRScaled; highFR(i)*ones(forces(i), 1)];
-%     pause
-end
-%% Plot the directions of highest firing for these spindles
-close all
-figure
-polarhistogram(dirsM(highFR), 10)
-title('Highest Firing unscaled')
-figure
-polarhistogram(dirsM(highFRScaled), 8)
-title('Highest Firing scaled')
-
-% t122 = compareUniformity(nAll,[], dirsM(highFRScaled)');
-%% Do the neuron PDs simply
-guide = td1(1).cuneate_unit_guide;
-numFoldsPD = 10;
-for i = 1:length(guide(:,1))
-    disp(['Working on unit ' num2str(i)])
-    perms = randi(length(td1), length(td1), numFoldsPD); 
-    for j = 1:numFoldsPD
-        hVel1 = cat(1,td(perms(:,j)).vel);
-        fr1 = cat(1,td(perms(:,j)).cuneate_spikes);
-        lm1 = fitlm(hVel1, fr1(:,i));
-        pd1{i}(j) = atan2(lm1.Coefficients.Estimate(3), lm1.Coefficients.Estimate(2));
-    end
-    t1 = sort(pd1{i});
-    [mPD(i), hPD(i), lPD(i)] = circ_mean(t1');
-end
-%%
-
 %% Now do the PDs in a better way
 % keyboard
 for i = 1:length(mVel(1,:,1))
@@ -162,50 +98,116 @@ for i = 1:length(mVel(1,:,1))
      pd{i}(j) = atan2(lm1.Coefficients.Estimate(3), lm1.Coefficients.Estimate(2));
  end
 end
-
-
 %%
 close all
 tmp = [pd{:}];
 figure
 polarhistogram(tmp, 12, 'FaceColor', 'b', 'FaceAlpha', 1)
 title('Muscle PDs in same way as neuron PDs')
-pds =[mPD', hPD', lPD'];
+%%
+close all
+clear lam1 firing fr r2X r2Y
+vel = cat(1, td1.vel);
+plotDists = false;
+numReps = 20;
+maxCombs = 5;
+numSims = 1000;
+numSimNeurons = 10;
+pdComb = zeros(maxCombs, numSims);
+% ell = cell();
+major = zeros(maxCombs, numReps);
+minor = zeros(maxCombs, numReps);
+for j = 1:numReps
+    disp(['Rep ', num2str(j)])
+if plotDists
+    figure
+end
+for i = 1:maxCombs
+    disp(['Muscle Combs ', num2str(i)])
 
-good = hPD-lPD<pi/4;
-good = good';
-pds = [pds, good];
-pds(pds(:,4)==0,:) =[];
-figure
-polarhistogram(pds(:,1), 12, 'FaceColor', 'b', 'FaceAlpha', 1)
-title('Neuron PDs')
+%     keyboard
+    rnd = randi(length(tmp), numSims, i);
+    samp1 = tmp(rnd);
+    wMat = rand(1000, i)-.5;
+    if i ~=1
+        x1 = sum(wMat.*cos(samp1),2);
+        y1 = sum(wMat.*sin(samp1),2);
+        pdComb(i,:) = atan2(y1', x1');
+    else
+        pdComb(i,:)= samp1;
+    end
+    subplot(ceil(maxCombs/5),5,i)
+    ph1 = polarhistogram(pdComb(i,:), 18);
+    edges = ph1.BinEdges;
+    edgeCenters = (edges(2:end)+edges(1:end-1))/2;
+    rho = ph1.BinCounts;
+    [xCart, yCart] = pol2cart(edgeCenters, rho);
+    ell{i} = fit_ellipse(xCart, yCart);
+    major(i,j) = ell{i}.long_axis;
+    minor(i,j) = ell{i}.short_axis;
+    thetaticks([])
+    rticks([])
+%     title([num2str(i)])
+    set(gca,'TickDir','out', 'box', 'off')
+    for k = 1:length(pdComb(i,:))
+        b2 = tan(pdComb(i,k));
+        b1 = 1;
+        b0 = .1;
+        lam1(:,k) = b0*ones(length(vel(:,1)),1) + (b1*vel(:,1) + b2*vel(:,2))/100;
+        lam1(lam1(:,k)<0, k)=0;
+        firing(:,k) = poissrnd(lam1(:,k));
+        fr(:,k) = firing(:,k)*100;
+    end
+    lmX = fitlm(fr(:,1:20), vel(:,1));
+    lmY = fitlm(fr(:,1:20), vel(:,2));
+    
+    r2X(i,j) = lmX.Rsquared.Ordinary;
+    r2Y(i,j) = lmY.Rsquared.Ordinary;
 
+end
+% keyboard
+suptitle('Number of combined muscles PD distribution')
+end
+%%
 figure
-scatter(1:length(pds(:,1)), pds(:,1))
+plot(r2X, 'r')
 hold on
-scatter(1:length(pds(:,1)), pds(:,2))
-scatter(1:length(pds(:,1)), pds(:,3))
-title('Neuron PDs and CIs')
-mMuscPD = rad2deg(circ_mean(tmp'))
-mCNPD = rad2deg(circ_mean(mPD'))
+plot(mean(r2X'), 'LineWidth', 5)
 
-mLen = quantile(bootstrp(1000, @norm, tmp),[.025, .5, .975]);
-cnLen = bootstrp(1000,@norm, mPD);
+figure
+plot(r2Y, 'r')
+hold on
+plot(mean(r2Y'), 'LineWidth', 5)
 
-UmusclesVsCN =compareUniformity(mPD', [],tmp');
+
+%%
+close all
+figure
+majorCI= bootci(1000, @mean, major');
+shadedErrorBar(1:maxCombs,mean(major,2),abs(majorCI'-mean(major,2)),'lineprops','g');
+set(gca,'TickDir','out', 'box', 'off')
+grid on
+hold on
+f = fit([1:maxCombs]', mean(major,2), 'exp2');
+plot(f);
+xlabel('# of muscles combined')
+ylabel('Length of Major axis of fit ellipse')
+%% asf
 
 hanDate = '20171122';
+
+% hanDate = '20190710';
 array = 'cuneate';
 windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
+% neuronsH = getNeurons('Duncan', hanDate, 'CObump', 'leftS1', [windowAct;windowPas]);
+
 neuronsH = getNeurons('Han', hanDate, 'COactpas', 'LeftS1Area2', [windowAct;windowPas]);
+
 params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', false, ...
     'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
     'savePlots', false, 'useModDepths', false, 'rosePlot', true, 'plotFitLine', false,...
     'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
     'useLogLog', false, 'useNewSensMetric', false, 'plotSenEllipse', false,...
-    'tuningCondition', {{'isSorted', 'sinTunedAct'}});
+    'tuningCondition', {{'isSorted', 'sinTunedAct', 'sinTunedPas'}});
 nH = neuronStructPlot(neuronsH, params);
-
-UmuscleVsS1 = compareUniformity(nH, [], mPD');
-UcnVsS1 = compareUniformity(nH,[], tmp');
