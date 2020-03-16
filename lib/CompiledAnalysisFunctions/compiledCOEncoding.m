@@ -27,20 +27,20 @@ params.num_boots = 100;
 params.eval_metric = 'pr2';
 % params.glm_distribution
 disp('Full')
-params.in_signals= {'pos';'vel';'speed';'acc';'force'};
+params.in_signals= {'pos';'vel';'speed';'acc'};
 params.model_name = 'Full';
 params.out_signals = {spikes};
 [td, modelFull]= getModel(td, params);
 fullPR2 = squeeze(evalModel(td, params));
 disp('Full-pos')
-params.in_signals= {'vel';'speed';'acc';'force'};
+params.in_signals= {'vel';'speed';'acc'};
 params.model_name = 'FullMinusPos';
 params.out_signals = {spikes};
 [td, modelFullMinusPos]= getModel(td, params);
 fullPR2minusPos = squeeze(evalModel(td, params));
 
 disp('Full-Vel')
-params.in_signals= {'pos';'speed';'acc';'force'};
+params.in_signals= {'pos';'speed';'acc'};
 params.model_name = 'FullMinusVel';
 params.out_signals = {spikes};
 [td, modelFullMinusVel]= getModel(td, params);
@@ -53,7 +53,7 @@ params.out_signals = {spikes};
 fullPR2minusForce = squeeze(evalModel(td, params));
 
 disp('Full-speed')
-params.in_signals= {'pos';'vel';'acc';'force'};
+params.in_signals= {'pos';'vel';'acc'};
 params.model_name = 'FullMinusSpeed';
 params.out_signals = {spikes};
 [td, modelFullMinusSpeed]= getModel(td, params);
@@ -70,12 +70,12 @@ params.in_signals= {'vel'};
 params.model_name = 'Vel';
 [td, modelVel]= getModel(td, params);
 velPR2 = squeeze(evalModel(td, params));
-
-disp('Force')
-params.in_signals= {'force'};
-params.model_name = 'Force';
-[td, modelForce]= getModel(td, params);
-forcePR2 = squeeze(evalModel(td, params));
+% 
+% disp('Force')
+% params.in_signals= {'force'};
+% params.model_name = 'Force';
+% [td, modelForce]= getModel(td, params);
+% forcePR2 = squeeze(evalModel(td, params));
 
 disp('Speed')
 params.in_signals= {'speed'};
@@ -127,7 +127,7 @@ results.modelFullMinusForce =modelFullMinusForce;
 results.modelFullMinusSpeed =modelFullMinusSpeed;
 results.modelPos =modelPos;
 results.modelVel =modelVel;
-results.modelForce=modelForce;
+% results.modelForce=modelForce;
 results.modelVelSpeed =modelVelSpeed;
 results.modelAcc =modelAcc;
 if plotExample

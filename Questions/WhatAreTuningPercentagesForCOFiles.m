@@ -61,7 +61,7 @@ for i = 1:5
     end
     if ~strcmp(monkey, 'Han') & ~strcmp(monkey, 'Duncan')
         mappingFile = getSensoryMappings(monkey);
-        keyboard
+%         keyboard
         mappingFile = findDistalArm(mappingFile);
         mappingFile = findHandCutaneousUnits(mappingFile);
         mappingFile = findProximalArm(mappingFile);
@@ -245,10 +245,10 @@ nC = neuronStructPlot(neuronsC, params)
 close all
 params = struct('plotUnitNum', true,'plotModDepth', false, 'plotActVsPasPD', false, ...
     'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
-    'savePlots', true, 'useModDepths', true, 'rosePlot', true, 'plotFitLine', false,...
+    'savePlots', true, 'useModDepths', false, 'rosePlot', true, 'plotFitLine', false,...
     'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
     'useLogLog', false, 'useNewSensMetric', true, 'plotSenEllipse', false,...
-    'tuningCondition', {{'isSorted','isCuneate','sinTunedAct','sinTunedPas','handPSTHMan','~distal'}});
+    'tuningCondition', {{'isSorted','isCuneate','sinTunedAct','handPSTHMan','~distal'}});
 
 params.examplePDs = [74,1];
 nBActNonHand = neuronStructPlot([neuronsB], params);
@@ -287,9 +287,9 @@ nS1Pas = neuronStructPlot(neuronsS1,params1);
 
 %%
 close all
-params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', false, ...
+params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', true, ...
     'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
-    'savePlots', true, 'useModDepths', true, 'rosePlot', true, 'plotFitLine', false,...
+    'savePlots', true, 'useModDepths', false, 'rosePlot', true, 'plotFitLine', false,...
     'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
     'useLogLog', false, 'useNewSensMetric', true, 'plotSenEllipse', false,...
     'tuningCondition', {{'isSorted','isCuneate','sinTunedPas','sinTunedAct', 'handPSTHMan','~distal'}});
@@ -318,78 +318,160 @@ nS1Act = neuronStructPlot(neuronsS1,params1);
 
 params1.tuningCondition = {'isSorted', 'sinTunedPas'};
 nS1Pas = neuronStructPlot(neuronsS1,params1);
-
+mapped1 = sorted(logical(sorted.isCuneate & [sorted.sameDayMap]),:);
 %%
 clear stats
 stats(1).total = height(sorted);
 stats(1).cuneate = sum(sorted.isCuneate);
+stats(1).tuned = sum(sorted.isCuneate & sorted.tuned);
 stats(1).cuneateTuned = sum(sorted.isCuneate & (sorted.fMove <0.01 | sorted.fBump <0.01));
 stats(1).moveTuned = sum(sorted.isCuneate & sorted.fMove < 0.01);
 stats(1).bumpTuned = sum(sorted.isCuneate & sorted.fBump < 0.01);
 stats(1).sinTunedAct = sum(sorted.isCuneate & sorted.tuned & sorted.sinTunedAct);
 stats(1).sinTunedPas = sum(sorted.isCuneate & sorted.tuned & sorted.sinTunedPas);
 stats(1).sinTunedBoth = sum(sorted.isCuneate & sorted.tuned & sorted.sinTunedPas & sorted.sinTunedPas);
-stats(1).spindle = sum(sorted.isCuneate & sorted.isSpindle);
-stats(1).proximal = sum(sorted.isCuneate & sorted.proximal);
-stats(1).midArm = sum(sorted.isCuneate & sorted.midArm);
-stats(1).distal = sum(sorted.isCuneate & sorted.distal);
-stats(1).handUnit = sum(sorted.isCuneate & sorted.handUnit);
-stats(1).skin = sum(sorted.isCuneate & sorted.cutaneous);
-stats(1).proprioceptive = sum(sorted.isCuneate & sorted.proprio);
-
+stats(1).spindle = sum(sorted.isCuneate & sorted.isSpindle & sorted.sameDayMap);
+stats(1).proximal = sum(sorted.isCuneate & sorted.proximal& sorted.sameDayMap);
+stats(1).midArm = sum(sorted.isCuneate & sorted.midArm& sorted.sameDayMap);
+stats(1).distal = sum(sorted.isCuneate & sorted.distal& sorted.sameDayMap);
+stats(1).handUnit = sum(sorted.isCuneate & sorted.handUnit& sorted.sameDayMap);
+stats(1).skin = sum(sorted.isCuneate & sorted.cutaneous & sorted.sameDayMap);
+stats(1).proprioceptive = sum(sorted.isCuneate & sorted.proprio & sorted.sameDayMap);
+stats(1).mapped = sum(sorted.isCuneate & sorted.sameDayMap);
 
 stats(2).total = height(neuronsB);
 stats(2).cuneate = sum(neuronsB.isCuneate);
+stats(2).tuned = sum(neuronsB.isCuneate & neuronsB.tuned);
 stats(2).cuneateTuned = sum(neuronsB.isCuneate & (neuronsB.fMove <0.01 | neuronsB.fBump <0.01));
 stats(2).moveTuned = sum(neuronsB.isCuneate & neuronsB.fMove < 0.01);
 stats(2).bumpTuned = sum(neuronsB.isCuneate & neuronsB.fBump < 0.01);
 stats(2).sinTunedAct = sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.sinTunedAct);
 stats(2).sinTunedPas = sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.sinTunedPas);
 stats(2).sinTunedBoth = sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.sinTunedPas & neuronsB.sinTunedPas);
-stats(2).spindle = sum(neuronsB.isCuneate & neuronsB.isSpindle);
-stats(2).proximal = sum(neuronsB.isCuneate & neuronsB.proximal);
-stats(2).midArm = sum(neuronsB.isCuneate & neuronsB.midArm);
-stats(2).distal = sum(neuronsB.isCuneate & neuronsB.distal);
-stats(2).handUnit = sum(neuronsB.isCuneate & neuronsB.handUnit);
-stats(2).skin = sum(neuronsB.isCuneate & neuronsB.cutaneous);
-stats(2).proprioceptive = sum(neuronsB.isCuneate & neuronsB.proprio);
-
+stats(2).spindle = sum(neuronsB.isCuneate & neuronsB.isSpindle & neuronsB.sameDayMap);
+stats(2).proximal = sum(neuronsB.isCuneate & neuronsB.proximal& neuronsB.sameDayMap);
+stats(2).midArm = sum(neuronsB.isCuneate & neuronsB.midArm& neuronsB.sameDayMap);
+stats(2).distal = sum(neuronsB.isCuneate & neuronsB.distal& neuronsB.sameDayMap);
+stats(2).handUnit = sum(neuronsB.isCuneate & neuronsB.handUnit& neuronsB.sameDayMap);
+stats(2).skin = sum(neuronsB.isCuneate & neuronsB.cutaneous & neuronsB.sameDayMap);
+stats(2).proprioceptive = sum(neuronsB.isCuneate & neuronsB.proprio & neuronsB.sameDayMap);
+stats(2).mapped = sum(neuronsB.isCuneate & neuronsB.sameDayMap);
 
 stats(3).total = height(neuronsS);
 stats(3).cuneate = sum(neuronsS.isCuneate);
+stats(3).tuned = sum(neuronsS.isCuneate & neuronsS.tuned);
 stats(3).cuneateTuned = sum(neuronsS.isCuneate & (neuronsS.fMove <0.01 | neuronsS.fBump <0.01));
 stats(3).moveTuned = sum(neuronsS.isCuneate & neuronsS.fMove < 0.01);
 stats(3).bumpTuned = sum(neuronsS.isCuneate & neuronsS.fBump < 0.01);
 stats(3).sinTunedAct = sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.sinTunedAct);
 stats(3).sinTunedPas = sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.sinTunedPas);
 stats(3).sinTunedBoth = sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.sinTunedPas & neuronsS.sinTunedPas);
-stats(3).spindle = sum(neuronsS.isCuneate & neuronsS.isSpindle);
-stats(3).proximal = sum(neuronsS.isCuneate & neuronsS.proximal);
-stats(3).midArm = sum(neuronsS.isCuneate & neuronsS.midArm);
-stats(3).distal = sum(neuronsS.isCuneate & neuronsS.distal);
-stats(3).handUnit = sum(neuronsS.isCuneate & neuronsS.handUnit);
-stats(3).skin = sum(neuronsS.isCuneate & neuronsS.cutaneous);
-stats(3).proprioceptive = sum(neuronsS.isCuneate & neuronsS.proprio);
-
+stats(3).spindle = sum(neuronsS.isCuneate & neuronsS.isSpindle & neuronsS.sameDayMap);
+stats(3).proximal = sum(neuronsS.isCuneate & neuronsS.proximal& neuronsS.sameDayMap);
+stats(3).midArm = sum(neuronsS.isCuneate & neuronsS.midArm& neuronsS.sameDayMap);
+stats(3).distal = sum(neuronsS.isCuneate & neuronsS.distal& neuronsS.sameDayMap);
+stats(3).handUnit = sum(neuronsS.isCuneate & neuronsS.handUnit& neuronsS.sameDayMap);
+stats(3).skin = sum(neuronsS.isCuneate & neuronsS.cutaneous & neuronsS.sameDayMap);
+stats(3).proprioceptive = sum(neuronsS.isCuneate & neuronsS.proprio & neuronsS.sameDayMap);
+stats(3).mapped = sum(neuronsS.isCuneate & neuronsS.sameDayMap);
 
 stats(4).total = height(neuronsC);
 stats(4).cuneate = sum(neuronsC.isCuneate);
+stats(4).tuned = sum(neuronsC.isCuneate & neuronsC.tuned);
 stats(4).cuneateTuned = sum(neuronsC.isCuneate & (neuronsC.fMove <0.01 | neuronsC.fBump <0.01));
 stats(4).moveTuned = sum(neuronsC.isCuneate & neuronsC.fMove < 0.01);
 stats(4).bumpTuned = sum(neuronsC.isCuneate & neuronsC.fBump < 0.01);
 stats(4).sinTunedAct = sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTunedAct);
 stats(4).sinTunedPas = sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTunedPas);
 stats(4).sinTunedBoth = sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTunedPas & neuronsC.sinTunedPas);
-stats(4).spindle = sum(neuronsC.isSpindle & neuronsC.isCuneate);
-stats(4).proximal = sum(neuronsC.proximal & neuronsC.isCuneate);
-stats(4).midArm = sum(neuronsC.midArm & neuronsC.isCuneate);
-stats(4).distal = sum(neuronsC.distal & neuronsC.isCuneate);
-stats(4).handUnit = sum(neuronsC.handUnit & neuronsC.isCuneate);
-stats(4).skin = sum(neuronsC.cutaneous & neuronsC.isCuneate);
-stats(4).proprioceptive = sum(neuronsC.proprio & neuronsC.isCuneate);
+stats(4).spindle = sum(neuronsC.isSpindle & neuronsC.isCuneate & neuronsC.sameDayMap);
+stats(4).proximal = sum(neuronsC.proximal & neuronsC.isCuneate& neuronsC.sameDayMap);
+stats(4).midArm = sum(neuronsC.midArm & neuronsC.isCuneate& neuronsC.sameDayMap);
+stats(4).distal = sum(neuronsC.distal & neuronsC.isCuneate& neuronsC.sameDayMap);
+stats(4).handUnit = sum(neuronsC.handUnit & neuronsC.isCuneate& neuronsC.sameDayMap);
+stats(4).skin = sum(neuronsC.cutaneous & neuronsC.isCuneate & neuronsC.sameDayMap);
+stats(4).proprioceptive = sum(neuronsC.proprio & neuronsC.isCuneate & neuronsC.sameDayMap);
+stats(4).mapped = sum(neuronsC.isCuneate & neuronsC.sameDayMap);
 
 statTab = struct2table(stats, 'RowNames', {'Combined', 'Butter', 'Snap', 'Crackle'});
 writetable(statTab, 'C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Compiled\neuronStats.xlsx','WriteRowNames', true)
+
+%%
+clear stats
+stats(1).total = height(sorted);
+stats(1).cuneate = sum(sorted.isCuneate);
+stats(1).tuned = 100*sum(sorted.isCuneate & sorted.tuned)/stats(1).cuneate;
+stats(1).cuneateTuned = 100*round(sum(sorted.isCuneate & (sorted.fMove <0.01 | sorted.fBump <0.01))/stats(1).cuneate,2);
+stats(1).moveTuned = 100*round(sum(sorted.isCuneate & sorted.fMove < 0.01)/stats(1).cuneate,2);
+stats(1).bumpTuned = 100*round(sum(sorted.isCuneate & sorted.fBump < 0.01)/stats(1).cuneate,2);
+stats(1).sinTunedAct = 100*round(sum(sorted.isCuneate & sorted.tuned & sorted.sinTunedAct)/stats(1).cuneate,2);
+stats(1).sinTunedPas = 100*round(sum(sorted.isCuneate & sorted.tuned & sorted.sinTunedPas)/stats(1).cuneate,2);
+stats(1).sinTunedBoth = 100*round(sum(sorted.isCuneate & sorted.tuned & sorted.sinTunedPas & sorted.sinTunedPas)/stats(1).cuneate,2);
+stats(1).mapped = sum(sorted.isCuneate & sorted.sameDayMap);
+stats(1).spindle = 100*round(sum(sorted.isCuneate & sorted.isSpindle & sorted.sameDayMap)/ stats(1).mapped,2);
+stats(1).proximal = 100*round(sum(sorted.isCuneate & sorted.proximal& sorted.sameDayMap)/ stats(1).mapped,2);
+stats(1).midArm = 100*round(sum(sorted.isCuneate & sorted.midArm& sorted.sameDayMap)/ stats(1).mapped,2);
+stats(1).distal = 100*round(sum(sorted.isCuneate & sorted.distal& sorted.sameDayMap)/ stats(1).mapped,2);
+stats(1).handUnit = 100*round(sum(sorted.isCuneate & sorted.handUnit& sorted.sameDayMap)/ stats(1).mapped,2);
+stats(1).skin = 100*round(sum(sorted.isCuneate & sorted.cutaneous & sorted.sameDayMap)/ stats(1).mapped,2);
+stats(1).proprioceptive = 100*round(sum(sorted.isCuneate & sorted.proprio & sorted.sameDayMap)/ stats(1).mapped,2);
+
+stats(2).total = height(neuronsB);
+stats(2).cuneate = sum(neuronsB.isCuneate);
+stats(2).tuned = 100*round(sum(neuronsB.isCuneate & neuronsB.tuned)/stats(2).cuneate,2);
+stats(2).cuneateTuned = 100*round(sum(neuronsB.isCuneate & (neuronsB.fMove <0.01 | neuronsB.fBump <0.01))/stats(2).cuneate,2);
+stats(2).moveTuned = 100*round(sum(neuronsB.isCuneate & neuronsB.fMove < 0.01)/stats(2).cuneate,2);
+stats(2).bumpTuned = 100*round(sum(neuronsB.isCuneate & neuronsB.fBump < 0.01)/stats(2).cuneate,2);
+stats(2).sinTunedAct = 100*round(sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.sinTunedAct)/stats(2).cuneate,2);
+stats(2).sinTunedPas = 100*round(sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.sinTunedPas)/stats(2).cuneate,2);
+stats(2).sinTunedBoth = 100*round(sum(neuronsB.isCuneate & neuronsB.tuned & neuronsB.sinTunedPas & neuronsB.sinTunedPas)/stats(2).cuneate,2);
+stats(2).mapped = sum(neuronsB.isCuneate & neuronsB.sameDayMap);
+stats(2).spindle = 100*round(sum(neuronsB.isCuneate & neuronsB.isSpindle & neuronsB.sameDayMap)/stats(2).mapped,2);
+stats(2).proximal = 100*round(sum(neuronsB.isCuneate & neuronsB.proximal& neuronsB.sameDayMap)/stats(2).mapped,2);
+stats(2).midArm = 100*round(sum(neuronsB.isCuneate & neuronsB.midArm& neuronsB.sameDayMap)/stats(2).mapped,2);
+stats(2).distal = 100*round(sum(neuronsB.isCuneate & neuronsB.distal& neuronsB.sameDayMap)/stats(2).mapped,2);
+stats(2).handUnit = 100*round(sum(neuronsB.isCuneate & neuronsB.handUnit& neuronsB.sameDayMap)/stats(2).mapped,2);
+stats(2).skin = 100*round(sum(neuronsB.isCuneate & neuronsB.cutaneous & neuronsB.sameDayMap)/stats(2).mapped,2);
+stats(2).proprioceptive = 100*round(sum(neuronsB.isCuneate & neuronsB.proprio & neuronsB.sameDayMap)/stats(2).mapped,2);
+
+stats(3).total = height(neuronsS);
+stats(3).cuneate = sum(neuronsS.isCuneate);
+stats(3).tuned = 100*round(sum(neuronsS.isCuneate & neuronsS.tuned)/stats(3).cuneate,2);
+stats(3).cuneateTuned = 100*round(sum(neuronsS.isCuneate & (neuronsS.fMove <0.01 | neuronsS.fBump <0.01))/stats(3).cuneate,2);
+stats(3).moveTuned = 100*round(sum(neuronsS.isCuneate & neuronsS.fMove < 0.01)/stats(3).cuneate,2);
+stats(3).bumpTuned = 100*round(sum(neuronsS.isCuneate & neuronsS.fBump < 0.01)/stats(3).cuneate,2);
+stats(3).sinTunedAct = 100*round(sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.sinTunedAct)/stats(3).cuneate,2);
+stats(3).sinTunedPas = 100*round(sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.sinTunedPas)/stats(3).cuneate,2);
+stats(3).sinTunedBoth = 100*round(sum(neuronsS.isCuneate & neuronsS.tuned & neuronsS.sinTunedPas & neuronsS.sinTunedPas)/stats(3).cuneate,2);
+stats(3).mapped = sum(neuronsS.isCuneate & neuronsS.sameDayMap);
+stats(3).spindle = 100*round(sum(neuronsS.isCuneate & neuronsS.isSpindle & neuronsS.sameDayMap)/stats(3).mapped,2);
+stats(3).proximal = 100*round(sum(neuronsS.isCuneate & neuronsS.proximal& neuronsS.sameDayMap)/stats(3).mapped,2);
+stats(3).midArm = 100*round(sum(neuronsS.isCuneate & neuronsS.midArm& neuronsS.sameDayMap)/stats(3).mapped,2);
+stats(3).distal = 100*round(sum(neuronsS.isCuneate & neuronsS.distal& neuronsS.sameDayMap)/stats(3).mapped,2);
+stats(3).handUnit = 100*round(sum(neuronsS.isCuneate & neuronsS.handUnit& neuronsS.sameDayMap)/stats(3).mapped,2);
+stats(3).skin = 100*round(sum(neuronsS.isCuneate & neuronsS.cutaneous & neuronsS.sameDayMap)/stats(3).mapped,2);
+stats(3).proprioceptive = 100*round(sum(neuronsS.isCuneate & neuronsS.proprio & neuronsS.sameDayMap)/stats(3).mapped,2);
+
+stats(4).total = height(neuronsC);
+stats(4).cuneate = sum(neuronsC.isCuneate);
+stats(4).tuned = 100*round(sum(neuronsC.isCuneate & neuronsC.tuned)/stats(4).cuneate,2);
+stats(4).cuneateTuned = 100*round(sum(neuronsC.isCuneate & (neuronsC.fMove <0.01 | neuronsC.fBump <0.01))/stats(4).cuneate,2);
+stats(4).moveTuned = 100*round(sum(neuronsC.isCuneate & neuronsC.fMove < 0.01)/stats(4).cuneate,2);
+stats(4).bumpTuned = 100*round(sum(neuronsC.isCuneate & neuronsC.fBump < 0.01)/stats(4).cuneate,2);
+stats(4).sinTunedAct = 100*round(sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTunedAct)/stats(4).cuneate,2);
+stats(4).sinTunedPas = 100*round(sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTunedPas)/stats(4).cuneate,2);
+stats(4).sinTunedBoth = 100*round(sum(neuronsC.isCuneate & neuronsC.tuned & neuronsC.sinTunedPas & neuronsC.sinTunedPas)/stats(4).cuneate,2);
+stats(4).mapped = sum(neuronsC.isCuneate & neuronsC.sameDayMap);
+stats(4).spindle = 100*round(sum(neuronsC.isSpindle & neuronsC.isCuneate & neuronsC.sameDayMap)/stats(4).mapped,2);
+stats(4).proximal = 100*round(sum(neuronsC.proximal & neuronsC.isCuneate& neuronsC.sameDayMap)/stats(4).mapped,2);
+stats(4).midArm = 100*round(sum(neuronsC.midArm & neuronsC.isCuneate& neuronsC.sameDayMap)/stats(4).mapped,2);
+stats(4).distal = 100*round(sum(neuronsC.distal & neuronsC.isCuneate& neuronsC.sameDayMap)/stats(4).mapped,2);
+stats(4).handUnit = 100*round(sum(neuronsC.handUnit & neuronsC.isCuneate& neuronsC.sameDayMap)/stats(4).mapped,2);
+stats(4).skin = 100*round(sum(neuronsC.cutaneous & neuronsC.isCuneate & neuronsC.sameDayMap)/stats(4).mapped,2);
+stats(4).proprioceptive = 100*round(sum(neuronsC.proprio & neuronsC.isCuneate & neuronsC.sameDayMap)/stats(4).mapped,2);
+
+statTab = struct2table(stats, 'RowNames', {'Combined', 'Butter', 'Snap', 'Crackle'});
+writetable(statTab, 'C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Compiled\neuronStatsPercent.xlsx','WriteRowNames', true)
 %%
 x = sorted(logical([sorted.isCuneate]),:);
 y = neuronsS1;
@@ -740,6 +822,7 @@ posArr = [mean(posB), pBCI; mean(posC), pCCI;mean(posS), pSCI;...
     mean([posH; posD]), pS1CI];
 posTab = array2table(posArr, 'RowNames', {'Butter', 'Crackle', 'Snap', 'Han', 'Duncan', 'CN', 'S1'});
 %%
+velB(velB <-1000) = [];
 pBCI = bootci(1000, @mean, velB)';
 pSCI = bootci(1000, @mean, velS)';
 pCCI = bootci(1000, @mean, velC)';

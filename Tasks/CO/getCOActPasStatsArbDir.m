@@ -154,7 +154,7 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
     preMoveFiring(preMoveFiring == Inf |  preMoveFiring >1000) = 0;
     preMoveStat.meanCI(:,1) = squeeze(mean(mean(preMoveFiring, 3),1))';
     preMoveStat.meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(preMoveFiring))')';
-
+    preMoveFiringMeanByTrial = squeeze(mean(mean(preMoveFiring),2));
     
     for i = 1:length(dirsM)
         postMoveDir{i} = postMove([postMove.target_direction] == dirsM(i));
@@ -196,6 +196,8 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
 
     preBumpStat.meanCI(:,1) = squeeze(mean(mean(preBumpFiring, 3),1))';
     preBumpStat.meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(preBumpFiring))')';
+    preBumpFiringMeanByTrial = squeeze(mean(mean(preBumpFiring),3));
+
     trialFiringMove = horzcat(postMoveFiringTrial{:});
     trialFiringBump = horzcat(postBumpFiringTrial{:});
     [~, trialsB] = cellfun(@size, postBumpFiringTrial);
@@ -221,8 +223,29 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
     if max(dirsM)>2*pi
         theta = deg2rad(theta);
     end
-
+cutoff = 0.01;
    for i = 1:length(td(1).(spikeLabel)(1,:))
+    tuned(i) = false;
+    
+    for j = 1:length(dirsM)
+        groups = [ones(length(preMoveFiringMeanByTrial),1); 2*ones(length(postMoveFiringTrial{j}(i,:)),1)];
+        groupsB = [ones(length(preMoveFiringMeanByTrial),1); 2*ones(length(postBumpFiringTrial{j}(i,:)),1)]
+        [pValMoveTuned(i,j)] = anova1([preMoveFiringMeanByTrial; postMoveFiringTrial{j}(i,:)'], groups,'off');
+        [pValBumpTuned(i,j)] = anova1([preMoveFiringMeanByTrial; postBumpFiringTrial{j}(i,:)'], groupsB,'off');
+        
+        tuned(i) = tuned(i) | pValMoveTuned(i,j)< cutoff;
+        tuned(i) = tuned(i) | pValBumpTuned(i,j) < cutoff;
+%         if plotHist
+%             figure
+%             histogram(preMoveFiringMeanByTrial)
+%             hold on
+%             histogram(postMoveFiringTrial{j}(i,:))
+%             title([num2str(pValMoveTuned(i,j))])
+%         end
+    end
+       
+    minPValMove(i) = min(pValMoveTuned(i,:));
+    minPValBump(i) = min(pValBumpTuned(i,:));
     
     bumpX = sum(squeeze(cos(theta)'.*squeeze(bumpTot(i,1,:)))');
     bumpY = sum(squeeze(sin(theta)'.*squeeze(bumpTot(i,1,:)))');
@@ -237,7 +260,6 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
     title2 = [array,'_',td(1).monkey,'_Electrode_',date, '_', num2str(td(1).(unitGuide)(i,1)), ' Unit ', num2str(td(1).(unitGuide)(i,2))];
     moveTuned(i) = any(preMoveStat.meanCI(i,3) < t(i, 1,:)) | any(preMoveStat.meanCI(i, 2) > t(i,1, :));
     bumpTuned(i) = any(preBumpStat.meanCI(i,3) < t(i, 1,:)) | any(preBumpStat.meanCI(i, 2) > t(i,1, :));
-    tuned(i) = moveTuned(i)|bumpTuned(i);
     if tuned(i)
         title1 = [title1, '_TUNED'];
         title2 = [title2, '_TUNED'];
@@ -318,6 +340,8 @@ outStruct(i).modDepthMove=max(moveTot(i,1,:)) - min(moveTot(i,1,:));
 outStruct(i).modDepthBump = max(bumpTot(i,1,:)) - min(bumpTot(i,1,:));
 
 outStruct(i).tuned= tuned(i);
+outStruct(i).minPValMove = minPValMove(i);
+outStruct(i).minPValBump = minPValBump(i);
 end
 %% If I want to plot stuff
 

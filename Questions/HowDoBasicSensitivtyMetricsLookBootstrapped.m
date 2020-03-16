@@ -5,8 +5,10 @@ plotRasters = 1;
 savePlots = false;
 isMapped = false;
 savePDF = false;
+recompute = false;
 smoothWidth = .02;
 windowInds = true;
+numBoots = 100;
 savePath = 'C:\Users\wrest\Pictures\ActPasDomainComparison\';
 % 
 monkey1 = 'Butter';
@@ -52,7 +54,7 @@ monkeyArray = {monkey1, date1, task1, num1;...
 
 cnSAct = [];
 cnSPas = [];
-
+if recompute
 for mon = 1:5
     monkey = monkeyArray{mon, 1};
     date = monkeyArray{mon, 2};
@@ -82,13 +84,15 @@ for mon = 1:5
 
                 
             end
-                
+            td1 = addSensoryMappingToGuide(td1);
             td1 = removeBadNeurons(td1, struct('remove_unsorted', false));
             td1 = removeUnsorted(td1);
             td1 = removeGracileTD(td1);
             td1 = removeNeuronsBySensoryMap(td1, struct('rfFilter', {{'handUnit', true, 'distal', true}})); 
             td1 = removeNeuronsByNeuronStruct(td1, struct('flags', {{'~handPSTHMan'}}));
             td = td1;
+            mappingGuide{mon} = td(1).cuneate_mapping_guide;
+
         case 2
             array = 'cuneate';
 
@@ -109,6 +113,7 @@ for mon = 1:5
                 td2 = td2(~isnan([td2.idx_movement_on]));
 
             end
+            td2 = addSensoryMappingToGuide(td2);
 
             td2 = removeBadNeurons(td2, struct('remove_unsorted', false));
             td2 = removeUnsorted(td2);
@@ -117,6 +122,8 @@ for mon = 1:5
             td2 = removeNeuronsByNeuronStruct(td2, struct('flags', {{'~handPSTHMan'}}));
 
             td = td2;
+            mappingGuide{mon} = td(1).cuneate_mapping_guide;
+
         case 3
             array = 'cuneate';
 
@@ -142,6 +149,8 @@ for mon = 1:5
 
             end
 %             td3 = removeVisually(td3);
+            td3 = addSensoryMappingToGuide(td3);
+
             td3 = removeBadNeurons(td3, struct('remove_unsorted', false));
             td3 = removeUnsorted(td3);
             td3 = removeGracileTD(td3);
@@ -149,6 +158,8 @@ for mon = 1:5
             td3 = removeNeuronsByNeuronStruct(td3, struct('flags', {{'~handPSTHMan'}}));
 
             td = td3;
+            mappingGuide{mon} = td(1).cuneate_mapping_guide;
+
         case 4
             array = 'LeftS1Area2';
 
@@ -206,12 +217,26 @@ for mon = 1:5
         
     guide = td(1).([array, '_unit_guide']);
     td([td.idx_peak_speed]< [td.idx_movement_on])=[];
-    tdAct = trimTD(td, {'idx_movement_on',0}, {'idx_movement_on', 13});
+    tdAct1 = trimTD(td, {'idx_movement_on',0}, {'idx_movement_on', 13});
+    tdPas1 = td(~isnan([td.idx_bumpTime]));
+    tdPas1 = trimTD(tdPas1, 'idx_bumpTime', {'idx_bumpTime', 13});
+    tmpVec = 1:length(tdAct1);
+    tmpVec2 = 1:length(tdPas1);
+    bootMat = tmpVec(randi(length(tdAct1), numBoots, length(tdAct1)));
+    bootMatP = tmpVec2(randi(length(tdPas1), numBoots, length(tdPas1)));
+    
+    sAct = zeros(length(guide),numBoots);
+    sPas = zeros(length(guide),numBoots); 
+    
+    
+    for boot = 1:numBoots
+        disp(['Bootstrap number: ', num2str(boot)])
+        tdAct = tdAct1(bootMat(boot,:));
+        tdPas = tdPas1(bootMatP(boot,:));
     if mon ~=1
         tdAct(~isnan([tdAct.bumpDir]))=[];
     end
-    tdPas = td(~isnan([td.idx_bumpTime]));
-    tdPas = trimTD(tdPas, 'idx_bumpTime', {'idx_bumpTime', 13});
+    
     
     dirsM = unique([td.target_direction]);
     dirsM(isnan(dirsM)) = [];
@@ -241,112 +266,8 @@ for mon = 1:5
     velPas = velPas(keepIndsPas,:);
     pasFR =  pasFR(keepIndsPas,:);
     end
-    vec = -60:10:60;
-    logMatX = getIndicesInsideEdge(velAct(:,1), vec); 
-    logMatY = getIndicesInsideEdge(velAct(:,2), vec);
-    
-    logMatXPas = getIndicesInsideEdge(velPas(:,1),vec);
-    logMatYPas = getIndicesInsideEdge(velPas(:,2),vec);
-    
-    frAct = zeros(12,12, length(guide(:,1)));
-    frPas = zeros(12,12, length(guide(:,2)));
-    for i = 1:12
-        for j = 1:12
-            indMat = squeeze(logMatX(i,:) & logMatY(j,:));
-            indMatPas = squeeze(logMatXPas(i,:) & logMatYPas(j,:));
-            if sum(indMat) ~=1
-                frAct(i,j,:) = mean(actFR(indMat,:));
-                meanVel(i,j,:) = mean(velAct(indMat,:));
 
-            else
-                frAct(i,j,:) = actFR(indMat,:);
-                meanVel(i,j,:) = velAct(indMat,:);
-                
-            end
-            if sum(indMatPas) ~=1
-                frPas(i,j,:) = mean(pasFR(indMatPas,:));
-                meanVelPas(i,j,:) = mean(velPas(indMatPas,:));
 
-            else
-                frPas(i,j,:) = pasFR(indMatPas,:);
-                meanVelPas(i,j,:) = mean(velPas(indMatPas,:));
-            end
-
-        end
-    end
-
-    mvXAct = meanVel(:,:,1);
-    mvYAct = meanVel(:,:,2);
-    
-    mvAct = [mvXAct(:), mvYAct(:)];
-    
-    mvXPas = meanVelPas(:,:,1);
-    mvYPas = meanVelPas(:,:,2);
-    
-    mvPas = [mvXPas(:), mvYPas(:)];
-    s1Act = zeros(length(guide(:,1)),1);
-    s1Pas = zeros(length(guide(:,1)),1);
-    for i = 1:length(guide(:,1))
-        temp = frAct(:,:,i);
-        temp2 = frPas(:,:,i);
-        
-        frMAct = fitlm(mvAct, temp(:));
-        s1Act(i) = norm(frMAct.Coefficients.Estimate(2:3));
-        
-        frMPas = fitlm(mvPas, temp2(:));
-        s1Pas(i) = norm(frMPas.Coefficients.Estimate(2:3));
-    end
-    figure
-    scatter(s1Act, s1Pas)
-    hold on
-    plot([0, max([s1Act, s1Pas])], [0, max([s1Act, s1Pas])])
-    title(['Tuning Surface fits ', suffix])
-    xlabel('Active')
-    ylabel('Passive')
-   for i = 1:length(s1Act)
-        dx = -.01; dy = 0.01; % displacement so the text does not overlay the data points
-        text(s1Act(i)+ dx, s1Pas(i) +dy, num2str(guide(i)));
-   end
-   set(gca,'TickDir','out', 'box', 'off')
-   
-   if savePlots
-   
-   saveas(gca,[savePath,'TuningSurface',suffix,'.png'])
-   saveas(gca,[savePath,'TuningSurface',suffix,'.pdf'])
-   end
-   
-   gridMdl =  fitlm(s1Act, s1Pas, 'Intercept', false)
-   gridCoef(mon) = gridMdl.Coefficients.Estimate;
-   gridCI(mon,:) = coefCI(gridMdl);
-%     for i = 1:length(frAct(1,1,:))
-%         maxFR1 = max(max(max(frAct(:,:,i))),max(max(frPas(:,:,i))));
-%         maxFR1 = max(maxFR1,.0001);
-%         figure
-%         imagesc(flipud(frAct(:,:,i)'), [0,  maxFR1])
-%         title(['Unit ', num2str(guide(i,1)), ' Active'])
-%         colorbar
-%         
-%         figure
-%         imagesc(flipud(frPas(:,:,i)'),  [0,  maxFR1])
-%         title(['Unit ', num2str(guide(i,1)), ' Passive'])
-%         colorbar
-%     end
-    
-    figure
-    scatter(velAct(:,1), velAct(:,2))
-    hold on
-    scatter(velPas(:,1), velPas(:,2))
-    xlim([-60, 60])
-    ylim([-60, 60])
-    title(['Hand Vel', suffix])
-    axis square
-    set(gca,'TickDir','out', 'box', 'off')
-   if savePlots
-
-    saveas(gca,[savePath,'HandVelocity',suffix,'.png'])
-    saveas(gca,[savePath,'HandVelocity',suffix,'.pdf'])
-% %    
-   end
     if ~isempty(mappingLog)
     if ~contains(mappingLog(1).date, '/')
         ml = mappingLog(datetime({mappingLog.date}, 'InputFormat', 'yyyyMMdd')== datetime( date, 'InputFormat' , 'yyyyMMdd'));
@@ -354,8 +275,7 @@ for mon = 1:5
         ml = mappingLog(datetime({mappingLog.date}, 'InputFormat', 'MM/dd/yyyy')== datetime( date, 'InputFormat' , 'yyyyMMdd'));
     end
 
-    sAct = zeros(length(guide),1);
-    sPas = zeros(length(guide),1);   
+ 
     mapped = false(length(guide(:,1)),1);
     spindle = false(length(guide(:,1)),1);
     neurons{mon} = [];
@@ -368,17 +288,21 @@ for mon = 1:5
         unit = find([ml.elec] == guide(i,1));
         
         lmAct = fitlm(velAct, actFR(:,i));
-        sAct(i) = norm(lmAct.Coefficients.Estimate(2:3));
+        sAct(i,boot) = norm(lmAct.Coefficients.Estimate(2:3));
         lmPas = fitlm(velPas, pasFR(:,i));
-        sPas(i) = norm(lmPas.Coefficients.Estimate(2:3));
-        neuron.sAct = sAct(i);
-        neuron.sPas = sPas(i);
+        sPas(i, boot) = norm(lmPas.Coefficients.Estimate(2:3));
+        sActPasDif{mon}(boot,i) = sAct(i,boot) - sPas(i,boot);
+        neuron.sAct = sAct(i, boot);
+        neuron.sPas = sPas(i, boot);
         mapping = td(1).([array,'_naming']);
         neuron.mapName = mapping(find(mapping(:,1) == neuron.chan), 2);
 
         neuron = struct2table(neuron);
         neuron = insertMappingIntoNeuron(neuron, mappingLog);
         neurons{mon} = [neurons{mon};neuron];
+        mappingGuide{mon}.sAct(i,boot) = sAct(i,boot);
+        mappingGuide{mon}.sPas(i,boot) = sPas(i,boot);
+        mappingGuide{mon}.sActPasDif(i, boot) = sActPasDif{mon}(boot,i); 
         if ~isempty(unit)
             mapped(i) = true;
 
@@ -388,8 +312,6 @@ for mon = 1:5
                 spindle(i) = false;
             end
         else
-            sAct(i) = 0;
-            sPas(i) = 0;
             mapped(i) = false;
             spindle(i) = false;
         end
@@ -404,19 +326,20 @@ for mon = 1:5
     end
     if isMapped
         mGuide{mon} = guide(mapped);
-        sAct = sAct(mapped);
-        sPas = sPas(mapped);
+        sAct(~mapped,:) = [];
+        sPas(~mapped,:) = [];
         spindle = spindle(mapped);
     else
         mGuide{mon} = guide;
     end
     sensAct{mon}= sAct;
     sensPas{mon} = sPas;
+%     actPasDif{mon} = 
     
     cnSAct = [cnSAct; sAct];
     cnSPas = [cnSPas; sPas];
     
-    lmAll{mon} = fitlm(sAct, sPas, 'Intercept', false)
+    lmAll{mon} = fitlm(sAct(:,boot), sPas(:,boot), 'Intercept', false);
     slopeAll(mon) = lmAll{mon}.Coefficients.Estimate;
     slopeCI(mon,:) = coefCI(lmAll{mon});
     spindleLM{mon} = fitlm(sAct(spindle), sPas(spindle), 'Intercept', false);
@@ -436,22 +359,22 @@ for mon = 1:5
     nSpindleSens(mon,2:3) = tmp;
     
     max1 = max([sAct; sPas]);
-    
-    figure
-    scatter(sAct(spindle), sPas(spindle),'r', 'filled')
-    hold on
-    scatter(sAct(~spindle'), sPas(~spindle),'b', 'filled')
-    plot([0, max1], [0, max1*slopeAll(mon)], 'k-')
-    legend({'Spindles', 'Non-spindles'})
-    plot([0, max1], [0,max1])
-    xlabel('Active sensitivity')
-    ylabel('Passive sensitivity')
-    title(['Act vs pas sensitivity',suffix])
-    for i = 1:length(sAct)
-        dx = -.01; dy = 0.01; % displacement so the text does not overlay the data points
-        text(sAct(i)+ dx, sPas(i) +dy, num2str(mGuide{mon}(i, 1)));
-    end
-    set(gca,'TickDir','out', 'box', 'off')
+%     
+%     figure
+%     scatter(sAct(spindle), sPas(spindle),'r', 'filled')
+%     hold on
+%     scatter(sAct(~spindle'), sPas(~spindle),'b', 'filled')
+%     plot([0, max1], [0, max1*slopeAll(mon)], 'k-')
+%     legend({'Spindles', 'Non-spindles'})
+%     plot([0, max1], [0,max1])
+%     xlabel('Active sensitivity')
+%     ylabel('Passive sensitivity')
+%     title(['Act vs pas sensitivity',suffix])
+%     for i = 1:length(sAct)
+%         dx = -.01; dy = 0.01; % displacement so the text does not overlay the data points
+%         text(sAct(i)+ dx, sPas(i) +dy, num2str(mGuide{mon}(i, 1)));
+%     end
+%     set(gca,'TickDir','out', 'box', 'off')
    if savePlots
 
     saveas(gca, [savePath, 'ActPasSensitivity', suffix, '.pdf']);
@@ -473,21 +396,22 @@ for mon = 1:5
     meanLin(mon) = linearModel1.Coefficients.Estimate;
     lmCI(mon,:) = coefCI(linearModel1);
     
-    sensAct{mon}= sAct;
-    sensPas{mon} = sPas;
+    sensAct{mon}(boot,:) = sAct;
+    sensPas{mon}(boot,:) = sPas;
+    sensActPasDif{mon}(boot,:) = sAct-sPas;
     
-    figure
-    scatter(sAct, sPas,'r', 'filled')
-    hold on
-    plot([0, max1], [0,max1])
-    plot([0, max1], [0, max1*meanLin(mon)])
-    xlabel('Active sensitivity')
-    ylabel('Passive sensitivity')
-    title(['Act vs pas sensitivity',suffix])
-    for i = 1:length(sAct)
-        dx = -.01; dy = 0.01; % displacement so the text does not overlay the data points
-        text(sAct(i)+ dx, sPas(i) +dy, num2str(guide(i)));
-    end
+%     figure
+%     scatter(sAct, sPas,'r', 'filled')
+%     hold on
+%     plot([0, max1], [0,max1])
+%     plot([0, max1], [0, max1*meanLin(mon)])
+%     xlabel('Active sensitivity')
+%     ylabel('Passive sensitivity')
+%     title(['Act vs pas sensitivity',suffix])
+%     for i = 1:length(sAct)
+%         dx = -.01; dy = 0.01; % displacement so the text does not overlay the data points
+%         text(sAct(i)+ dx, sPas(i) +dy, num2str(guide(i)));
+%     end
     set(gca,'TickDir','out', 'box', 'off')
    if savePlots
 
@@ -496,87 +420,101 @@ for mon = 1:5
    end
     end
 
-    
+    end
+end
+save('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Compiled\Sensitivity\CompiledSensitivity.mat', 'sActSpindleComb', 'sPasSpindleComb',...
+    'sActNSpindleComb','sActPasDif', 'sPasNSpindleComb', 'sensAct','sensPas',...
+    'neurons','mappingGuide');
+else
+    load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Compiled\Sensitivity\CompiledSensitivity.mat')
 end
 %%
-spindleM = fitlm(sActSpindleComb, sPasSpindleComb, 'Intercept', false)
-nSpindleM = fitlm(sActNSpindleComb, sPasNSpindleComb, 'Intercept', false)
-
-figure
-
-sSlope(1) = spindleM.Coefficients.Estimate(1);
-cSlope(1) = nSpindleM.Coefficients.Estimate(1);
-
-sSlope(2:3) = coefCI(spindleM);
-cSlope(2:3) = coefCI(nSpindleM);
-%%
-% close all
-but = [sensAct{1}, sensPas{1}];
-cra = [sensAct{2}, sensPas{2}];
-snap = [sensAct{3}, sensPas{3}];
-han = [sensAct{4}, sensPas{4}];
-dun = [sensAct{5}, sensPas{5}];
-
+close all
 colors = linspecer(3);
-maxSens = max(max([but; cra; snap]));
 figure
-scatter(but(:,2), but(:,1), 32,colors(1,:), 'filled')
-hold on
-scatter(cra(:,2), cra(:,1),32,colors(2,:), 'filled')
-scatter(snap(:,2), snap(:,1),32,colors(3,:), 'filled')
-plot([0, maxSens], [0, maxSens], 'k-')
+for i = 1:5 
+    if i~=4 & i~=5
+    mappingGuideFilt{i} = mappingGuide{i}(logical(mappingGuide{i}.sameDayMap),:);
+    mappingGuideFilt{i}(mappingGuideFilt{i}.distal | mappingGuideFilt{i}.handUnit,:) = [];
+    mappingGuideProp{i} = mappingGuideFilt{i}(logical(mappingGuideFilt{i}.isProprioceptive),:);
+    mappingGuideCut{i} = mappingGuideFilt{i}(logical(mappingGuideFilt{i}.cutaneous),:);
+    maxSensTemp(i) = max(mean(mappingGuideFilt{i}.sAct,2));
+    maxSensTemp2(i) = max(mean(mappingGuideFilt{i}.sPas,2));
+    
+    sActProp = mean(mappingGuideProp{i}.sAct,2);
+    sPasProp = mean(mappingGuideProp{i}.sPas,2);
+    sActCut = mean(mappingGuideCut{i}.sAct,2);
+    sPasCut = mean(mappingGuideCut{i}.sPas,2);
+%     keyboard
+    sActPasDifProp = sort(mappingGuideProp{i}.sActPasDif,2);
+    sActPasDifCut = sort(mappingGuideCut{i}.sActPasDif,2);
+    
+    propAct(i) = sum(sActPasDifProp(:,5)>0);
+    propPas(i) = sum(sActPasDifProp(:,95)<0);
+    propNoDif(i) = sum(sActPasDifProp(:,5)<0 & sActPasDifProp(:,95) >0);
+    
+    cutAct(i) = sum(sActPasDifCut(:,5) >0);
+    cutPas(i) = sum(sActPasDifCut(:,95)<0);
+    cutNoDif(i) = sum(sActPasDifCut(:,5)<0 & sActPasDifCut(:,95) >0);
+    scatter(sPasProp, sActProp, 32, colors(i,:),  'o')
+    hold on
+    scatter(sPasCut, sActCut, 32, colors(i,:), 'filled', 'o')
+    else
+    actTemp = sensAct{i}';
+    pasTemp = sensPas{i}';
+    actMinPas = actTemp-pasTemp;
+    sActMinPas = sort(actMinPas,2);
+    s1Act(i-3) = sum(sActMinPas(:,5) >0);
+    s1Pas(i-3) = sum(sActMinPas(:,95) <0);
+    s1NoDif(i-3) = sum(sActMinPas(:,5) <0 & sActMinPas(:,95) >0);
+%     keyboard
+    end
+
+end
+% keyboard
+cutAct = sum(cutAct);
+cutPas = sum(cutPas);
+cutNoDif = sum(cutNoDif);
+
+propAct = sum(propAct);
+propPas = sum(propPas);
+propNoDif = sum(propNoDif);
+
+
+maxVal = max([maxSensTemp, maxSensTemp2]);
+plot([0,maxVal], [0, maxVal])
+legend({'Butter', 'Crackle', 'Snap'})
 set(gca,'TickDir','out', 'box', 'off')
-leg = legend('Bu', 'Cr', 'Sn');
-title(leg, 'Monkey')
-
-maxSens1 = max(max([han; dun]));
-figure
-scatter(han(:,1), han(:,2), 'r', 'filled')
-hold on
-scatter(dun(:,1), dun(:,2), 'b', 'filled')
-plot([0, maxSens1], [0, maxSens1], 'k-')
-set(gca,'TickDir','out', 'box', 'off')
-leg = legend('Ha', 'Du');
-title(leg, 'Monkey')
-
-p4 = doNonParametricForUnityLine(10000, han);
-p5 = doNonParametricForUnityLine(10000, dun);
-p1 = doNonParametricForUnityLine(10000, but);
-p2 = doNonParametricForUnityLine(10000, cra);
-p3 = doNonParametricForUnityLine(10000, snap);
-
-
-nBut = sum(but(:,1) >but(:,2));
-nSnap = sum(snap(:,1) >snap(:,2));
-nCra = sum(cra(:,1) >cra(:,2));
-nHan = sum(han(:,1) >han(:,2));
-nDun = sum(dun(:,1) >dun(:,2));
-
-pB1 = binopdf(nBut, length(but(:,1)), .5);
-pB2 = binopdf(nCra, length(cra(:,1)), .5);
-pB3 = binopdf(nSnap, length(snap(:,1)), .5);
-pB4 = binopdf(nHan, length(han(:,1)), .5);
-pB5 = binopdf(nDun, length(dun(:,1)), .5);
-
-pBB1 = myBinomTest(nBut, length(but(:,1)), .5, 'one')
-pBCr1 = myBinomTest(nCra, length(cra(:,1)), .5, 'one');
-pBSn1 = myBinomTest(nSnap, length(snap(:,1)), .5, 'one')
-pBHa1 = myBinomTest(nHan, length(han(:,1)), .5, 'one')
-pBD1 = myBinomTest(nDun, length(dun(:,1)), .5, 'one')
 
 %%
-neurons1 = [neurons{1};neurons{2};neurons{3}];
-neurons1(strcmp(neurons1.desc, '?'),:) =[];
-mapped1 = neurons1(logical(neurons1.sameDayMap),:);
+actCount = 0;
+pasCount = 0;
+noDif = 0;
+ciAct = [];
+ciPas = [];
+close all
+for i = 1:3
+%     keyboard
+    for j = 1:length(sActPasDif{i}(1,:))
+    ciAct = [ciAct, range(sensAct{i}(j,:))/mean(sensAct{i}(j,:))];
+    ciPas = [ciPas, range(sensPas{i}(j,:))/mean(sensPas{i}(j,:))];
+    sorted1 = sort(sActPasDif{i}(:,j));
+    if sorted1(5)> 0
+        actCount =  actCount +1;
+    elseif sorted1(end-5) <0 
+        pasCount = pasCount +1;
+    else
+        noDif = noDif +1;
+    end
+    max1 = max(abs(sActPasDif{i}(:,j)));
+%         figure
+%     histogram(sActPasDif{i}(:,j))
+%     xlim([-1*max1, max1])
+    end
+end
+figure
+histogram(ciAct)
+hold on
+histogram(ciPas)
+legend('Active', 'Passive')
 %%
-noDist = mapped1(~logical(mapped1.distal),:);
-
-spindles1 = noDist(logical(noDist.isSpindle),:);
-cut = noDist(logical(noDist.cutaneous),:);
-prox = noDist(logical(noDist.proximal),:);
-
-actAll = sum(neurons1.sAct > neurons1.sPas)/ height(neurons1);
-
-actCut = sum(cut.sAct > cut.sPas)/ height(cut);
-actSpindles = sum(spindles1.sAct > spindles1.sPas)/ height(spindles1);
-actProx = sum(prox.sAct > prox.sPas)/height(prox);

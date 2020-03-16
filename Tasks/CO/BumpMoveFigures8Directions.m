@@ -7,7 +7,7 @@ numArr = [1,2,2,1];
 
 
 
-for mon = 4
+for mon = 1
 clearvars -except dateArr monkeyArr numArr mon
 
 beforeBump = .3;

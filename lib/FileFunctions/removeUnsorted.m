@@ -90,6 +90,11 @@ for a = 1:length(arrays)
                 temp(bad_units) = [];
                 trial_data(trial).([array '_ts'])= temp;
             end
+            if isfield(trial_data(trial), [array, '_mapping_guide'])
+                temp = trial_data(trial).([array '_mapping_guide']);
+                temp(bad_units,:) =[];
+                trial_data(trial).([array '_mapping_guide']) = temp;
+            end
         end
         bad_units = find(bad_units);
     else

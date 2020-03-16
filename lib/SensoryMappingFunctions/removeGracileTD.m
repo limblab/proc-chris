@@ -21,6 +21,11 @@ function [td] = removeGracileTD(td,params)
             temp = td(trial).([array '_ts']);
             temp(bad_units) = [];
             td(trial).([array '_ts']) = temp;
+            if isfield(td(trial), [array, '_mapping_guide'])
+                temp = td(trial).([array '_mapping_guide']);
+                temp(bad_units,:) =[];
+                td(trial).([array '_mapping_guide']) = temp;
+            end
         end
         bad_units = find(bad_units);
     else
