@@ -5,37 +5,45 @@ plotRasters = 1;
 savePlots = false;
 isMapped = false;
 savePDF = false;
-recompute = false;
+recompute = true;
 smoothWidth = .02;
 windowInds = true;
 numBoots = 100;
 savePath = 'C:\Users\wrest\Pictures\ActPasDomainComparison\';
-% 
-monkey1 = 'Butter';
-date1 = '20190129';
-task1 = 'CO';
-num1 = 2;
 
-monkey2 = 'Crackle';
-date2 = '20190418';
-task2 = 'CO';
-num2 = 1;
+monkey1 = 'Butter'; date1 = '20190129'; task1 = 'CO'; num1 = 2;
 
-monkey3 = 'Snap';
-date3 = '20190829';
-task3 = 'CO';
-num3 = 2;
+monkey2 = 'Snap'; date2 = '20190829'; task2 = 'CO'; num2 = 2;
 
-monkey4 = 'Han';
-date4 = '20171122';
-task4 = 'COactpas';
-num4 = 1;
+monkey3 = 'Crackle'; date3 = '20190418'; task3 = 'CO'; num3 = 1;
 
-monkey5 = 'Duncan';
-date5 = '20190710';
-task5 = 'CObumpmove';
-num5 = 1;
+monkey4 = 'Han'; date4 = '20171122'; task4 = 'COactpas'; num4 = 1;
 
+monkey5 = 'Duncan'; date5 = '20190710'; task5 = 'CObumpmove'; num5 = 1;
+
+monkey6 = 'Butter'; date6 = '20180607'; task6 = 'CO'; num6 = 1;
+
+monkey7 = 'Crackle'; date7 = '20190327'; task7 = 'CO'; num7 = 1;
+
+monkey8 = 'Crackle'; date8 = '20190213'; task8 = 'CO'; num8 = 1;
+
+monkey9 = 'Snap'; date9 = '20190806'; task9 = 'CO'; num9 = 1;
+
+
+windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
+windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
+
+
+monkeyArray = {monkey1, date1, task1, num1;...
+               monkey2, date2, task2, num2;...
+               monkey3, date3, task3, num3;...
+               monkey4, date4, task4, num4;...
+               monkey5, date5, task5, num5;...
+               monkey6, date6, task6, num6;...
+               monkey7, date7, task7, num7;...
+               monkey8, date8, task8, num8;...
+               monkey9, date9, task9, num9};
+           
 sActSpindleComb =[];
 sPasSpindleComb = [];
 
@@ -46,16 +54,24 @@ beforeBump = .3;
 afterBump = .3;
 beforeMove = .3;
 afterMove = .6;
-monkeyArray = {monkey1, date1, task1, num1;...
-               monkey2, date2, task2, num2;...
-               monkey3, date3, task3, num3;...
-               monkey4, date4, task4, num4;...
-               monkey5, date5, task5, num5};
+
+neuronsB = getNeurons('Butter', date1,'CObump','cuneate',[windowAct; windowPas]);
+neuronsS = getNeurons('Snap', date2, 'CObump','cuneate',[windowAct; windowPas]);
+neuronsC = getNeurons('Crackle', date3, 'CObump','cuneate',[windowAct; windowPas]);
+neuronsH = getNeurons('Han', date4,'COactpas', 'LeftS1Area2',[windowAct; windowPas]);
+neuronsD = getNeurons('Duncan', date5,'CObump','leftS1', [windowAct;windowPas]);
+
+neuronsB2 = getNeurons('Butter', '20180607','CObump', 'cuneate', [windowAct;windowPas]);
+
+neuronsS2 = getNeurons('Snap', '20190806', 'CObump','cuneate',[windowAct; windowPas]);
+
+neuronsC2 = getNeurons('Crackle', '20190327', 'CObump','cuneate',[windowAct; windowPas]);
+neuronsC3 = getNeurons('Crackle', '20190213', 'CObump','cuneate',[windowAct; windowPas]);
 
 cnSAct = [];
 cnSPas = [];
 if recompute
-for mon = 1:5
+for mon = 6:9
     monkey = monkeyArray{mon, 1};
     date = monkeyArray{mon, 2};
     task = monkeyArray{mon, 3};
@@ -204,7 +220,111 @@ for mon = 1:5
             td5 = removeUnsorted(td5);
             td5(isnan([td5.idx_movement_on]))= [];
             td = td5;
+            case 6
+            array = 'cuneate';
+
+            if ~exist('td6')
+                td6 = getTD(monkey, date, task,num);
+                for i = 1:length(td6)
+                    td6(i).opensim = [];
+                end
+                if td6(1).bin_size ==.001
+                    td6 = binTD(td6, 10);
+                end
+                td6 = getSpeed(td6);
+                td6 = smoothSignals(td6, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', smoothWidth));
+
+                target_direction = 'target_direction';
+
+                params.start_idx =  'idx_goCueTime';
+                params.end_idx = 'idx_endTime';
+                td6 = getNorm(td6,struct('signals','vel','field_extra','speed'));
+                td6 = getMoveOnsetAndPeak(td6,params);
+                td6 = td6(~isnan([td6.idx_movement_on]));
+    
+
+            end
             
+            td6(isnan([td6.idx_movement_on]))= [];
+            td = td6;
+        case 7
+            array = 'cuneate';
+
+            if ~exist('td7')
+                td7 = getTD(monkey, date, task,num);
+                for i = 1:length(td7)
+                    td7(i).opensim = [];
+                end
+                if td7(1).bin_size ==.001
+                    td7 = binTD(td7, 10);
+                end
+                td7 = getSpeed(td7);
+                td7 = smoothSignals(td7, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', smoothWidth));
+
+                target_direction = 'target_direction';
+
+                params.start_idx =  'idx_goCueTime';
+                params.end_idx = 'idx_endTime';
+                td7 = getNorm(td7,struct('signals','vel','field_extra','speed'));
+                td7 = getMoveOnsetAndPeak(td7,params);
+                td7 = td7(~isnan([td7.idx_movement_on]));
+    
+
+            end
+            td7(isnan([td7.idx_movement_on]))= [];
+            td = td7;
+        case 8
+            array = 'cuneate';
+
+            if ~exist('td8')
+                td8 = getTD(monkey, date, task,num);
+                for i = 1:length(td8)
+                    td8(i).opensim = [];
+                end
+                if td8(1).bin_size ==.001
+                    td8 = binTD(td8, 10);
+                end
+                td8 = getSpeed(td8);
+                td8 = smoothSignals(td8, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', smoothWidth));
+
+                target_direction = 'target_direction';
+
+                params.start_idx =  'idx_goCueTime';
+                params.end_idx = 'idx_endTime';
+                td8 = getNorm(td8,struct('signals','vel','field_extra','speed'));
+                td8 = getMoveOnsetAndPeak(td8,params);
+                td8 = td8(~isnan([td8.idx_movement_on]));
+    
+
+            end
+            td8(isnan([td8.idx_movement_on]))= [];
+            td = td8;
+        case 9
+            array = 'cuneate';
+
+            if ~exist('td9')
+                td9 = getTD(monkey, date, task,num);
+                for i = 1:length(td9)
+                    td9(i).opensim = [];
+                end
+                if td9(1).bin_size ==.001
+                    td9 = binTD(td9, 10);
+                end
+                td9 = getSpeed(td9);
+                td9 = smoothSignals(td9, struct('signals', ['cuneate_spikes'], 'calc_rate',true, 'width', smoothWidth));
+
+                target_direction = 'target_direction';
+
+                params.start_idx =  'idx_goCueTime';
+                params.end_idx = 'idx_endTime';
+                td9 = getNorm(td9,struct('signals','vel','field_extra','speed'));
+                td9 = getMoveOnsetAndPeak(td9,params);
+                td9 = td9(~isnan([td9.idx_movement_on]));
+    
+
+            end
+            td9(isnan([td9.idx_movement_on]))= [];
+            td = td9;
     end
     if windowInds
         suffix = ['WindowedMatch', monkey];
@@ -306,7 +426,7 @@ for mon = 1:5
         if ~isempty(unit)
             mapped(i) = true;
 
-            if any(ml(unit).spindle)
+            if any([ml(unit).spindle])
                 spindle(i) = true;
             else
                 spindle(i) = false;
@@ -342,8 +462,8 @@ for mon = 1:5
     lmAll{mon} = fitlm(sAct(:,boot), sPas(:,boot), 'Intercept', false);
     slopeAll(mon) = lmAll{mon}.Coefficients.Estimate;
     slopeCI(mon,:) = coefCI(lmAll{mon});
-    spindleLM{mon} = fitlm(sAct(spindle), sPas(spindle), 'Intercept', false);
-    nSpindleLM{mon}= fitlm(sAct(~spindle), sPas(~spindle), 'Intercept', false);
+%     spindleLM{mon} = fitlm(sAct(spindle), sPas(spindle), 'Intercept', false);
+%     nSpindleLM{mon}= fitlm(sAct(~spindle), sPas(~spindle), 'Intercept', false);
     
     sActSpindleComb = [sActSpindleComb; sAct(spindle)];
     sPasSpindleComb = [sPasSpindleComb; sPas(spindle)];
@@ -351,13 +471,13 @@ for mon = 1:5
     sPasNSpindleComb = [sPasNSpindleComb; sPas(~spindle)];
     
     
-    spindleSens(mon,1) = spindleLM{mon}.Coefficients.Estimate(1);
-    tmp = coefCI(spindleLM{mon});
-    spindleSens(mon,2:3) = tmp;
-    nSpindleSens(mon,1) = nSpindleLM{mon}.Coefficients.Estimate(1);
-    tmp = coefCI(nSpindleLM{mon});
-    nSpindleSens(mon,2:3) = tmp;
-    
+%     spindleSens(mon,1) = spindleLM{mon}.Coefficients.Estimate(1);
+%     tmp = coefCI(spindleLM{mon});
+%     spindleSens(mon,2:3) = tmp;
+%     nSpindleSens(mon,1) = nSpindleLM{mon}.Coefficients.Estimate(1);
+%     tmp = coefCI(nSpindleLM{mon});
+%     nSpindleSens(mon,2:3) = tmp;
+%     
     max1 = max([sAct; sPas]);
 %     
 %     figure
@@ -422,17 +542,17 @@ for mon = 1:5
 
     end
 end
-save('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Compiled\Sensitivity\CompiledSensitivity.mat', 'sActSpindleComb', 'sPasSpindleComb',...
+save('D:\MonkeyData\CO\Compiled\Sensitivity\CompiledSensitivity.mat', 'sActSpindleComb', 'sPasSpindleComb',...
     'sActNSpindleComb','sActPasDif', 'sPasNSpindleComb', 'sensAct','sensPas',...
     'neurons','mappingGuide');
 else
-    load('C:\Users\wrest\Documents\MATLAB\MonkeyData\CO\Compiled\Sensitivity\CompiledSensitivity.mat')
+    load('D:\MonkeyData\CO\Compiled\Sensitivity\CompiledSensitivity.mat')
 end
 %%
 close all
 colors = linspecer(3);
 figure
-for i = 1:5 
+for i = 1:9 
     if i~=4 & i~=5
     mappingGuideFilt{i} = mappingGuide{i}(logical(mappingGuide{i}.sameDayMap),:);
     mappingGuideFilt{i}(mappingGuideFilt{i}.distal | mappingGuideFilt{i}.handUnit,:) = [];

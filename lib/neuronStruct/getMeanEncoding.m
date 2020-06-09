@@ -5,6 +5,9 @@ function n1 = getMeanEncoding(neurons)
     for i = 1:length(varNames)
         for  j= 1:height(n2)
             n1(j).(varNames{i}) = mean(n2.(varNames{i})(j));
+%             if i == length(varNames)
+%                 keyboard
+%             end
         end
     end
    n1 = struct2table(n1);

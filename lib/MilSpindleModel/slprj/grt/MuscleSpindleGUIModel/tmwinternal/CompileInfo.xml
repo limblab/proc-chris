@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MF0 version="1.1">
+    <ModelRefInfoRepo.ModelRefInfoRoot type="ModelRefInfoRepo.ModelRefInfoRoot" uuid="5fd79c38-f825-435a-9b03-8f5bc5ba6a04">
+        <dataDictionary/>
+        <dataTransferInfos>AAFJTQAAAAAOAAAAOAAAAAYAAAAIAAAAAgAAAAAAAAAFAAAACAAAAAAAAAABAAAAAQAAAAAAAAAFAAQAAQAAAAEAAAAAAAAA</dataTransferInfos>
+        <hasInlineVariantBlock>false</hasInlineVariantBlock>
+        <hasMachineDataAccess>false</hasMachineDataAccess>
+        <hasSigObjWithICDrivingRootOutport>false</hasSigObjWithICDrivingRootOutport>
+        <inports type="ModelRefInfoRepo.InportInformation" uuid="60f4ecf1-c864-48f5-9a27-5c4fdd59bea9">
+            <EMVCE/>
+            <originalPortNumber>0</originalPortNumber>
+        </inports>
+        <inports type="ModelRefInfoRepo.InportInformation" uuid="cf9b7730-79b4-4790-aed4-9a6c9ae865f1">
+            <EMVCE/>
+            <originalPortNumber>1</originalPortNumber>
+        </inports>
+        <inports type="ModelRefInfoRepo.InportInformation" uuid="d6c9f031-ffb1-4510-ad7e-938aefe96df3">
+            <EMVCE/>
+            <originalPortNumber>2</originalPortNumber>
+        </inports>
+        <isOrigInportVirtualBus>false</isOrigInportVirtualBus>
+        <isOrigInportVirtualBus>false</isOrigInportVirtualBus>
+        <isOrigInportVirtualBus>false</isOrigInportVirtualBus>
+        <isOrigOutportVirtualBus>false</isOrigOutportVirtualBus>
+        <isOrigOutportVirtualBus>false</isOrigOutportVirtualBus>
+        <needElapsedTime>false</needElapsedTime>
+        <outports type="ModelRefInfoRepo.OutportInformation" uuid="599a032a-2228-42c5-ab5e-f6eeae0b74b1">
+            <EMVCE/>
+            <originalPortNumber>0</originalPortNumber>
+        </outports>
+        <outports type="ModelRefInfoRepo.OutportInformation" uuid="10b0aab4-1ffd-4104-8cb0-8c2905ace96a">
+            <EMVCE/>
+            <originalPortNumber>1</originalPortNumber>
+        </outports>
+        <userSpecifiedFixedStepSize>0</userSpecifiedFixedStepSize>
+        <zeroInternalMemoryAtStartupUnchecked>false</zeroInternalMemoryAtStartupUnchecked>
+        <FMUBlockMap type="ModelRefInfoRepo.FMUBlockInfo" uuid="8faed116-4294-4edf-9fd1-6a68a31a9432"/>
+        <periodicEventPortUnsupportedBlockInfo type="ModelRefInfoRepo.PeriodicEventPortUnsupportedBlockInfo" uuid="f900d385-0820-4e8d-bd80-c41b61f37994">
+            <deterministicRTBs>MuscleSpindle/Bag1/Coef of asymmetry (C)/Rate Transition</deterministicRTBs>
+            <deterministicRTBs>MuscleSpindle/Bag1/Coef of asymmetry (C)/Rate Transition1</deterministicRTBs>
+            <deterministicRTBs>MuscleSpindle/Bag2/Coef of asymmetry (C)/Rate Transition</deterministicRTBs>
+            <deterministicRTBs>MuscleSpindle/Bag2/Coef of asymmetry (C)/Rate Transition1</deterministicRTBs>
+            <deterministicRTBs>MuscleSpindle/Chain/Coef of asymmetry (C)/Rate Transition</deterministicRTBs>
+            <deterministicRTBs>MuscleSpindle/Chain/Coef of asymmetry (C)/Rate Transition1</deterministicRTBs>
+            <hasHiddenDeterministicRTB>false</hasHiddenDeterministicRTB>
+            <multiRateBlocks>MuscleSpindleGUIModel/Model</multiRateBlocks>
+        </periodicEventPortUnsupportedBlockInfo>
+        <simulinkFunctions type="ModelRefInfoRepo.SimulinkFunctions" uuid="fe77c404-4e84-4cc7-b27f-9844af5d553c">
+            <compSimulinkFunctionCatalog>AAFJTQAAAAAOAAAAgAAAAAYAAAAIAAAAAgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAFAAQADgAAAAEAAAAOAAAAQ29tcEZ1bmN0aW9ucwAAAA4AAAAwAAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAAAAAAAAAAABAAAAAAAAAAkAAAAAAAAA</compSimulinkFunctionCatalog>
+            <postPropHasAnyExportedFunction>false</postPropHasAnyExportedFunction>
+            <postPropHasAnyVariantExportedFunction>false</postPropHasAnyVariantExportedFunction>
+        </simulinkFunctions>
+    </ModelRefInfoRepo.ModelRefInfoRoot>
+</MF0>

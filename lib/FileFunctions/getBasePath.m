@@ -12,7 +12,7 @@ function [ path ] = getBasePath( )
         path = ['C:\Users\wrest_000\Documents\MATLAB\MonkeyData\'];
     elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
         whichComp = 'laptop2';
-        path = ['C:\Users\wrest\Documents\MATLAB\MonkeyData\'];
+        path = ['D:\MonkeyData\'];
     elseif strcmp(arch, 'glnxa64')
         path = '/media/chris/DataDisk/MonkeyData/';
     else

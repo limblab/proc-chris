@@ -27,7 +27,7 @@ function [ path ] = getBasicPath( monkey, date, task)
     elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
         %% My (new) laptop
         whichComp = 'laptop2';
-        path = ['C:\Users\wrest\Documents\MATLAB\MonkeyData\',task,'\',monkey,'\',date, filesep];
+        path = ['D:\MonkeyData\',task,'\',monkey,'\',date, filesep];
     elseif strcmp(arch,'glnxa64')
         whichComp = 'linuxDesktop';
         path = ['/media/chris/DataDisk/MonkeyData/', task, '/', monkey, '/', date, filesep];

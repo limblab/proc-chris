@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MF0 version="1.1">
+    <ModelRefInfoRepo.ModelRefInfoRoot type="ModelRefInfoRepo.ModelRefInfoRoot" uuid="e1a735d0-bef9-439d-a16a-1ff0c45b4eff">
+        <dataDictionary/>
+        <dataTransferInfos>AAFJTQAAAAAOAAAAOAAAAAYAAAAIAAAAAgAAAAAAAAAFAAAACAAAAAAAAAABAAAAAQAAAAAAAAAFAAQAAQAAAAEAAAAAAAAA</dataTransferInfos>
+        <hasInlineVariantBlock>false</hasInlineVariantBlock>
+        <hasMachineDataAccess>false</hasMachineDataAccess>
+        <hasSigObjWithICDrivingRootOutport>false</hasSigObjWithICDrivingRootOutport>
+        <inports type="ModelRefInfoRepo.InportInformation" uuid="16544bb3-40a3-4ba6-a7d4-d222bc0f5d68">
+            <EMVCE/>
+            <originalPortNumber>0</originalPortNumber>
+        </inports>
+        <isOrigInportVirtualBus>false</isOrigInportVirtualBus>
+        <isOrigOutportVirtualBus>false</isOrigOutportVirtualBus>
+        <needElapsedTime>false</needElapsedTime>
+        <outports type="ModelRefInfoRepo.OutportInformation" uuid="be851e85-999a-4118-81e7-3755bc97d71d">
+            <EMVCE/>
+            <originalPortNumber>0</originalPortNumber>
+        </outports>
+        <userSpecifiedFixedStepSize>0.001</userSpecifiedFixedStepSize>
+        <zeroInternalMemoryAtStartupUnchecked>false</zeroInternalMemoryAtStartupUnchecked>
+        <FMUBlockMap type="ModelRefInfoRepo.FMUBlockInfo" uuid="2cba871d-1e5f-473d-9959-ef07291d80ca"/>
+        <periodicEventPortUnsupportedBlockInfo type="ModelRefInfoRepo.PeriodicEventPortUnsupportedBlockInfo" uuid="cb61a8ab-bdfc-4ead-8c45-46f6f0209c7b">
+            <hasHiddenDeterministicRTB>false</hasHiddenDeterministicRTB>
+        </periodicEventPortUnsupportedBlockInfo>
+        <simulinkFunctions type="ModelRefInfoRepo.SimulinkFunctions" uuid="b981ff54-7b2b-49a8-8cd3-141dff4ad980">
+            <compSimulinkFunctionCatalog>AAFJTQAAAAAOAAAAgAAAAAYAAAAIAAAAAgAAAAAAAAAFAAAACAAAAAEAAAABAAAAAQAAAAAAAAAFAAQADgAAAAEAAAAOAAAAQ29tcEZ1bmN0aW9ucwAAAA4AAAAwAAAABgAAAAgAAAAGAAAAAAAAAAUAAAAIAAAAAAAAAAAAAAABAAAAAAAAAAkAAAAAAAAA</compSimulinkFunctionCatalog>
+            <postPropHasAnyExportedFunction>false</postPropHasAnyExportedFunction>
+            <postPropHasAnyVariantExportedFunction>false</postPropHasAnyVariantExportedFunction>
+        </simulinkFunctions>
+    </ModelRefInfoRepo.ModelRefInfoRoot>
+</MF0>

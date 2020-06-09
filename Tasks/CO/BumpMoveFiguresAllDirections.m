@@ -17,8 +17,8 @@ savePDF = true;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20190918';
-monkey = 'Snap';
+date = '20190418';
+monkey = 'Crackle';
 unitNames = 'cuneate';
 
 % mappingLog = getSensoryMappings(monkey);
@@ -29,7 +29,7 @@ beforeMove = .3;
 afterMove = .3;
 params.start_idx        =  'idx_goCueTime';
 params.end_idx          =  'idx_endTime';
-td =getTD(monkey, date, 'CO',2);
+td =getTD(monkey, date, 'CO',1);
 td = removeBadNeurons(td);
 td = getSpeed(td);
 td = getMoveOnsetAndPeak(td, params);
@@ -51,7 +51,7 @@ w = gausswin(5);
 w = w/sum(w);
 
 
-numCount = 1:length(td(1).(unitSpikes)(1,:));
+numCount = 24
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 
@@ -93,8 +93,8 @@ for num1 = numCount
     
     upMoveFiring = zeros(length(upMove), length(speedUpKin));
     
-    bump = figure2();
-    move = figure2();
+    bump = figure();
+    move = figure();
     
     suptitle([title1, ' Active'])
     if gracileFlag(num1)

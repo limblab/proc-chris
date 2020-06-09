@@ -94,7 +94,7 @@ w = [.0439; .4578;1;.4578;.0439];
 w = w/sum(w);
 
 
-numCount = 1:length(td(1).(unitSpikes)(1,:));
+numCount = 8;
 %% Data Preparation and sorting out trials
 
 dirsM = unique([td.(target_direction)]);
@@ -199,7 +199,7 @@ for num1 = numCount
     maxFiringBump = 0;
     for bumpMove = 1:2
         if bumpMove == 1            
-            move = figure('visible','off');
+            move = figure%('visible','off');
             before = beforeMove;
             after = afterMove;
             startInd = ['idx_', alignMove];
@@ -212,7 +212,7 @@ for num1 = numCount
             
         elseif bumpMove == 2
             clear meanKin
-            bump = figure('visible','off');
+            bump = figure%('visible','off');
             before = beforeBump;
             after = afterBump;
             startInd = ['idx_',alignBump];
@@ -406,7 +406,7 @@ for num1 = numCount
             polarplot(thetaLong, [preMoveStat.meanCI(num1,1)*ones(length(thetaLong),1)],'LineWidth',2, 'Color',[.5,.5,.5])
             polarplot([angMove(num1), angMove(num1)], [0, max([bumpHigh])], 'Color', [0,0,1],'LineWidth',2);
             set(gca,'TickDir','out', 'box', 'off')
-            set(gca,'thetatick',[],'rtick',[])
+            set(gca,'thetatick',[])
             suptitle1([title1, ' Active'])
             if gracileFlag(num1)
             suptitle1([title1, ' Active GRACILE'])
@@ -429,7 +429,7 @@ for num1 = numCount
 
             polarplot([angBump(num1), angBump(num1)], [0, max([moveHigh])],'Color', [1,0,0], 'LineWidth', 2);
             set(gca,'TickDir','out', 'box', 'off')
-            set(gca,'thetatick',[],'rtick',[])
+            set(gca,'thetatick',[])
             suptitle1([title1, 'passive'])
             if gracileFlag(num1)
             suptitle1([title1, ' Passive GRACILE'])

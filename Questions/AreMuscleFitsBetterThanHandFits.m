@@ -19,6 +19,7 @@ neuronsMean = getMeanEncoding(neurons1);
 neurons = insertMappingsIntoNeuronStruct(neuronsMean, mapping);
 %% Compare hand position encoding vs joint angle encoding
 neuronsFilt = neurons([neurons.isSpindle] ~=0,:);
+neuronsCut = neurons([neurons.cutaneous] == 1 & [neurons.isCuneate]==1,:);
 close all
 comps = {'pos', 'jointAng';...
          'pos', 'muscleLen';...
@@ -33,15 +34,17 @@ for i = 1:length(comps(:,1))
     figure
     scatter(neuronsFilt.(comps{i,1}), neuronsFilt.(comps{i,2}), 'b' ,'filled')
     hold on
+    scatter(neuronsCut.(comps{i,1}), neuronsCut.(comps{i,2}), 'r', 'filled')
     plot([0,1], [0,1], 'k--')
     title([comps{i,1},' Enc vs ', comps{i,2},' Enc'])
     xlabel([comps{i,1},' R2'])
     ylabel([comps{i,2}, ' R2'])
     set(gca,'TickDir','out', 'box', 'off')
     ylim([0,1])
-    xlim([0,1])
-    xticklabels({'0','','','','','','','','','','1.0'})
-    yticklabels({'0','','','','','','','','','','1.0'})
+    xlim([-.3,1])
+%     xticklabels({'-0.3','','','','','','','','','','1.0'})
+%     yticklabels({'0','','','','','','','','','','1.0'})
+    legend('Spindles', 'Cut', 'Unit')
 end
 %%
 musMinHand = neuronsFilt.muscle - neuronsFilt.hand;
@@ -54,13 +57,13 @@ mean(musMinJoint)
 [b1, b2] = ttest(musMinJoint)
 %%
 figure 
-histogram(musMinHand,8)
+histogram(musMinHand, -.45:.1:.45)
 xlabel('muscle minus hand')
     set(gca,'TickDir','out', 'box', 'off')
 
 
 figure
-histogram(musMinJoint,8)
+histogram(musMinJoint, -.45:.1:.45)
 xlabel('muscle minus joint')
     set(gca,'TickDir','out', 'box', 'off')
 

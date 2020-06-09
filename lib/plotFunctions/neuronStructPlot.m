@@ -116,9 +116,9 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     end
     if useNewSensMetric
         fh9 = figure;
-        scatter(max(abs(neurons.sensMove)'), max(abs(neurons.sensBump)'), 'k', 'filled')
+        scatter(max(abs(neurons.sensMove{1})'), max(abs(neurons.sensBump{1})'), 'k', 'filled')
         hold on
-        lims = [0, max(max([neurons.sensMove, neurons.sensBump]))];
+        lims = [0, max(max([neurons.sensMove{1}, neurons.sensBump{1}]))];
         plot([lims(1), lims(2)], [lims(1), lims(2)], 'r--')
 
         title('Maximal Sensitivity in Active/Passive')
@@ -154,11 +154,14 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     if plotModDepthClassic
         fh7 = figure;
         hold on
-        actFiring = neurons.actTuningCurve.velCurve.*20;
-        pasFiring = neurons.pasTuningCurve.velCurve.*20;
-        for i =1:length(actFiring(:,1,1))
-            uActFiring = sort(actFiring(i,:));
-            uPasFiring = sort(pasFiring(i,:));
+        for i =1:height(neurons)
+            tmpFiring = neurons.actTuningCurve(i,:);
+            actFiring = tmpFiring{1, 1}{1, 1}{1, 1}{1, 1}.velCurve*20;
+            tmpFiring = neurons.pasTuningCurve(i,:);
+            pasFiring = tmpFiring{1, 1}{1, 1}{1, 1}{1, 1}.velCurve*20;
+            
+            uActFiring = sort(actFiring);
+            uPasFiring = sort(pasFiring);
             actMod(i) = uActFiring(end) - uActFiring(1);
             pasMod(i) = uPasFiring(end) - uPasFiring(1);
         end
@@ -258,13 +261,15 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     if plotAngleDif
         actPDs = neurons.actPD.velPD;
         pasPDs = neurons.pasPD.velPD;
-        pdDif = angleDiff(actPDs, pasPDs, true, true);
+        pdDif = rad2deg(angleDiff(actPDs, pasPDs, true, true));
         fh4 = figure;
-        histogram(abs(pdDif), 0:pi/8:pi)
+        histogram(abs(pdDif), 0:22.5:180)
         title('PD rotations between active and passive')
         xlabel('change in PD directions')
         ylabel('# of units')
-        
+        set(gca,'TickDir','out', 'box', 'off')
+        xticks([0, 90, 180])
+
     end
     
     if plotPDDists
