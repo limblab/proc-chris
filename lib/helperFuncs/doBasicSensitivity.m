@@ -1,5 +1,8 @@
-function neurons = doBasicSensitivity(neurons, td)
+function neurons = doBasicSensitivity(neurons, td, params)
 % clear all
+windowAct = [];
+windowPas = [];
+if nargin > 2, assignParams(who,params); end % overwrite parameters
 close all
     smoothWidth = 0.02;
     windowInds = true;
@@ -20,10 +23,10 @@ close all
     td = getSpeed(td);
     guide = td(1).([array, '_unit_guide']);
     td([td.idx_peak_speed]< [td.idx_movement_on])=[];
-    tdAct = trimTD(td, {'idx_movement_on',0}, {'idx_movement_on', 13});
+    tdAct = trimTD(td, windowAct(1,:), windowAct(2,:));
     
     tdPas = td(~isnan([td.idx_bumpTime]));
-    tdPas = trimTD(tdPas, 'idx_bumpTime', {'idx_bumpTime', 13});
+    tdPas = trimTD(tdPas, windowPas(1,:), windowPas(2,:));
            
     actFR = cat(1, tdAct.([array, '_spikes']));
     pasFR = cat(1, tdPas.([array, '_spikes']));

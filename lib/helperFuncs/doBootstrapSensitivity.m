@@ -1,8 +1,13 @@
-function neurons = doBootstrapSensitivity(neurons, td)
+function neurons = doBootstrapSensitivity(neurons, td, params)
+
+    windowAct = [];
+    windowPas = [];
+    numBoots = 100;
+
+    if nargin > 2, assignParams(who,params); end % overwrite parameters
     smoothWidth = 0.02;
 
     windowInds = true;
-    numBoots = 100;
     filds = fieldnames(td);
     array = filds(contains(filds, '_spikes'),:);
     array = array{1}(1:end-7);
@@ -11,10 +16,10 @@ function neurons = doBootstrapSensitivity(neurons, td)
         
     guide = td(1).([array, '_unit_guide']);
     td([td.idx_peak_speed]< [td.idx_movement_on])=[];
-    tdAct1 = trimTD(td, {'idx_movement_on',0}, {'idx_movement_on', 13});
+    tdAct1 = trimTD(td,  windowAct(1,:), windowAct(2,:));
     tdPas1 = td(~isnan([td.idx_bumpTime]));
     
-    tdPas1 = trimTD(tdPas1, 'idx_bumpTime', {'idx_bumpTime', 13});
+    tdPas1 = trimTD(tdPas1,  windowPas(1,:), windowPas(2,:));
     tmpVec = 1:length(tdAct1);
     tmpVec2 = 1:length(tdPas1);
     bootMat = tmpVec(randi(length(tdAct1), numBoots, length(tdAct1)));

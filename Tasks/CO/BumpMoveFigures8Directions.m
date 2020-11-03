@@ -1,13 +1,13 @@
 % clear all
 close all
 clear all
-dateArr = {'20190418', '20190829', '20190129', '20170917'};
-monkeyArr = {'Crackle', 'Snap', 'Butter', 'Lando'};
-numArr = [1,2,2,1];
+dateArr = {'20190418', '20190829', '20190129', '20170917', '20170913','20170105','20191106','20200729', '20180403'};
+monkeyArr = {'Crackle', 'Snap', 'Butter', 'Lando', 'Chips', 'Han', 'Duncan', 'Rocket', 'Butter'};
+numArr = [1,2,2,1,1,1,1,1,1];
 
 
 
-for mon = 1
+for mon = 6
 clearvars -except dateArr monkeyArr numArr mon
 
 beforeBump = .3;
@@ -18,11 +18,14 @@ afterMove = .3;
 date = dateArr{mon};
 monkey = monkeyArr{mon};
 numT = numArr(mon);
-unitNames = 'cuneate';
 params.start_idx =  'idx_goCueTime';
 params.end_idx = 'idx_endTime';
 
 td =getTD(monkey, date, 'CO',numT);
+filds = fieldnames(td);
+array = filds(contains(filds, '_spikes'),:);
+unitNames = array{1}(1:end-7);
+ 
 
 plotRasters = 1;
 savePlots = 1;
@@ -59,9 +62,7 @@ params.end_idx = 'idx_endTime';
 td = getNorm(td,struct('signals','vel','field_extra','speed'));
 
 % td = removeHighSpeedAtOnset(td);
-if strcmp(monkey, 'Duncan') 
-    td(~isnan([td.idx_bumpTime]) & [td.idx_goCueTime]< [td.idx_bumpTime])=[];
-end
+
 if td(1).bin_size ==.001
     td = binTD(td, 10);
 end
@@ -94,16 +95,19 @@ w = [.0439; .4578;1;.4578;.0439];
 w = w/sum(w);
 
 
-numCount = 8;
+numCount = 1:length(td(1).(unitGuide)(:,1));
 %% Data Preparation and sorting out trials
 
 dirsM = unique([td.(target_direction)]);
 dirsM = dirsM(~isnan(dirsM));
 dirsM(mod(dirsM, pi/8) ~= 0) = [];
 
-
+tdAct = td;
+if strcmp(monkey, 'Duncan') 
+    tdAct(~isnan([td.idx_bumpTime]) & [td.idx_goCueTime]< [td.idx_bumpTime])=[];
+end
 for i = 1:length(dirsM)
-    tdDir{i} = td([td.(target_direction)] == dirsM(i));
+    tdDir{i} = tdAct([tdAct.(target_direction)] == dirsM(i));
 %     tdDir{i}(~isnan([tdDir{i}.idx_bumpTime])) =[];
 %     tdDir{i} = trimTD(tdDir{i}, {'idx_bumpTime', 13}, 'idx_endTime');
 %     tdDir{i} = tdDir{i}([tdDir{i}.idx_endTime] - [tdDir{i}.idx_goCueTime] < 1/tdDir{i}(1).bin_size);
@@ -150,8 +154,11 @@ end
         postBumpDir{i}= postBump([postBump.bumpDir] == dirsBump(i));
         postBumpFiring{i} = cat(3, postBumpDir{i}.(unitSpikes)).*100;
         postBumpStat(i).meanCI(:,1) = squeeze(mean(mean(postBumpFiring{i}, 3),1))';
-        postBumpStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postBumpFiring{i}))')';
-
+        if length(postBumpDir{i}) > 2 
+            postBumpStat(i).meanCI(:,2:3) = bootci(100, @mean, squeeze(mean(postBumpFiring{i}))')';
+        else
+            postBumpStat(i).meanCI(:,2:3) = [postBumpStat(i).meanCI(:,1), postBumpStat(i).meanCI(:,1)];
+        end
     end
     preBumpFiring = cat(3, preBump.(unitSpikes)).*100;
     
@@ -469,6 +476,7 @@ for num1 = numCount
                 saveas(bump,[savePath,'Gracile',filesep, strrep(title2, ' ', '_'), '_Bump_', num2str(date), 'GRACILE.png'])
                 saveas(move,[savePath,'Gracile', filesep, strrep(title2, ' ', '_'), '_Move_', num2str(date), 'GRACILE.png'])
             else
+                mkdir(savePath, unitNames)
                 set(bump, 'Renderer', 'Painters');
                 save2pdf([savePath, unitNames,filesep, strrep(title2, ' ', '_'), '_Bump_', num2str(date), '.pdf'],bump)
                 set(move, 'Renderer', 'Painters');

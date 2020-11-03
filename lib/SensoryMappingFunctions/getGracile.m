@@ -7,5 +7,7 @@ function isGracile = getGracile(monkey, elec)
         isGracile = any(elec == [1, 13]);
     elseif strcmp(monkey, 'Snap')
         isGracile = any(elec == [1,2,3,4,5,6,13,14,15,16,17,25,26,27,28,37,38,39,49,50]);
+    elseif strcmp(monkey, 'Rocket')
+        isGracile = any(elec == [1,2,3,13,14,25,26,37]);
     end
 end

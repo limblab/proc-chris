@@ -17,8 +17,8 @@ savePDF = true;
 % params.end_idx = 'idx_endTime';
 % td = getMoveOnsetAndPeak(td, params);
 
-date = '20190418';
-monkey = 'Crackle';
+date = '20180403';
+monkey = 'Butter';
 unitNames = 'cuneate';
 
 % mappingLog = getSensoryMappings(monkey);
@@ -37,6 +37,7 @@ td = tdToBinSize(td, 10);
 td(isnan([td.idx_movement_on])) =[];
 unitGuide = [unitNames, '_unit_guide'];
 unitSpikes = [unitNames, '_spikes'];
+guide = td(1).(unitGuide);
 savePath = [getBasePath(), getGenericTask(td(1).task), filesep,td(1).monkey,filesep date, filesep, 'plotting', filesep, 'rawAlignedPlots',filesep];
 mkdir([savePath, 'Cuneate']);
 mkdir([savePath, 'Gracile']);
@@ -51,7 +52,7 @@ w = gausswin(5);
 w = w/sum(w);
 
 
-numCount = 24
+numCount = 1:length(guide(:,1));
 %% Data Preparation and sorting out trials
 
 bumpTrials = td(~isnan([td.bumpDir])); 

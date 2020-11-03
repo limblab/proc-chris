@@ -209,8 +209,8 @@ function [fh, outStruct, neurons] = getCOActPasStatsArbDir(td,params)
         groupM = [groupM; i*ones(trialsM(i), 1)];
     end
     for i = 1:length(postBumpFiringTrial{1}(:,1))
-        fMove(i) = anovan(trialFiringMove(i,:), groupM,  'display', 'off')
-        fBump(i) = anovan(trialFiringBump(i,:), groupB,  'display', 'off')
+        fMove(i) = anovan(trialFiringMove(i,:), groupM,  'display', 'off');
+        fBump(i) = anovan(trialFiringBump(i,:), groupB,  'display', 'off');
     end
     timeVec = linspace(-.01*beforeBump, .01*afterBump, length(postMove(1).pos(:,1)));
     %% Compute firing for plots around bump start and movement onset
@@ -229,7 +229,7 @@ cutoff = 0.01;
     
     for j = 1:length(dirsM)
         groups = [ones(length(preMoveFiringMeanByTrial),1); 2*ones(length(postMoveFiringTrial{j}(i,:)),1)];
-        groupsB = [ones(length(preMoveFiringMeanByTrial),1); 2*ones(length(postBumpFiringTrial{j}(i,:)),1)]
+        groupsB = [ones(length(preMoveFiringMeanByTrial),1); 2*ones(length(postBumpFiringTrial{j}(i,:)),1)];
         [pValMoveTuned(i,j)] = anova1([preMoveFiringMeanByTrial; postMoveFiringTrial{j}(i,:)'], groups,'off');
         [pValBumpTuned(i,j)] = anova1([preMoveFiringMeanByTrial; postBumpFiringTrial{j}(i,:)'], groupsB,'off');
         

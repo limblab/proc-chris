@@ -11,17 +11,21 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     plotActVsPasPD = false;
     plotAvgFiring = false;
     plotAngleDif = false;
-    plotPDDists= true;
+    plotPDDists= false;
     savePlots = true;
-    useModDepths = true;
+    plotByModality = false;
+    useModDepths = false;
     plotFitLine = false;
     rosePlot = true;
     plotModDepthClassic = false;
     plotSinusoidalFit = false;
     plotEncodingFits = false;
+    plotSensitivity = false;
+    plotMaxSens = false;
     useLogLog = false;
+    plotFullSensMetric = false;
     
-    useNewSensMetric = true;
+    useNewSensMetric = false;
     plotSenEllipse = false;
     examplePDs = [];
     
@@ -36,8 +40,22 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
             if strcmp(tuningCondition{i}(1), '~')
                 neuronStruct = neuronStruct(find(~neuronStruct.(tuningCondition{i}(2:end))),:);
             else
-                neuronStruct = neuronStruct(find(neuronStruct.(tuningCondition{i})),:);
+                if contains(tuningCondition{i}, '|')
+                    conds = split(tuningCondition{i}, '|');
+                    flag1 = neuronStruct.(conds{1}) | neuronStruct.(conds{2});
+                    neuronStruct = neuronStruct(find(flag1),:);
+                    
+                else
+                    if length(tuningCondition{i}) >8 & strcmp(tuningCondition{i}(1:8), 'daysDiff')
+                        dayCutoff = str2num(tuningCondition{i}(9:end));
+                        flag1 = abs(neuronStruct.daysDiff)<dayCutoff;
+                        neuronStruct =neuronStruct(find(flag1),:);
+                    else
+                        neuronStruct = neuronStruct(find(neuronStruct.(tuningCondition{i})),:);
+                    end
+                end
             end
+            
         end
     else
         neuronStruct = neuronStruct(find(neuronStruct.(tuningCondition)),:);
@@ -156,9 +174,9 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         hold on
         for i =1:height(neurons)
             tmpFiring = neurons.actTuningCurve(i,:);
-            actFiring = tmpFiring{1, 1}{1, 1}{1, 1}{1, 1}.velCurve*20;
+            actFiring = tmpFiring{1, 1}.velCurve*20;
             tmpFiring = neurons.pasTuningCurve(i,:);
-            pasFiring = tmpFiring{1, 1}{1, 1}{1, 1}{1, 1}.velCurve*20;
+            pasFiring = tmpFiring{1, 1}.velCurve*20;
             
             uActFiring = sort(actFiring);
             uPasFiring = sort(pasFiring);
@@ -223,10 +241,10 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         pdBump = neurons.angBump;
         pdMove = neurons.angMove;
         if plotFitLine
-        split = pi/5;
+        split2 = pi/5;
         vec = -pi:split:pi;
         mat = getIndicesInsideEdge(pdMove, vec);
-        midVec = vec(1)+ .5*split:split:pi;
+        midVec = vec(1)+ .5*split2:split2:pi;
         for i = 1:length(mat(:,1))
             pdMoveVec(i) = rad2deg(circ_mean(pdMove(mat(i,:))));
             pdBumpVec(i) = rad2deg(circ_mean(pdBump(mat(i,:))));
@@ -257,7 +275,17 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         axis square
         set(gca,'TickDir','out', 'box', 'off')
     end
-    
+    if plotFullSensMetric
+        sActAll = mean(neurons.sActAllBoot');
+        sPasAll = mean(neurons.sPasAllBoot');
+        sDifAll = mean(neurons.sDifAllBoot');
+        
+        figure
+        scatter(sPasAll, sActAll)
+        hold on
+        plot([0, max([sActAll;sPasAll])], [0, max([sActAll;sPasAll])])
+        
+    end
     if plotAngleDif
         actPDs = neurons.actPD.velPD;
         pasPDs = neurons.pasPD.velPD;
@@ -320,6 +348,70 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         end
     end
     
+    if plotSensitivity
+        
+        figure
+        monkeys = unique(neurons.monkey)
+        colors = linspecer(length(monkeys));
+        for monk = 1:length(monkeys)
+            monkN = neurons(strcmp(neurons.monkey, monkeys{monk}),:);
+            hold on
+            if ~plotByModality
+                scatter(monkN.sPas, monkN.sAct, 32,colors(monk,:), 'filled')
+            else
+                scatter(monkN(logical(monkN.proprio),:).sPas, monkN(logical(monkN.proprio),:).sAct, 32,colors(monk,:), 'filled')
+            
+                scatter(monkN(logical(monkN.cutaneous),:).sPas, monkN(logical(monkN.cutaneous),:).sAct, 32,colors(monk,:))
+            end
+        end
+        if plotUnitNum
+        for i = 1:height(neurons)
+            dx = -.01; dy = 0.01; % displacement so the text does not overlay the data points
+            text(monkN(i,:).sPas + dx, monkN(i,:).sAct + dy, num2str(neurons.chan(i)));
+        end
+        end
+        plot([0, max([neurons.sAct; neurons.sPas])], [0, max([neurons.sAct; neurons.sPas])],'-')
+        legend(monkeys)
+        title('Linear Model Sensitivities')
+        xlabel('Passive Sensitivity (Hz/(cm/s))')
+        ylabel('Active Sensitivity (Hz/(cm/s))')
+        set(gca,'TickDir','out', 'box', 'off')
+
+    end
+    if plotMaxSens
+         figure
+         monkeys = unique(neurons.monkey)
+        colors = linspecer(length(monkeys));
+        compiledMax = 0;
+        for monk = 1:length(monkeys)
+            
+            monkN = neurons(strcmp(neurons.monkey, monkeys{monk}),:);
+            maxMove = zeros(height(monkN), 1);
+            maxBump = zeros(height(monkN), 1);
+            hold on
+            for i = 1:height(monkN)
+                 maxMove(i) = max(monkN(i,:).sensMove{1}{1});
+                 maxBump(i) = max(monkN(i,:).sensBump{1}{1});
+            end
+            if ~plotByModality
+                scatter(maxBump, maxMove, 32,colors(monk,:), 'filled')
+            else
+                scatter(maxBump(logical(monkN.proprio)), maxMove(logical(monkN.proprio)), 32,colors(monk,:), 'filled')
+            
+                scatter(maxBump(logical(monkN.cutaneous)), maxMove(logical(monkN.cutaneous)), 32,colors(monk,:))
+            end
+            compiledMax = max([maxMove; maxBump; compiledMax])
+        end
+         hold on
+         plot([0, max([maxBump;maxMove])], [0, max([maxBump;maxMove])],'--k')
+         legend(monkeys)
+        title('Max sensitivities across directions')
+        xlabel('Max Passive Sensitivity (Hz/(cm/s))')
+        ylabel('Max Active Sensitivity (Hz/(cm/s))')
+        set(gca,'TickDir','out', 'box', 'off')
+        xlim([0, compiledMax])
+        ylim([0, compiledMax])
+    end
     if (savePlots && ~strcmp(date, 'all'))
         savePath = [getBasicPath(monkey, dateToLabDate(date), getGenericTask('CO')), 'plotting', filesep,'NeuronStructPlots', filesep, actWindow, '_', pasWindow, filesep];
         mkdir(savePath)

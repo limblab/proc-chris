@@ -2,8 +2,6 @@ function neurons = doChangepoint(neurons,td)
 windowAct= {'idx_movement_on', -30; 'idx_movement_on',13}; %Default trimming windows active
 windowPas1 = {'idx_bumpTime', -10; 'idx_bumpTime',13};
 
-windowAct1= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
-windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
 
 filds = fieldnames(td);
 array = filds(contains(filds, '_spikes'),:);
@@ -49,28 +47,61 @@ for dirNum = 1:length(dirs)
     tdDir = tdAct([tdAct.target_direction] == dirs(dirNum));
     fr1 = cat(3, tdDir.([array, '_spikes']));
     for unit = 1:length(fr1(1,:,1))
-        temp = findchangepts(mean(squeeze(fr1(:,unit,:)),2), 'MaxNumChanges',1);
+        mFR = mean(squeeze(fr1(:,unit,:)),2);
+        temp = findchangepts(mFR, 'MaxNumChanges',1);
+        mean1 = mean(mFR(1:temp-1));
+        mean2 = mean(mFR(temp:end));
+        frPre = mFR(temp-1);
+        frPost = mFR(temp);
+        prob1 = .00:.1:1.0;
+
         if ~isempty(temp)
-            cpAvg(unit, dirNum) = temp;
+        for i=2:11
+            ll(i-1) = norm(frPost - (mean2*prob1(i) + mean1*(1-prob1(i))));
+        end
+        [~, minLL] = min(ll);
+        cpAvg(unit, dirNum) = temp + minLL/10;
+        if false
+            figure
+            plot(mFR)
+            hold on
+            plot([temp, temp], [0,max(mFR)])
+            plot([0, temp-1], [mean1, mean1])
+            plot([temp, length(mFR)], [mean2, mean2]);
+            title(['CP at ', num2str(cpAvg(unit,dirNum))])
+            
         end
     end
 end
-
+end
 for dirNum = 1:length(dirsB)
     tdDir = tdPas([tdPas.bumpDir] == dirsB(dirNum));
     fr1 = cat(3, tdDir.([array, '_spikes']));
+    mFR = mean(squeeze(fr1(:,unit,:)),2);
+    temp = findchangepts(mFR, 'MaxNumChanges',1);
+    mean1 = mean(mFR(1:temp-1));
+    mean2 = mean(mFR(temp:end));
+    frPre = mFR(temp-1);
+    frPost = mFR(temp);
+    prob1 = .00:.1:1.0;
+    
     for unit = 1:length(fr1(1,:,1))
         temp = findchangepts(mean(squeeze(fr1(:,unit,:)),2), 'MaxNumChanges',1);
         if ~isempty(temp)
-            cpAvgBump(unit, dirNum) = temp;
+        for i=2:11
+            ll(i-1) = norm(frPost - (mean2*prob1(i) + mean1*(1-prob1(i))));
+        end
+        [~, minLL] = min(ll);
+        cpAvgBump(unit, dirNum) = temp + minLL/10;
         end
     end
 end
-
+neurons.cpAvg = cell(height(neurons),1);
+neurons.cpBumpAvg =cell(height(neurons),1);
 for i = 1:length(guide(:,1))
     unitNum = find([guide(i,1) == neurons.chan] & [guide(i,2) == neurons.unitNum]);
-    neurons.cpAvg(unitNum,:) = cpAvg(i, :);
-    neurons.cpBumpAvg(unitNum,:) = cpAvgBump(i,:);
+    neurons.cpAvg(unitNum,:) = {cpAvg(i, :)};
+    neurons.cpBumpAvg(unitNum,:) = {cpAvgBump(i,:)};
 end
     
 end

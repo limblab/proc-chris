@@ -9,8 +9,11 @@ bin_size        =  td(1).bin_size;
 date = td(1).date;
 monkey = td(1).monkey;
 map = getSensoryMappings(monkey);
-
-
+for i = 1:length(map)
+    if isempty(map(i).elec)
+        map(i).elec = -1;
+    end
+end
 guide = td(1).([array,'_unit_guide']);
 
 all_spikes = cat(1,td.([array '_spikes']));

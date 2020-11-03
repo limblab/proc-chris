@@ -34,7 +34,7 @@ function [ vibStruct ] = cdsToVibStruct( cds, params )
     vibOnCutoff = 20;
     binSize = 50;
     helperPlot = true;
-    pName = 'VibPulse';
+    pName = 'SyncPulse';
     close all
     
     if nargin > 1 && ~isempty(params)
@@ -48,12 +48,14 @@ function [ vibStruct ] = cdsToVibStruct( cds, params )
     vibStruct.monkey= parts(1);
     vibStruct.date = parts(2);
 %     vibStruct.array = parts(7);
-    vibStruct.electrode = str2num(parts{5}(5:end));
-    vibStruct.muscle = parts(6);
+    vibStruct.electrode = str2num(parts{3}(1:end));
+    vibStruct.muscle = parts(4);
     %% Getting the vibration signal (what this is called may change)
     vibTime = cds.analog{1,2}.t;
     vibration = cds.analog{1,2}.(pName);
     vibOn = [abs(diff(vibration))>vibOnCutoff; 0];
+    [~, peaks1] = findpeaks(vibration);
+    pTimes= vibTime(peaks1);
     %% Scrubbing out the defects
     for i = 1:numScrubs
         vibOn = scrubVibration(vibOn);
@@ -74,6 +76,12 @@ function [ vibStruct ] = cdsToVibStruct( cds, params )
     
     vibWindow = [vibStart, vibEnd];
     vibStruct.vibTimes= vibWindow;
+    flag = zeros(length(peaks1),1);
+    for i = 1:length(vibWindow(:,1))
+        flag = flag | (pTimes>vibWindow(i,1) & pTimes<vibWindow(i,2));
+        plot(flag)
+    end
+    pTimes(~flag) = [];
     %% Getting the correct unit by crossreferencing the map file
     sortedUnits = cds.units([cds.units.ID] >0  & [cds.units.ID] <255);
     unitVibedRows = ~cellfun(@isempty, strfind({cds.units.label},['elec', num2str(vibStruct.electrode)]));
@@ -87,12 +95,13 @@ function [ vibStruct ] = cdsToVibStruct( cds, params )
     vibStruct.otherUnits.t = vibStruct.vibUnit.t;
     vibStruct.otherUnits.firing = binnedSpike;
     vibStruct.otherUnits.IDs = [[sortedUnits.chan]', [sortedUnits.ID]'];
+    vibStruct.vibOn.vibPeaks = pTimes;
     %% Helper plot for you to look at other units
     if helperPlot
         plot(vibStruct.vibOn.t, vibStruct.vibOn.flag)
         hold on
         yyaxis right
-        plot(vibStruct.vibUnit.t, vibStruct.vibUnit.firing)
+        plot(vibStruct.vibUnit.t, smooth(vibStruct.vibUnit.firing))
     end
    
 function [binned_spikes,sg] = bin_spikes(units,unit_idx,t_bin)

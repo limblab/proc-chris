@@ -3,10 +3,12 @@ close all
 clearvars -except td
 snapDate = '20190829';
 monkey = 'Snap';
-
-root = false;
+numSpindles = 1000;
+doGLM = true;
+root = true;
 useBumps = false;
 onlyMapped = true;
+geometricCount = true;
 %% More setup
 date = snapDate;
 number =2;
@@ -54,32 +56,43 @@ else
 end
 td1 = trimTD(td1, start_time, end_time);
 %% Get opensim and remove distal muscles
-
+%% Forces based on the square root or not
+forcesInput = [58.2, 38.7, 135.6, 135.6, 116.1, 406.5, 44.8, 174.3, 129.0, 129.0, 129.0, 154.8, 116.1,290.4,135.0, 135.6,116.1,135.6];
 if ~root
-    forces = round([58.2, 38.7, 135.6, 135.6, 116.1, 406.5, 44.8, 174.3, 129.0, 129.0, 129.0, 154.8, 116.1,290.4,135.0, 135.6,116.1,135.6]);  
+    forces = round(forcesInput);  
 else
-    forces = round(sqrt([58.2, 38.7, 135.6, 135.6, 116.1, 406.5, 44.8, 174.3, 129.0, 129.0, 129.0, 154.8, 116.1,290.4,135.0, 135.6,116.1,135.6]));  
+    forces = round(sqrt(forcesInput));  
 end
 
 close all
+% Indices of distal muscles
 distalM = [1,2,6,7,12,13, 14,15,16,17,18,19,20,21,22, 27, 30, 31, 33, 35, 36];
-
+% Indices of CN mapped neurons
 mapped1 = [4 2 6 13 17 4 4 4 17];
 
-osNames = td1(1).opensim_names;
-os = cat(3,td1.opensim);
-mVel = os(:,54:end,:);
-mVel(:,distalM,:) =[];
-hVel = cat(3, td1.vel);
-mNames = osNames(54:end);
-mNames(distalM) =[];
+% 
+osNames = td1(1).opensim_names; % get Opensim names
+os = cat(3,td1.opensim); % get opensim out of Td
+len1 = cat(1,td1.opensim);
+meanLen = mean(len1(:,15:53));
+meanLen(distalM) = [];
+unmapVec = 1:39;
+unmapVec(distalM) = [];
+mVel = os(:,54:end,:); % get only muscle velocities
+mVel(:,distalM,:) =[]; % get rid of distal muslces
+hVel = cat(3, td1.vel); % get hand velocities
+mNames = osNames(54:end); % get only velocities
+mNames(distalM) =[]; % get rid of distal labels
+if geometricCount
+    forces = sqrt(forcesInput.*meanLen);
+    forces = round(1000 * forces/sum(forces));
+end
+%% If looking at mapped only, index with sensory mappings
 if onlyMapped
     mNamesM = mNames(mapped1);
     mVelM = mVel(:, mapped1,:);
     forcesM = forces(mapped1);
 end
-%% Scale # of spindles to the force production capabilities of the muscles
-
 %% Plot the color map that I'll use later for reference
 colors = linspecer(length(dirsM));
 figure
@@ -93,7 +106,6 @@ title('Random colormap')
 clear endVel
 highFRScaled = [];
 for i = 1:length(mVel(1,:,1))
-    
     figure
     hold on
     %% For each muscle, take each direction and take the last few velocities (the end of the window)
@@ -129,83 +141,81 @@ polarhistogram(dirsM(highFRScaled), 8)
 title('Highest Firing scaled')
 
 % t122 = compareUniformity(nAll,[], dirsM(highFRScaled)');
-%% Do the neuron PDs simply
-guide = td1(1).cuneate_unit_guide;
-numFoldsPD = 10;
-for i = 1:length(guide(:,1))
-    disp(['Working on unit ' num2str(i)])
-    perms = randi(length(td1), length(td1), numFoldsPD); 
-    for j = 1:numFoldsPD
-        hVel1 = cat(1,td(perms(:,j)).vel);
-        fr1 = cat(1,td(perms(:,j)).cuneate_spikes);
-        lm1 = fitlm(hVel1, fr1(:,i));
-        pd1{i}(j) = atan2(lm1.Coefficients.Estimate(3), lm1.Coefficients.Estimate(2));
-    end
-    t1 = sort(pd1{i});
-    [mPD(i), hPD(i), lPD(i)] = circ_mean(t1');
-end
-%%
 
-%% Now do the PDs in a better way
-% keyboard
-for i = 1:length(mVel(1,:,1))
- perms = randi(length(td1), length(td1), forces(i)); 
- for j = 1:length(forces)
+%% Now do the muscle spindle PDs in a better way
+
+powerLaw = true;
+geometricCount = true;
+poissonNoise= true;
+
+
+mapForce = [mapped1', forcesM'];
+[uniqueMus, iC] = unique(mapped1);
+numUniqueMus = length(uniqueMus);
+mapForceUnique = mapForce(iC,:);
+for i = 1:length(mapForce(:,1))
+ perms = randi(length(td1), length(td1), mapForce(i,2)); 
+ for j = 1:mapForce(i,2)
      hVel1 = cat(1, td1(perms(:,j)).vel);
      os1 = cat(1, td1(perms(:,j)).opensim);
      os1 = os1(:, 54:end);
      os1(:,distalM) = [];
-     if onlyMapped
-        os1 = os1(:,mapped1);
+     os1 = os1(:,mapForce(i,1));
+
+     if powerLaw
+         os1 = getPowerLaw(os1);
      end
-     lm1 = fitlm(hVel1, os1(:,i));
+     if poissonNoise
+        os1 = addPoissonSpiking(os1); 
+     end
+     if doGLM
+        b = glmfit(hVel1, os1, 'Poisson');
+        pd{i}(j) = atan2(b(3), b(2));
+     else
+     lm1 = fitlm(hVel1, os1);
      pd{i}(j) = atan2(lm1.Coefficients.Estimate(3), lm1.Coefficients.Estimate(2));
+     end
  end
 end
-
-
-%%
 close all
 tmp = [pd{:}];
 figure
 polarhistogram(tmp, 12, 'FaceColor', 'b', 'FaceAlpha', 1)
-title('Muscle PDs in same way as neuron PDs')
-pds =[mPD', hPD', lPD'];
+title('Muscle PDs for mapped muscles')
+%% Now do the muscle spindle PDs for all muscles, not just mapped ones
 
-good = hPD-lPD<pi/4;
-good = good';
-pds = [pds, good];
-pds(pds(:,4)==0,:) =[];
+unmapForce = [unmapVec', forces'];
+[uniqueMus, iC] = unique(unmapVec);
+numUniqueMus = length(uniqueMus);
+mapForceUnique = unmapForce(iC,:);
+randMuscleVec = [];
+for i = 1:length(unmapForce(:,1))
+    randMuscleVec = [randMuscleVec; unmapForce(i,1)*ones(unmapForce(i,2),1)];
+end
+for i = 1:length(unmapForce(:,1))
+ perms = randi(length(td1), length(td1), unmapForce(i,2)); 
+ for j = 1:unmapForce(i,2)
+     hVel1 = cat(1, td1(perms(:,j)).vel);
+     os1 = cat(1, td1(perms(:,j)).opensim);
+     os1 = os1(:, 54:end);
+     os1(:,distalM) = [];
+     os1 = os1(:,i);
+     if powerLaw
+         os1 = getPowerLaw(os1);
+     end
+     if poissonNoise
+        os1 = addPoissonSpiking(os1); 
+     end
+     if doGLM
+        b = glmfit(hVel1, os1, 'Poisson');
+        pd{i}(j) = atan2(b(3), b(2));
+     else
+         lm1 = fitlm(hVel1, os1);
+         pd{i}(j) = atan2(lm1.Coefficients.Estimate(3), lm1.Coefficients.Estimate(2));
+     end
+ end
+end
+tmp = [pd{:}];
 figure
-polarhistogram(pds(:,1), 12, 'FaceColor', 'b', 'FaceAlpha', 1)
-title('Neuron PDs')
-
-figure
-scatter(1:length(pds(:,1)), pds(:,1))
-hold on
-scatter(1:length(pds(:,1)), pds(:,2))
-scatter(1:length(pds(:,1)), pds(:,3))
-title('Neuron PDs and CIs')
-mMuscPD = rad2deg(circ_mean(tmp'))
-mCNPD = rad2deg(circ_mean(mPD'))
-
-mLen = quantile(bootstrp(1000, @norm, tmp),[.025, .5, .975]);
-cnLen = bootstrp(1000,@norm, mPD);
-
-UmusclesVsCN =compareUniformity(mPD', [],tmp');
-
-hanDate = '20171122';
-array = 'cuneate';
-windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
-windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
-neuronsH = getNeurons('Han', hanDate, 'COactpas', 'LeftS1Area2', [windowAct;windowPas]);
-params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', false, ...
-    'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', true, ...
-    'savePlots', false, 'useModDepths', false, 'rosePlot', true, 'plotFitLine', false,...
-    'plotModDepthClassic', false, 'plotSinusoidalFit', false,'plotEncodingFits',false,...
-    'useLogLog', false, 'useNewSensMetric', false, 'plotSenEllipse', false,...
-    'tuningCondition', {{'isSorted', 'sinTunedAct'}});
-nH = neuronStructPlot(neuronsH, params);
-
-UmuscleVsS1 = compareUniformity(nH, [], mPD');
-UcnVsS1 = compareUniformity(nH,[], tmp');
+polarhistogram(tmp, 12, 'FaceColor', 'b', 'FaceAlpha', 1)
+title('Muscle PDs for all muscles')

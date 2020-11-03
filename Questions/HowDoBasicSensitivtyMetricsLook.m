@@ -55,7 +55,7 @@ afterMove = .6;
 cnSAct = [];
 cnSPas = [];
 
-windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
+windowAct= {'idx_movement_on', 0; 'idx_movement_on',40}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
 
 neuronsB = getNeurons('Butter', date1,'CObump','cuneate',[windowAct; windowPas]);

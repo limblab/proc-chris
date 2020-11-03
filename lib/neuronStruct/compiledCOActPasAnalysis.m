@@ -104,7 +104,7 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 %% Parameter defaults
 
     includeSpeedTerm = false;
-    cutoff = pi/3; %cutoff for significant of sinusoidal tuning
+    cutoff = pi/4; %cutoff for significant of sinusoidal tuning
     arrays= {'cuneate'}; %default arrays to look for
     windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
     windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive

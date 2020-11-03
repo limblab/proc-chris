@@ -4,5 +4,6 @@ function saveNeurons(neurons,suffix)
     fileName = getNeuronsFilename(neurons, suffix);
     mkdir(path);
     save([path, fileName]);
+    disp([path, fileName]);
     
 end
