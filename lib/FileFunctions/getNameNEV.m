@@ -16,7 +16,7 @@ function [ nevName ] = getNameNEV( monkey, date, task, array, number, isSorted)
 % 
 % Outputs:
 %   nevName: the compiled name of the NEV to search for given the inputs:
-    
+
     if isSorted
         nevName = ['Sorted\',monkey, '_', date, '_', task, '_', array, '_', num2str(number, '%03i'), '-sorted'];
     else

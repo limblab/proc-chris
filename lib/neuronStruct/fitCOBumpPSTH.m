@@ -8,8 +8,8 @@ if nargin > 2, assignParams(who,params); end % overwrite parameters
 spikeLbl = [array, '_spikes'];
 unitLbl = [array, '_unit_guide'];
 %%
-td = trimTD(td, windowEncPSTH(1,:), windowEncPSTH(2,:));
-td2 = smoothSignals(td, struct('signals', spikeLbl, 'calc_rate',true, 'width', .01));
+td2 = trimTD(td, windowEncPSTH(1,:), windowEncPSTH(2,:));
+td2 = td2(isnan([td2.idx_bumpTime]));
 
 dirsM = unique([td2.target_direction]);
 dirsB = unique([td2.bumpDir]);

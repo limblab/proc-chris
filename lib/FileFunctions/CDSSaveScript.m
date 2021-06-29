@@ -20,17 +20,17 @@
 %% All of the loading variables
 clear all
 close all
-date = '20180403';
+date = '20170203';
 task = 'CO';
-monkey = 'Butter';
-array = 'cuneate';
+monkey = 'Han';
+array = 'LeftS1Area2';
 
 number = 1;
-
+resort = true;
 sorted = true;
-% suffix = 'resort';
-makeFileStructure(monkey, date, getGenericTask(task));
-outpath = getCdsSavePath(monkey, date, getGenericTask(task));
+suffix = '';
+makeFileStructure(monkey, date, getGenericTask(task), resort);
+outpath = getCdsSavePath(monkey, date, getGenericTask(task), resort);
 cdsPath = [outpath,monkey, '_', task, '_', date,'_',num2str(number), '_CDS.mat'];
 
 %%
@@ -45,7 +45,7 @@ end
 
 
 %% Generate CDS using easyCDS
-cds = easyCDS(monkey, task, date, array, number, sorted);
+cds = easyCDS(monkey, task, date, array, number, sorted, resort);
 % compute the outpath depending on what computer you are using and the task
 outpath = getCdsSavePath(monkey, date, getGenericTask(task));
 meta = cds.meta;
@@ -119,7 +119,8 @@ end
 %save the cds to the folder
 save(cdsPath, 'cds', '-v7.3');
 %%
+clear cds
 td = easyTD(cdsPath, monkey, task, date);
-tdPath = getTDSavePath(monkey, date, getGenericTask(task));
-save([tdPath,monkey, '_', task, '_', date,'_TD_',sprintf('%03d',number),'.mat'], 'td','-v7.3');
+tdPath = getTDSavePath(monkey, date, getGenericTask(task),resort);
+save([tdPath,monkey, '_', task, '_', date,'_TD_S1Paper.mat'], 'td','-v7.3');
 disp('Done creating cds and saving TD');

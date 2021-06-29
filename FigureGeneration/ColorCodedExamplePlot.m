@@ -19,7 +19,7 @@ params.end_idx = 'idx_endTime';
 
 % mappingLog = getSensoryMappings(monkey);
 
-windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
+windowAct= {'idx_movement_on_min', 0; 'idx_movement_on_min',13}; %Default trimming windows active
 windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
 
 beforeBump = .1;
@@ -39,6 +39,7 @@ if length(td) == 1
     params.end_idx = 'idx_endTime';
     [~, td] = getTDidx(td, 'result' ,'R');
     td = getMoveOnsetAndPeak(td, params);
+    td = getMoveOnsetAndPeakBackTrace(td);
     td = removeBadTrials(td);
 else
 end
@@ -54,6 +55,7 @@ td = getMoveOnsetAndPeak(td,params);
 neurons = getNeurons(monkey, date, 'CObump','cuneate',[windowAct; windowPas]);
 
 td = td(~isnan([td.idx_movement_on]));
+td = removeUnsorted(td);
 td = removeNeuronsFlag(td, neurons, {'isSorted', 'isCuneate', 'sameDayMap','~distal', '~handUnit'});
 
 td = removeBadNeurons(td, struct('remove_unsorted', false));

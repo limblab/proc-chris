@@ -10,7 +10,7 @@ function [ cdsTask ] = getTask( inTask )
  if datetime < datetime(2020, 3, 10)
     if strcmp(inTask(1:2),'CO')
         cdsTask = 'CObump';
-    elseif strcmp(inTask(1:2),'RW')
+    elseif strcmp(inTask(1:2),'RW')|| strcmp(inTask(1:2), 'RT')
         cdsTask = 'RW';
     elseif strcmp(inTask(1:3), 'OOR')
         cdsTask = 'OOR';
@@ -28,7 +28,7 @@ function [ cdsTask ] = getTask( inTask )
  else
     if strcmp(inTask(1:2),'CO')
         cdsTask = 'CObump';
-    elseif strcmp(inTask(1:2),'RW')
+    elseif strcmp(inTask(1:2),'RW')|| strcmp(inTask(1:2), 'RT')
         cdsTask = 'RW';
     elseif strcmp(inTask(1:3), 'OOR')
         cdsTask = 'OOR';

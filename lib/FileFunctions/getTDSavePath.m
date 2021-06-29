@@ -1,4 +1,4 @@
-function [ path1 ] = getTDSavePath( monkey, date, task )
+function [ path1 ] = getTDSavePath( monkey, date, task, resort )
 %     This function gets the save path for the CDS, as a function of the
 %     monkey, date and task (and the system you are running on):
 %       Inputs:
@@ -11,6 +11,9 @@ function [ path1 ] = getTDSavePath( monkey, date, task )
 %       TODO: Add my linux partition to this
 % 
     %% Get where you are
-   path1 = [getBasicPath(monkey, date, task), 'TD', filesep];
+    if nargin<4
+        resort= false;
+    end
+   path1 = [getBasicPath(monkey, date, task, resort), 'TD', filesep];
 end
 

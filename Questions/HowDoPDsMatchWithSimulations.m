@@ -92,7 +92,7 @@ for i = 1:100
         lm{i,j} = fitglm(hVelCNPas, squeeze(pasCNSpinSim(:,j,i)));
         pdPas(i,j) = atan2(lm{i,j}.Coefficients.Estimate(3), lm{i,j}.Coefficients.Estimate(2));
     end
-    save('D:\MonkeyData\CO\Snap\20190829\neuronStruct\Snap08292020SpindleModel.mat', 'pdAct', 'pdPas');
+    save('D:\MonkeyData\CO\Snap\20190829\neuronStruct\Snap08292020SpindleModel.mat', 'pdAct', 'pdPas', 'mNames');
 end
 
 end

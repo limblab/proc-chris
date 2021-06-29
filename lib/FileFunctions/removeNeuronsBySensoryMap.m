@@ -1,12 +1,13 @@
 function td = removeNeuronsBySensoryMap(td, params)
 array          =  'cuneate';
 rfFilter        =  {};
+daysDiffCutoff        = 1;
 if nargin > 1, assignParams(who,params); end % overwrite defaults
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if ~isstruct(td), error('First input must be trial_data struct!'); end
 
 bin_size        =  td(1).bin_size;
-date = td(1).date;
+date1 = td(1).date;
 monkey = td(1).monkey;
 map = getSensoryMappings(monkey);
 for i = 1:length(map)
@@ -23,7 +24,15 @@ bad_units = zeros(1,size(all_spikes,2));
 bad_units = [td(1).([array, '_unit_guide'])(:,2) == 0]';
 
 for j = 1:length(guide(:,1))
-    map1 = map([map.elec] == guide(j,1) & datetime(date, 'InputFormat', 'MM-dd-yyyy') == datetime(string({map.date}), 'InputFormat', 'yyyyMMdd'));
+    mapsUnit = map([map.elec] == guide(j,1))
+    
+    daysDiff = days(datetime(date1, 'InputFormat', 'MM-dd-yyyy') - datetime(string({mapsUnit.date}), 'InputFormat', 'yyyyMMdd'));
+    [daysDiffMin, ddInd] = min(abs(daysDiff));
+        
+    map1 = mapsUnit(ddInd,:);
+    if daysDiffMin > daysDiffCutoff
+        map1 = [];
+    end
     if length(map1)>1
         map1(1).mapped = true;
         temp = join(horzcat(map1.desc));
@@ -53,7 +62,13 @@ for j = 1:length(guide(:,1))
         mapComp(j,:) = map1;
     end
 end
-    
+
+for i = 1:length(mapComp)
+    map1 = mapComp(i,:);
+    gracile = getGracile(monkey, map1.chan);
+    mapComp(i,:).isGracile = gracile;
+    mapComp(i,:).isCuneate = ~gracile;
+end
 
 for i = 1:length(rfFilter(:,1))
     flag1 = [mapComp.(rfFilter{i,1})] == rfFilter{i,2};% | ~[mapComp.mapped];

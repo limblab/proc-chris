@@ -23,6 +23,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
     plotSensitivity = false;
     plotMaxSens = false;
     useLogLog = false;
+    plotModDepthClassicBoots = false;
     plotFullSensMetric = false;
     
     useNewSensMetric = false;
@@ -129,7 +130,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         plot([lims(1), lims(2)], [lims(1), lims(2)], 'r--')
         xlim(lims)
         ylim(lims)
-                set(gca,'TickDir','out', 'box', 'off')
+            set(gca,'TickDir','out', 'box', 'off')
         title(['GLM Sensitivity ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
     end
     if useNewSensMetric
@@ -168,6 +169,29 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         ylabel('Passive Sinusoidal R2')
         set(gca,'TickDir','out', 'box', 'off')
         title('Effectiveness of Sinusoidal fits in active and passive')
+    end
+    if plotModDepthClassicBoots
+        fh9 = figure;
+        modDepthCIMove = neurons.modDepthMovePeakCI;
+        modDepthCIBump = neurons.modDepthBumpPeakCI;
+        xneg = modDepthCIMove(:,2) - modDepthCIMove(:,1);
+        xpos = modDepthCIMove(:,3) - modDepthCIMove(:,2);
+        
+        yneg = modDepthCIBump(:,2) - modDepthCIBump(:,1);
+        ypos = modDepthCIBump(:,3) - modDepthCIBump(:,2);
+        max1 = max([modDepthCIMove(:,2); modDepthCIBump(:,2)]);
+        scatter(modDepthCIMove(:,2), modDepthCIBump(:,2), 32, 'k', 'filled')
+        hold on
+
+        errorbar(modDepthCIMove(:,2), modDepthCIBump(:,2), yneg, ypos, xneg, xpos,'k.')
+        plot([0, max1], [0,max1],'k--')
+        xlabel('Active Modulation Depth Classic (Hz)')
+        ylabel('Passive Modulation Depth Classic (Hz)')
+        set(gca,'TickDir','out', 'box', 'off')
+        title('Tuning Curve Modulation Depths in Active and Passive')
+%         xlim([0,140])
+%         ylim([0, 140])
+        
     end
     if plotModDepthClassic
         fh7 = figure;
@@ -237,7 +261,8 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         ylabel('Passive PD')
         xlim([-230, 230])
         ylim([-230, 230])
-         
+        disp('Corr Coef')
+        corrcoef(actPDs, pasPDs)
         pdBump = neurons.angBump;
         pdMove = neurons.angMove;
         if plotFitLine
@@ -307,7 +332,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
         if ~rosePlot
             
             fh5= figure;
-            histogram(rad2deg(actPDs), rad2deg(-pi:pi/6:pi));
+            histogram(rad2deg(actPDs), rad2deg(-pi:pi/4:pi));
             title(['ActPD dist ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
             xlabel('Angle')
             ylabel('# of units')
@@ -315,14 +340,14 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
    
             
             fh6 = figure;
-            histogram(rad2deg(pasPDs),rad2deg(-pi:pi/6:pi), 'FaceColor', 'r');
+            histogram(rad2deg(pasPDs),rad2deg(-pi:pi/4:pi), 'FaceColor', 'r');
              title(['PasPD dist ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
             xlabel('Angle')
             ylabel('# of units')
             set(gca,'TickDir','out', 'box', 'off')
         else
             fh5= figure;
-            [theta1, rad1] =rose2(actPDs, 18);
+            [theta1, rad1] =rose2(actPDs, 15);
             hold on
             if ~isempty(examplePDs)
                 neuron = neurons([neurons.ID] == examplePDs(2) & [neurons.chan] == examplePDs(1),:);
@@ -335,7 +360,7 @@ function [neurons] = neuronStructPlot(neuronStruct,params)
             title(['ActPD dist ',monkey, ' ', array, ' ', strjoin(tuningCondition, ' ')])
 
             fh6 = figure;
-            [theta2, rad2] = rose2red(pasPDs, 18);
+            [theta2, rad2] = rose2red(pasPDs, 15);
             hold on
             set(gca,'TickDir','out', 'box', 'off')
             if ~isempty(examplePDs)

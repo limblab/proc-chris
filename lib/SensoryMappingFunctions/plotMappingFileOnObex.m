@@ -1,4 +1,4 @@
-function fh1 = plotMappingFileOnObex(mappingFile, monkey)
+function [fh1, rfType, modType] = plotMappingFileOnObex(mappingFile, monkey)
     path1= 'C:\Users\wrest\Pictures\ReviewerResponse\CNPhotos\';
     units = unique([mappingFile.elec]);
     for i = 1:length(units)
@@ -6,8 +6,8 @@ function fh1 = plotMappingFileOnObex(mappingFile, monkey)
         obexCoords(i,:) = mapUnit(1,:).obexCoord;
         cut = sum([mapUnit.cutaneous]);
         prop = sum([mapUnit.proprio]);
-        spindle = sum([mapUnit.spindle]);
-        [~, modality(i)] = max([cut, spindle]);
+        muscle = sum([mapUnit.spindle]);
+        [~, modality(i)] = max([cut, muscle]);
         
         
         prox = sum([mapUnit.proximal]);
@@ -31,10 +31,12 @@ function fh1 = plotMappingFileOnObex(mappingFile, monkey)
     end
     modVec = {'Cutaneous', 'Spindle'};
     modColors = linspecer(2);
+    [modalityS, sortInds] = sort(modality);
+    obexCoords1 = obexCoords(sortInds, :);
     fh1 = figure;
     scatter(0, 0, 32, 'filled')
     hold on
-    gscatter(obexCoords(:,1), obexCoords(:,2), modVec(modality)')
+    gscatter(obexCoords1(:,1), obexCoords1(:,2), modVec(modalityS)')
     title([monkey, ' Modality Plot'])
     xlabel('X distance from Obex')
     ylabel('Y distance from Obex')
@@ -43,10 +45,12 @@ function fh1 = plotMappingFileOnObex(mappingFile, monkey)
 
     rfVec = {'LowLimb', 'Torso','prox', 'mid', 'distal', 'Head'};
     rfColors = linspecer(6);
+    [rfLocS, sortInds] = sort(rfLoc);
+    obexCoords1 = obexCoords(sortInds, :);
     fh2 = figure;
     scatter(0,0,32, 'filled')
     hold on
-    gscatter(obexCoords(:,1), obexCoords(:,2), rfVec(rfLoc)')
+    gscatter(obexCoords1(:,1), obexCoords1(:,2), rfVec(rfLocS)')
     title([monkey, ' RFLocation Plot'])
     xlabel('X distance from Obex')
     ylabel('Y distance from Obex')    
@@ -56,10 +60,13 @@ function fh1 = plotMappingFileOnObex(mappingFile, monkey)
     
     nucVec = {'Cuneate', 'Gracile', 'Trigeminal'};
     nucColors = linspecer(3);
+    [nucS, sortInds] =sort(nuc);
+    obexCoords1 = obexCoords(sortInds, :);
+
     fh3 = figure;
     scatter(0,0,32, 'filled')
     hold on
-    gscatter(obexCoords(:,1), obexCoords(:,2), nucVec(nuc)')
+    gscatter(obexCoords1(:,1), obexCoords1(:,2), nucVec(nucS)')
     title([monkey, ' Nucleus Plot'])
     xlabel('X distance from Obex')
     ylabel('Y distance from Obex')
@@ -74,4 +81,7 @@ function fh1 = plotMappingFileOnObex(mappingFile, monkey)
     
     saveas(fh3, [path1, monkey,'NucleusPlot.pdf'])
     saveas(fh3, [path1, monkey,'NucleusPlot.png'])
+    
+    rfType = table(obexCoords, modality', rfLoc', 'VariableNames', {'ObexCoords', 'Modality', 'RFLocation'});
+    
 end

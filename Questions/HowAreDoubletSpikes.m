@@ -10,7 +10,7 @@ for i = 1
     date = neurons.date(1);
     units = cds.units;
     units([units.ID] ==0 | [units.ID] ==255) =[];
-    for j = 31:96
+    for j = 1:96
         close all
         unitElec =units([units.chan] == j);
         figure
@@ -18,8 +18,8 @@ for i = 1
         colors = linspecer(length(unitElec));
         disp(num2str(length(unitElec)))
         for k = 1:length(unitElec)
-            waveshapes = unitElec(k).spikes.wave;
-            plot(repmat([1/30:1/30:48/30], length(waveshapes(:,1)),1)', waveshapes', 'Color',colors(k,:))
+            waveshapes = unitElec(k).spikes.wave(1:100:end,:);
+            plot(waveshapes')
         
         end
         legend('on')
@@ -27,11 +27,11 @@ for i = 1
         xlabel('Time (ms)')
         ylabel('Voltage (microvolts)')
         disp('Press button to move on')
-        if length(unitElec)>1
-        offsets = crosscorrelogram(unitElec(1).spikes.ts, unitElec(2).spikes.ts, [-.1, .1]);
-        figure
-        histogram(offsets)
-        end
+%         if length(unitElec)>1
+%         offsets = crosscorrelogram(unitElec(1).spikes.ts, unitElec(2).spikes.ts, [-.1, .1]);
+%         figure
+%         histogram(offsets)
+%         end
         pause
     end
 end

@@ -5,18 +5,19 @@ function neurons = doBootstrapSensitivity(neurons, td, params)
     numBoots = 100;
 
     if nargin > 2, assignParams(who,params); end % overwrite parameters
-    smoothWidth = 0.02;
 
     windowInds = true;
     filds = fieldnames(td);
     array = filds(contains(filds, '_spikes'),:);
     array = array{1}(1:end-7);
-    
-    td = smoothSignals(td, struct('signals', [array,'_spikes'], 'calc_rate',true, 'width', smoothWidth));    
-        
+            
     guide = td(1).([array, '_unit_guide']);
     td([td.idx_peak_speed]< [td.idx_movement_on])=[];
-    tdAct1 = trimTD(td,  windowAct(1,:), windowAct(2,:));
+    tdAct1 = td(isnan([td.idx_bumpTime]));
+    
+    tdAct1 = trimTD(tdAct1,  windowAct(1,:), windowAct(2,:));
+    
+    
     tdPas1 = td(~isnan([td.idx_bumpTime]));
     
     tdPas1 = trimTD(tdPas1,  windowPas(1,:), windowPas(2,:));

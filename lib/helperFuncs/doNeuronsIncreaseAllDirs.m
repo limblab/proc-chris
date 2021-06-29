@@ -27,6 +27,8 @@ pre = mean(cat(1,tdPre.(arr_spikes)));
 
 for i = 1:length(dirsMCN)
     tdDirCN{i} = td([td.target_direction]==dirsMCN(i));
+    tdDirCN{i} = tdDirCN{i}(isnan([tdDirCN{i}.idx_bumpTime]));
+    
     tdCNMove = trimTD(tdDirCN{i}, 'idx_movement_on', {'idx_movement_on', 30});
         
     firingCN(i,:) = mean(cat(1,tdCNMove.(arr_spikes))); 

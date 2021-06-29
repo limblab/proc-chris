@@ -104,10 +104,10 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
 %% Parameter defaults
 
     includeSpeedTerm = false;
-    cutoff = pi/4; %cutoff for significant of sinusoidal tuning
+    cutoff = pi/2; %cutoff for significant of sinusoidal tuning
     arrays= {'cuneate'}; %default arrays to look for
-    windowAct= {'idx_movement_on', 0; 'idx_movement_on',13}; %Default trimming windows active
-    windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows passive
+    windowAct= []; %Default trimming windows active
+    windowPas =[]; % Default trimming windows passive
     windowEncPSTH = {'idx_movement_on', -30;'idx_movement_on', 60};
     distribution = 'poisson'; %what distribution to use in the GLM models
     train_new_model = true; %whether to train new models (can pass in old models in params struct to save time, or don't and it'll run but pass a warning
@@ -115,13 +115,16 @@ function [processedTrial, neuronProcessed1] = compiledCOActPasAnalysis(td, param
     monkey  = td(1).monkey;
     %% Assign params
     if nargin > 1, assignParams(who,params); end % overwrite parameters
+    array = getArrayName(td);
+
     tdAct = td(strcmp({td.result},'R'));
     tdAct = tdAct(~isnan([tdAct.idx_movement_on]));
+    tdAct= tdAct(isnan([tdAct.idx_bumpTime]));
     
     tdPSTH = trimTD(tdAct, windowEncPSTH(1,:), windowEncPSTH(2,:));
     
     tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
-%     tdAct = tdAct(isnan([tdAct.bumpDir]));
+    
     tdBump = td(~isnan([td.bumpDir]) & abs([td.bumpDir]) <361); 
     tdPas = trimTD(tdBump, windowPas(1,:), windowPas(2,:));
     

@@ -9,9 +9,13 @@ function [tdOut,removeTrials] = removeBadOpensim(td, params)
     
     for i = 1:length(td)
         trial = td(i);
+        if isfield(trial, 'opensim')
         opensim = trial.opensim(:,15:53);
         joints = trial.opensim(:,1:7);
-        jointsOutOfRange = areJointsInRange(joints);
+        else
+            opensim = trial.muscle_len;
+            joints = trial.joint_ang;
+        end
         dOpensim = diff(opensim);
         mDOpensim = mean(dOpensim,2);
         unchanged = any(range(opensim) < ucThresh);
@@ -19,6 +23,7 @@ function [tdOut,removeTrials] = removeBadOpensim(td, params)
         if  unchanged |jointsOutOfRange %| any(any(abs(dOpensim) < zeroParam)) |
             removeTrials = [removeTrials,i];
         end
+        
     end
     disp(['Removing ', num2str(length(removeTrials)), ' trials due to bad opensim'])
     tdOut = td;

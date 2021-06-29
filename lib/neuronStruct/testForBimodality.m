@@ -3,21 +3,34 @@ mdl= [];
 
 if nargin > 1, assignParams(who,params); end % overwrite parameters
 
-th = neurons.pasTuningCurve.bins;
-th = th(1,:);
-curves = neurons.pasTuningCurve.velCurve;
+temp = neurons.pasTuningCurve;
+temp1 =[];
+if ~istable(temp)
+for i = 1:length(temp)
+    temp1 = [temp1; temp{i}{1}];
+end
+th = temp1.bins(1,:);
+curves = temp1.velCurve;
+else
+    th = temp(1,:).bins;
+    curves = temp.velCurve;
+end
 curves = bsxfun(@rdivide, curves, rownorm(curves)');
-if length(curves(1,:))>8
+if length(curves(1,:))==8
 elecs = neurons.chan;
 ids = neurons.ID;
 handVec = [1, .5, .2, .5, 1, .5,.2, .5];
 handVec = handVec./norm(handVec);
 handNeurons = logical(neurons.handUnit);
 handTuningCurves = curves(handNeurons,:);
-meanHandTC = mean(handTuningCurves);
+if length(handTuningCurves(:)) == 8
+    meanHandTC = handTuningCurves;
+else
+    meanHandTC = mean(handTuningCurves);
+end
 handVec2 = meanHandTC;
 
-sdFlag = logical(neurons.sameDayMap);
+sdFlag = logical(neurons.sameDayMap)  | abs(neurons.daysDiff) < 2;
 handFlag = logical(neurons.handUnit);
 nonHandFlag = ~logical(neurons.handUnit);
 handCurves = curves(sdFlag & handFlag,:);
@@ -53,4 +66,8 @@ else
     neurons.bimodProjMean = zeros(height(neurons),1);
     neurons.handLDAPred = zeros(height(neurons),1);
 end
+cutoffMan = .93;
+cutoffMean = .955;
+neurons.handPSTHMan = [neurons.bimodProjMan] < cutoffMan;
+neurons.handPSTHMean = [neurons.bimodProjMean] < cutoffMean;
 end

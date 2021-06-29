@@ -1,4 +1,4 @@
-function [ path ] = getBasicPath( monkey, date, task)
+function [ path ] = getBasicPath( monkey, date, task, resort)
 %getRawPath:
 %   Gets the path to the raw file that you want to compute the CDS for
 %   Inputs :
@@ -10,6 +10,9 @@ function [ path ] = getBasicPath( monkey, date, task)
 % Outputs:
 %   path: the path to the directory containing the raw .NEV file you want
 %   to process
+    if nargin <4
+        resort = false;
+    end
     compName = getenv('computername');
     arch = computer('arch');
     if strcmp(compName, 'FSM8M1SMD2')
@@ -27,7 +30,11 @@ function [ path ] = getBasicPath( monkey, date, task)
     elseif strcmp(compName, 'LAPTOP-DK2LKBEH')
         %% My (new) laptop
         whichComp = 'laptop2';
-        path = ['D:\MonkeyData\',task,'\',monkey,'\',date, filesep];
+        if ~resort
+            path = ['D:\MonkeyData\',task,'\',monkey,'\',date, filesep];
+        else
+            path = ['D:\MonkeyDataResort\',task,'\',monkey,'\',date, filesep];
+        end
     elseif strcmp(arch,'glnxa64')
         whichComp = 'linuxDesktop';
         path = ['/media/chris/DataDisk/MonkeyData/', task, '/', monkey, '/', date, filesep];

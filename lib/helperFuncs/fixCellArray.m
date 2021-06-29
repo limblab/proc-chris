@@ -1,5 +1,5 @@
 function neurons = fixCellArray(neurons)
-    cellArr = {'actTuningCurve', 'pasTuningCurve', 'sensMove', 'sensBump', 'firingChangeMove'};
+    cellArr = {'actTuningCurve', 'pasTuningCurve', 'sensMove', 'sensBump', 'firingChangeMove', 'cpDifAvg', 'cpDifBumpAvg'};
     neuronsTemp = table();
     fld = fieldnames(neurons);
     

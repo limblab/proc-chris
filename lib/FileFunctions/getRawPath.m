@@ -1,4 +1,4 @@
-function [ path ] = getRawPath( monkey, date, task)
+function [ path ] = getRawPath( monkey, date, task, resort)
 %getRawPath:
 %   Gets the path to the raw file that you want to compute the CDS for
 %   Inputs :
@@ -10,6 +10,9 @@ function [ path ] = getRawPath( monkey, date, task)
 % Outputs:
 %   path: the path to the directory containing the raw .NEV file you want
 %   to process
-    path = [getBasicPath(monkey, date, task), 'NEV', filesep];
+    if nargin<4
+        resort =false;
+    end
+    path = [getBasicPath(monkey, date, task, resort), 'NEV', filesep];
 end
 

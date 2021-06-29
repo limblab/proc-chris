@@ -1,7 +1,7 @@
 function [nNeg, nPos, nNoDif, proj1, statTab] = plotSensitivity(neurons, params)
     path1 = 'D:\Figures\SensitivityChecks1\';
     tuningCondition = {'isSorted'};
-    plotUnitNum = false;
+    plotUnitNum =false;
     useWindowed = true;
     useMins = false;
     minVal = 2;
@@ -110,6 +110,8 @@ function [nNeg, nPos, nNoDif, proj1, statTab] = plotSensitivity(neurons, params)
     title(['Sensitivity, Vel ', monkey])
     xlabel('Passive sensitivity')
     ylabel('Active sensitivity')
+    axis square
+    
     legend(monks)
     window = neurons(1,:).actWindow{1};
     if plotUnitNum

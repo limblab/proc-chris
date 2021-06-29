@@ -1,16 +1,17 @@
-function neurons = doBasicSensitivity(neurons, td, params)
+function [neurons, sAct, sPas] = doBasicSensitivity(neurons, td, params)
 % clear all
 windowAct = [];
 windowPas = [];
+windowInds = true;
+
+plotWindowEffectFlag = false;
+
 if nargin > 2, assignParams(who,params); end % overwrite parameters
-close all
-    smoothWidth = 0.02;
-    windowInds = true;
+
     
     filds = fieldnames(td);
     array = filds(contains(filds, '_spikes'),:);
     array = array{1}(1:end-7);
-    td = smoothSignals(td, struct('signals', [array,'_spikes'], 'calc_rate',true, 'width', smoothWidth));
 
     monkey = neurons.monkey(1);
 
@@ -19,13 +20,21 @@ close all
     else
         suffix = ['FullData', monkey];
     end
-    
     td = getSpeed(td);
     guide = td(1).([array, '_unit_guide']);
     td([td.idx_peak_speed]< [td.idx_movement_on])=[];
-    tdAct = trimTD(td, windowAct(1,:), windowAct(2,:));
     
-    tdPas = td(~isnan([td.idx_bumpTime]));
+    tdAct = td;
+    tdAct = tdAct(isnan([td.idx_bumpTime]));
+    tdAct(isnan([tdAct.(windowAct{1,1})])) =[];
+    
+    tdPas = td;
+    tdPas(isnan([tdPas.(windowPas{1,1})])) =[];
+    
+    
+    tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
+    
+    tdPas = tdPas(~isnan([tdPas.idx_bumpTime]));
     tdPas = trimTD(tdPas, windowPas(1,:), windowPas(2,:));
            
     actFR = cat(1, tdAct.([array, '_spikes']));
@@ -33,6 +42,16 @@ close all
 
     velAct = cat(1,tdAct.vel);
     velPas = cat(1, tdPas.vel);
+    
+    if plotWindowEffectFlag & windowInds
+        figure
+        scatter(velAct(:,1), velAct(:,2))
+        hold on
+        scatter(velPas(:,1), velPas(:,2))
+        title('Pre-windowing velocities')
+        set(gca,'TickDir','out', 'box', 'off')
+
+    end
     
     if windowInds
         [keepIndsAct, keepIndsPas] = getKeepInds(velAct, velPas);
@@ -44,11 +63,20 @@ close all
         pasFR =  pasFR(keepIndsPas,:);
     end
    
+    if plotWindowEffectFlag & windowInds
+        figure
+        scatter(velAct(:,1), velAct(:,2))
+        hold on
+        scatter(velPas(:,1), velPas(:,2))
+        set(gca,'TickDir','out', 'box', 'off')
+
+        title('Post-windowing velocities')
+    end
 
     sAct = zeros(length(guide),1);
     sPas = zeros(length(guide),1);   
     for i = 1:length(guide(:,1))
-        unitNum = find([guide(i,1) == neurons.chan] & [guide(i,2) == neurons.unitNum]);
+        unitNum = find([guide(i,1) == neurons.chan] & [guide(i,2) == neurons.ID]);
        
         lmAct = fitlm(velAct, actFR(:,i));
         sAct(i) = norm(lmAct.Coefficients.Estimate(2:3));

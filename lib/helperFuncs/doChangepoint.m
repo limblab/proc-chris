@@ -39,6 +39,7 @@ dirsB(mod(dirsB, 45) ~= 0) = [];
 dirs = unique([tdAct.target_direction]);
 dirs(isnan(dirs)) = [];
 dirs(mod(dirs, pi/8) ~= 0 ) = [];
+dirs = sort(dirs);
 
 cpAvg = zeros(length(tdAct(1).([array, '_unit_guide'])),length(dirs));
 cpAvgBump = zeros(length(tdPas(1).([array, '_unit_guide'])), length(dirsB));
@@ -61,15 +62,18 @@ for dirNum = 1:length(dirs)
         end
         [~, minLL] = min(ll);
         cpAvg(unit, dirNum) = temp + minLL/10;
-        if false
-            figure
+        if guide(unit,1) == 26 & guide(unit,2) == 1
+            fh1 = figure();
             plot(mFR)
             hold on
             plot([temp, temp], [0,max(mFR)])
             plot([0, temp-1], [mean1, mean1])
             plot([temp, length(mFR)], [mean2, mean2]);
             title(['CP at ', num2str(cpAvg(unit,dirNum))])
-            
+            xlabel('Time (rel to move onset')
+            ylabel('Firing Rate (Hz)')
+            set(gca,'TickDir','out', 'box', 'off')
+            saveas(fh1, ['C:\Users\wrest\Pictures\ReviewerResponse\ChangePointFigs\CPDir', num2str(dirNum), 'Unit',num2str(guide(unit,1)),'.pdf'])
         end
     end
 end

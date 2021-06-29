@@ -1,4 +1,4 @@
-function td = getTD(monkey, date, task, number, tenMs)
+function [td, path2] = getTD(monkey, date1, task, number, tenMs, resort)
     if nargin <4
         numberStr = '';
     else
@@ -11,13 +11,25 @@ function td = getTD(monkey, date, task, number, tenMs)
     else
         binStr = [num2str(tenMs), 'ms'];
     end
-    path1 = getTDSavePath(monkey, date, getGenericTask(task));
-    if isempty(numberStr)
-        load([path1, monkey, '_', task, '_', date, '_TD', binstr,'.mat']);
-        disp(['loaded',  [path1, monkey, '_', task, '_', date, '_TD', binStr, '.mat']])
+    if nargin >5
+        if isempty(resort)
+            resort = '';
+        else
+            resort = 'resort';
+        end
     else
-        load([path1, monkey, '_', task, '_', date, '_TD', numberStr,binStr, '.mat']);
-        disp(['loaded',  [path1, monkey, '_', task, '_', date, '_TD', numberStr,binStr, '.mat']])
+        resort = '';
+    end
+    
+    path1 = getTDSavePath(monkey, date1, getGenericTask(task));
+    if isempty(numberStr)
+        load([path1, monkey, '_', task, '_', date1, '_TD', binstr, resort,'.mat']);
+        disp(['loaded',  [path1, monkey, '_', task, '_', date1, '_TD', binStr, '.mat']])
+        path2 = [path1, monkey, '_', task, '_', date1, '_TD', binStr];
+    else
+        load([path1, monkey, '_', task, '_', date1, '_TD', numberStr,binStr,resort, '.mat']);
+        disp(['loaded',  [path1, monkey, '_', task, '_', date1, '_TD', numberStr,binStr,resort, '.mat']])
+        path2 = [path1, monkey, '_', task, '_', date1, '_TD', numberStr,binStr];
     end
     if exist('trial_data')
         td = trial_data;

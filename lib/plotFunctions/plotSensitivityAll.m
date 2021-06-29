@@ -1,7 +1,7 @@
 function [nNeg, nPos, nNoDif, proj1, statTab] = plotSensitivityAll(neurons, params)
     path1 = 'D:\Figures\SensitivityChecks1\';
     tuningCondition = {'isSorted'};
-    plotUnitNum = false;
+    plotUnitNum = true;
     useWindowed = true;
     useMins = false;
     minVal = 2;
@@ -78,13 +78,13 @@ function [nNeg, nPos, nNoDif, proj1, statTab] = plotSensitivityAll(neurons, para
         minFlag1 = mSAct<minVal & mSPas<minVal;
         sDif(minFlag1,:) =[];
     end
-    nNeg = sum(quantile(sDif(:,:)', .025) > 0);
-    nPos = sum(quantile(sDif(:,:)', .975) < 0);
-    nNoDif = sum(quantile(sDif(:,:)', .025) < 0 & quantile(sDif(:,:)', 0.975)>0);
+    nNeg = sum(quantile(sDif(:,:)', .05) > 0);
+    nPos = sum(quantile(sDif(:,:)', .95) < 0);
+    nNoDif = sum(quantile(sDif(:,:)', .05) < 0 & quantile(sDif(:,:)', 0.975)>0);
     
-    negFlag = quantile(sDif(:,:)', .025) > 0;
-    posFlag = quantile(sDif(:,:)', .975) < 0;
-    noDifFlag = quantile(sDif(:,:)', .025) < 0 & quantile(sDif(:,:)', 0.975)>0;
+    negFlag = quantile(sDif(:,:)', .05) > 0;
+    posFlag = quantile(sDif(:,:)', .95) < 0;
+    noDifFlag = quantile(sDif(:,:)', .05) < 0 & quantile(sDif(:,:)', 0.975)>0;
     
     
     statTab = table(negFlag', posFlag', noDifFlag', 'VariableNames', {'Potentiated', 'Attenuated', 'NoDif'});
@@ -112,6 +112,7 @@ function [nNeg, nPos, nNoDif, proj1, statTab] = plotSensitivityAll(neurons, para
     title(['Sensitivity, All covariates ', monkey])
     xlabel('Passive sensitivity')
     ylabel('Active sensitivity')
+    axis square
     legend(monks)
     window = neurons(1,:).actWindow{1};
     if plotUnitNum

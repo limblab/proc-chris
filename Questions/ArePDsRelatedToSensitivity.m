@@ -7,7 +7,7 @@ scatter(-10, 0, 32, 'k', 'filled')
 hold on
 scatter(-10, 0, 32, 'r', 'filled')
 legend('Active', 'Passive')
-for i = [1:3, 6,8,9]
+for i = [1:3, 6,7,9]
     neuronsCO = getPaperNeurons(i, windowAct, windowPas);
     params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', false, ...
     'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', false, ...
@@ -19,14 +19,17 @@ for i = [1:3, 6,8,9]
     params.useMins = false;
     neuronsFiltered = neuronStructPlot(neuronsCO, params);
 
-    scatter(neuronsFiltered.actPD.velPD,mean(neuronsFiltered.sActBoot,2), 32, 'k', 'filled','HandleVisibility','off')
-    scatter(neuronsFiltered.pasPD.velPD,mean(neuronsFiltered.sPasBoot,2), 32, 'r', 'filled','HandleVisibility','off')
+    scatter(rad2deg(neuronsFiltered.actPD.velPD),mean(neuronsFiltered.sActAllBoot,2), 32, 'k', 'filled','HandleVisibility','off')
+    scatter(rad2deg(neuronsFiltered.pasPD.velPD),mean(neuronsFiltered.sPasAllBoot,2), 32, 'r', 'filled','HandleVisibility','off')
 
 end
-xlim([-pi, pi])
+xlim([-180, 180])
+xticks([-180,-90,0, 90,180])
+yticks([0, 40,80])
+
 % ylim([0, 30])
-xlabel('Preferred Direction')
-ylabel('Sensitivity')
+xlabel('Preferred Direction (degrees)')
+ylabel('Sensitivity (Hz/std. dev)')
 set(gca,'TickDir','out', 'box', 'off')
 %%
 clear all
@@ -35,7 +38,7 @@ windowPas ={'idx_bumpTime',0; 'idx_bumpTime',13}; % Default trimming windows pas
 
 figure
 hold on
-for i = [1:3, 6,8,9]
+for i = [1:3, 6,7,9]
     neuronsCO = getPaperNeurons(i, windowAct, windowPas);
     params = struct('plotUnitNum', false,'plotModDepth', false, 'plotActVsPasPD', false, ...
     'plotAvgFiring', false, 'plotAngleDif', false, 'plotPDDists', false, ...

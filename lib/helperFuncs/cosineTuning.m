@@ -5,7 +5,9 @@ function neurons = cosineTuning(td, neurons, params)
     array= getTDfields(td, 'arrays');
     array = array{1};
     tdAct = td(~isnan([td.idx_movement_on]));
-    tdAct = trimTD(td, windowAct(1,:), windowAct(2,:));
+    tdAct = trimTD(tdAct, windowAct(1,:), windowAct(2,:));
+    tdAct = tdAct(isnan([tdAct.idx_bumpTime]));
+
     tdPas = td(~isnan([td.idx_bumpTime]));
     tdPas = trimTD(tdPas, windowPas(1,:), windowPas(2,:));
     

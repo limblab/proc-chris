@@ -6,8 +6,8 @@ monkey = 'Snap';
 numSpindles = 1000;
 doGLM = false;
 root = true;
-useBumps = true;
-onlyMapped = true;
+useBumps = false;
+onlyMapped = false;
 geometricCount = true;
 %% More setup
 date = snapDate;
@@ -88,13 +88,12 @@ if geometricCount
     forces = round(1000 * forces/sum(forces));
 end
 %% If looking at mapped only, index with sensory mappings
-if onlyMapped
-    mNamesM = mNames(mapped1);
-    mVelM = mVel(:, mapped1,:);
-    forcesM = forces(mapped1);
-else
-    forcesM = forces;
-end
+
+mNamesM = mNames(mapped1);
+mVelM = mVel(:, mapped1,:);
+forcesM = forces(mapped1);
+
+forces = forces;
 
 %% Plot the color map that I'll use later for reference
 colors = linspecer(length(dirsM));
@@ -143,51 +142,9 @@ figure
 polarhistogram(dirsM(highFRScaled), 12)
 title('Highest Firing scaled')
 
-% t122 = compareUniformity(nAll,[], dirsM(highFRScaled)');
 
-%% Now do the muscle spindle PDs in a better way
-
-powerLaw = true;
-geometricCount = true;
-poissonNoise= true;
-
-unmapForce = [unmapVec', forces'];
-mapForce = [mapped1', forcesM'];
-[uniqueMus, iC] = unique(mapped1);
-numUniqueMus = length(uniqueMus);
-mapForceUnique = mapForce(iC,:);
-
-for i = 1:length(mapForce(:,1))
- perms = randi(length(td1), length(td1), mapForce(i,2)); 
- for j = 1:mapForce(i,2)
-     hVel1 = cat(1, td1(perms(:,j)).vel);
-     os1 = cat(1, td1(perms(:,j)).opensim);
-     os1 = os1(:, 54:end);
-     os1(:,distalM) = [];
-     os1 = os1(:,mapForce(i,1));
-
-     if powerLaw
-         os1 = getPowerLaw(os1);
-     end
-     if poissonNoise
-        os1 = addPoissonSpiking(os1); 
-     end
-     if doGLM
-        b = glmfit(hVel1, os1, 'Poisson');
-        pd{i}(j) = atan2(b(3), b(2));
-     else
-         lm1 = fitlm(hVel1, os1);
-         pd{i}(j) = atan2(lm1.Coefficients.Estimate(3), lm1.Coefficients.Estimate(2));
-     end
- end
-end
-close all
-tmp = [pd{:}];
-figure
-polarhistogram(tmp, 12, 'FaceColor', 'b', 'FaceAlpha', 1)
-title('Muscle PDs for mapped muscles')
 %% Now do the muscle spindle PDs for all muscles, not just mapped ones
-
+powerLaw = true;
 unmapForce = [unmapVec', forces'];
 [uniqueMus, iC] = unique(unmapVec);
 numUniqueMus = length(uniqueMus);
@@ -200,7 +157,7 @@ end
 perms = randi(length(td1), length(td1), numBoots);
 for boot = 1:numBoots
     disp(['Bootstrap ' , num2str(boot)])
-    td2 = td1(perms(i,:));
+    td2 = td1(perms(:,i));
     for i = 1:20
         for j = 1:1000
              randMuscle = randi(length(randMuscleVec),i,1);
@@ -227,13 +184,15 @@ for boot = 1:numBoots
     end
 
 end
+%%
 close all
 tmp = [pd{:}];
 figure
 polarhistogram(tmp, 12, 'FaceColor', 'b', 'FaceAlpha', 1)
-title('Muscle PDs for mapped muscles')
+title('Muscle PDs for unmapped muscles')
 % save('D:\MonkeyData\CO\Compiled\BootstrappedSpindleCombPDs.mat','pd');
 %%
+load('D:\MonkeyData\CO\Compiled\BootstrappedSpindleCombPDs.mat')
 figure
 numBins = 18;
 count = 0;

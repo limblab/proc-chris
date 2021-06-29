@@ -9,7 +9,7 @@ smoothWidth = .02;
 windowInds = true;
 savePath = 'C:\Users\wrest\Pictures\ActPasDomainComparison\';
 
-monkey1 = 'Butter'; date1 = '20190129'; task1 = 'CO'; num1 = 2;
+monkey1 = 'Butter'; date1 = '20190128'; task1 = 'CO'; num1 = 1;
 
 monkey2 = 'Snap'; date2 = '20190829'; task2 = 'CO'; num2 = 2;
 

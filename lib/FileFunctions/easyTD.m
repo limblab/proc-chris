@@ -63,5 +63,5 @@ function td = easyTD(path, monkey, task, date)
     end
     
         
-    save([getBasePath(), getGenericTask(task), filesep, monkey, filesep, date, filesep, 'TD', filesep, monkey, '_', task, '_', date, '_TD.mat'], 'td');
+%     save([getBasePath(), getGenericTask(task), filesep, monkey, filesep, date, filesep, 'TD', filesep, monkey, '_', task, '_', date, '_TD.mat'], 'td');
 end

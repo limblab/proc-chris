@@ -2,8 +2,8 @@ function neurons = doBootstrapSensitivityAllSameZ(neurons, td, params)
 
     windowAct = [];
     windowPas = [];
-    numBoots = 10;
-    windowInds = false;
+    numBoots = [];
+    windowInds = [];
 
     if nargin > 2, assignParams(who,params); end % overwrite parameters
     smoothWidth = 0.02;

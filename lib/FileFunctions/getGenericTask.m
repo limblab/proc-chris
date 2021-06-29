@@ -9,7 +9,7 @@ function [ cdsTask ] = getGenericTask( inTask )
 %   class it falls under
     if strcmp(inTask(1:2),'CO')
         cdsTask = 'CO';
-    elseif strcmp(inTask(1:2),'RW')
+    elseif strcmp(inTask(1:2),'RW') || strcmp(inTask(1:2), 'RT')
         cdsTask = 'RW';
     elseif strcmp(inTask(1:2), 'BD')
         cdsTask = 'BD';
